@@ -10,11 +10,13 @@ export LC_ALL=C
 export PATH=$PWD/utils/:$KALDI_ROOT/tools/openfst/bin:$KALDI_ROOT/tools/sph2pipe_v2.5/:$PWD:$PATH
 
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$MAIN_ROOT/tools/chainer_ctc/ext/warp-ctc/build
-if [ -e $MAIN_ROOT/tools/venv/etc/profile.d/conda.sh ]; then
-    source $MAIN_ROOT/tools/venv/etc/profile.d/conda.sh && conda deactivate && conda activate
-else
-    source $MAIN_ROOT/tools/venv/bin/activate
-fi
+# if [ -e $MAIN_ROOT/tools/venv/etc/profile.d/conda.sh ]; then
+#     source $MAIN_ROOT/tools/venv/etc/profile.d/conda.sh && conda deactivate && conda activate
+# else
+#     source $MAIN_ROOT/tools/venv/bin/activate
+# fi
+. $MAIN_ROOT/tools/activate_python.sh
+
 export PATH=$MAIN_ROOT/utils:$MAIN_ROOT/espnet/bin:$PATH
 
 SHORTEN_BIN_PATH="$PWD/shorten-3.6.1/src"

@@ -43,17 +43,17 @@ recog_model= # set a model to be used for decoding: 'model.acc.best' or 'model.l
 
 # exp settings
 
-# tag="l13_transformer_ctc_cross_base" # tag for managing experiments.
-# train_config=conf/train_transformer_ctc.yaml
-# lm_config=conf/lm.yaml
-# decode_config=conf/decode_transformer.yaml
-# babel_langs="307 103 101 402 107 206 404 203 505"
-# babel_recog="307 103 101 402 107 206 404 203 505"
-# gp_langs="Czech Mandarin Spanish Thai"
-# gp_recog="Czech Mandarin Spanish Thai"
-# # Generate configs with local/prepare_experiment_configs.py
-# resume=
-# langs_config=
+tag="l13_transformer_ctc_cross_base" # tag for managing experiments.
+train_config=conf/train_transformer_ctconly.yaml
+lm_config=conf/lm.yaml
+decode_config=conf/decode_transformer.yaml
+babel_langs="307"
+babel_recog="307"
+gp_langs="Czech"
+gp_recog="Czech"
+# Generate configs with local/prepare_experiment_configs.py
+resume=
+langs_config=
 
 # tag="l13_transformer_ctc_signature_cross" # tag for managing experiments.
 # train_config=conf/train_transformer_signature.yaml
@@ -66,20 +66,6 @@ recog_model= # set a model to be used for decoding: 'model.acc.best' or 'model.l
 # # Generate configs with local/prepare_experiment_configs.py
 # resume=
 # langs_config=
-
-tag="l13_deepspeech_signature_cross_2" # tag for managing experiments.
-train_config=conf/train_deepspeech_signature.yaml
-lm_config=conf/lm.yaml
-decode_config=conf/decode_transformer.yaml
-babel_langs="307 103 101 402 107 206 404 203 505"
-babel_recog="307 103 101 402 107 206 404 203 505"
-gp_langs="Czech Mandarin Spanish Thai"
-gp_recog="Czech Mandarin Spanish Thai"
-# Generate configs with local/prepare_experiment_configs.py
-resume=
-langs_config=
-
-
 
 # BABEL TRAIN:
 # Amharic - 307

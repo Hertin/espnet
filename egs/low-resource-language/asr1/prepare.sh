@@ -57,8 +57,8 @@ else
   # BABEL TEST:
   # Georgian - 404
   # Lao - 203
-  babel_langs="307 103 101 402 107 206 404 203 505"
-  babel_recog="307 103 101 402 107 206 404 203 505"
+  babel_langs="307"
+  babel_recog="307"
   # babel_langs="505"
   # babel_recog="505"
   # gp_langs="Czech French Mandarin Spanish Thai"
@@ -66,7 +66,7 @@ else
   remove_lang="404,203"
 #   babel_recog="404 203"
 #   babel_recog="404 203"
-  gp_langs="Czech Mandarin Spanish Thai"
+  gp_langs="Czech"
   gp_recog="${gp_langs}"
 #  gp_langs=""
 #  gp_recog=""

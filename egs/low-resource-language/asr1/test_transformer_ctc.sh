@@ -31,7 +31,7 @@ resume=        # Resume the training from snapshot
 do_delta=false
 
 # rnnlm related
-use_lm=true
+use_lm=false
 lm_resume=        # specify a snapshot file to resume LM training
 lmtag=            # tag for managing LMs
 
@@ -92,23 +92,23 @@ lmtag=            # tag for managing LMs
 # resume=
 # langs_config=
 
-# tag="l13_transformer_ctc_cross_base" # tag for managing experiments.
-# train_config=conf/train_transformer_ctc.yaml
-# lm_config=conf/lm.yaml
-# decode_config=conf/decode_transformer.yaml
-# equal_accuracy_ratio=mix
-# babel_langs="307 103 101 402 107 206 404 203 505"
-# babel_recog="307 103 101 402 107 206 404 203 505"
-# gp_langs="Czech Mandarin Spanish Thai"
-# gp_recog="Czech Mandarin Spanish Thai"
-# ita=0.0
-# ctc_ita=0.0
-# att_ita=0.0
-# # Generate configs with local/prepare_experiment_configs.py
-# resume=
-# langs_config=
-# recog_model=model.acc.best
-# recog_function="recog"
+tag="l13_transformer_ctc_cross_base" # tag for managing experiments.
+train_config=conf/train_transformer_ctc.yaml
+lm_config=conf/lm.yaml
+decode_config=conf/decode.yaml
+equal_accuracy_ratio=mix
+babel_langs="307"
+babel_recog="307"
+gp_langs="Czech"
+gp_recog="Czech"
+ita=0.0
+ctc_ita=0.0
+att_ita=0.0
+# Generate configs with local/prepare_experiment_configs.py
+resume=
+langs_config=
+recog_model=model.loss.best
+recog_function="recog"
 
 # tag="l13_transformer_ctc_signature_cross" # tag for managing experiments.
 # train_config=conf/train_transformer_signature.yaml
