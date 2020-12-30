@@ -10,9 +10,9 @@
 
 # langs="101 102 103 104 105 106 202 203 204 205 206 207 301 302 303 304 305 306 401 402 403 505"
 # recog="107 201 307 404"
-langs="307 103 101 402 107 206 404 203 505"
+langs="307"
 # langs="307"
-recog="307 103 101 402 107 206 404 203 505"
+recog="307"
 # recog="307 103 101 402 107 206"
 # langs="505"
 # recog="505"
@@ -41,8 +41,8 @@ elif [ -n "$(hostname | grep -i hertin)" ]; then
 fi    
 # gp_langs="Czech French Mandarin Spanish Thai"
 # gp_recog="Czech French Mandarin Spanish Thai"
-gp_langs="Czech Mandarin Spanish Thai"
-gp_recog="Czech Mandarin Spanish Thai"
+gp_langs="Thai"
+gp_recog="Thai"
 # gp_langs=""
 # gp_recog=""
 mboshi_train=false
@@ -69,6 +69,12 @@ echo "Languagues: ${all_gp_langs}"
 
 # Required for stripping Unicode punctuation
 pip install --user regex
+
+# install jieba to tokenize Mandarin
+pip install jieba
+pip install paddlepaddle-tiny==1.6.1
+# install thai-segmenter to tokenize Thai
+pip install thai-segmenter
 
 # We need this to decode GP audio format
 local/install_shorten.sh
@@ -126,6 +132,8 @@ if [ "$gp_langs" ] || [ "$gp_recog" ]; then
   done
 fi
 
+
+
 # MBOSHI
 
 # if [ $mboshi_train ] || [ $mboshi_recog ]; then
@@ -155,6 +163,8 @@ fi
 # fi
 
 # Now onto Babel (and CGN)
+
+
 
 all_langs=""
 for l in $(cat <(echo ${langs}) <(echo ${recog}) | tr " " "\n" | sort -u); do

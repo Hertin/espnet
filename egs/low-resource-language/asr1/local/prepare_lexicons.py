@@ -76,6 +76,35 @@ def main():
 
     lexicon_path = data_dir / "lexicon_ipa.txt"
     with NamedTemporaryFile("w+") as f:
+        if lang == "mandarin":
+            text_bkp = text.with_suffix(".bbkp")
+            shutil.copyfile(text, text_bkp)
+            # use jieba to tokenize mandarin
+            import jieba
+            jieba.enable_paddle()
+            with text.open("w") as fout, text_bkp.open("r") as fin:
+
+                for l in fin:
+                    # remove "\n" and utterance id, and split into tokens 
+                    utt, txt = l.strip().split(' ', maxsplit=1)
+                    tokens = jieba.cut(txt, use_paddle=True)
+                    line = ' '.join([t for t in tokens if t  not in ['<', '>', '-', '─', '──', '───',]])
+                    line = ' '.join(line.replace('-', ' ').replace('<', ' ').replace('>', ' ').replace('□', ' ').replace('─', ' ').split())
+                    fout.write(f'{utt} {line}\n')
+        
+        if lang == 'thai':
+            text_bkp = text.with_suffix(".bbkp")
+            shutil.copyfile(text, text_bkp)
+            from thai_segmenter import sentence_segment, tokenize
+            with text.open("w") as fout, text_bkp.open("r") as fin:
+                for l in fin:
+                    # remove "\n" and utterance id, and split into tokens 
+                    utt, txt = l.strip().split(' ', maxsplit=1)
+                    tokens = tokenize(txt)
+                    line = ' '.join([t for t in tokens if t  not in ['-',]])
+                    # line = ' '.join(line.replace('-', ' ').split())
+                    fout.write(f'{utt} {line}\n')
+
         uniq_words = run(
             f"cut -f2- -d' ' {text} | tr ' ' '\n' | sort | uniq",
             text=True,

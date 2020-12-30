@@ -66,7 +66,7 @@ else
   remove_lang="404,203"
 #   babel_recog="404 203"
 #   babel_recog="404 203"
-  gp_langs="Czech"
+  gp_langs="Thai"
   gp_recog="${gp_langs}"
 #  gp_langs=""
 #  gp_recog=""
@@ -105,7 +105,6 @@ recog_set=${recog_set%% }
 
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
   echo "stage 0: Setting up individual languages"
-
   local/setup_languages.sh \
     --langs "${babel_langs}" \
     --recog "${babel_recog}" \
@@ -115,12 +114,11 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
     --mboshi-recog "${mboshi_recog}" \
     --gp-romanized "${gp_romanized}" \
     --ipa-transcript "${ipa_transcript}"
+  
   for x in ${train_set} ${train_dev} ${recog_set}; do
 	  sed -i.bak -e "s/$/ sox -R -t wav - -t wav - rate 16000 dither | /" data/${x}/wav.scp
   done
 fi
-
-
 
 feat_tr_dir=${dumpdir}/${train_set}/delta${do_delta}; mkdir -p ${feat_tr_dir}
 feat_dt_dir=${dumpdir}/${train_dev}/delta${do_delta}; mkdir -p ${feat_dt_dir}
@@ -215,101 +213,3 @@ if [ -z ${tag} ]; then
 else
     expname=${train_set}_${backend}_${tag}
 fi
-expdir=exp/${expname}
-mkdir -p ${expdir}
-
-
-# dtype float 16 to facilitate training speed
-# if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-#     echo "stage 3: Network Training"
-#     echo "saving in ${expdir}"
-#     ${cuda_cmd} --gpu ${ngpu} ${expdir}/train.log \
-#         asr_train_ear.py \
-#         --config ${train_config} \
-#         --ngpu ${ngpu} \
-#         --backend ${backend} \
-#         --outdir ${expdir}/results \
-#         --tensorboard-dir tensorboard/${expname} \
-#         --debugmode ${debugmode} \
-#         --dict ${dict} \
-#         --debugdir ${expdir} \
-#         --minibatches ${N} \
-#         --verbose ${verbose} \
-#         --resume ${resume} \
-#         --seed ${seed} \
-#         --train-dtype O1 \
-#         --train-json ${feat_tr_dir}/data.json \
-#         --valid-json ${feat_dt_dir}/data.json \
-#         --equal-accuracy-ratio true \
-#         --sortagrad 0 \
-#         --ita ${ita}
-# fi
-
-
-# dtype float 16 to facilitate training speed
-#if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
-#    echo "stage 3: Network Training"
-#    echo "saving in ${expdir}"
-#    ${cuda_cmd} --gpu ${ngpu} ${expdir}/train.log \
-#        asr_train.py \
-#        --config ${train_config} \
-#        --ngpu ${ngpu} \
-#        --backend ${backend} \
-#        --outdir ${expdir}/results \
-#        --tensorboard-dir tensorboard/${expname} \
-#        --debugmode ${debugmode} \
-#        --dict ${dict} \
-#        --debugdir ${expdir} \
-#        --minibatches ${N} \
-#        --verbose ${verbose} \
-#        --resume ${resume} \
-#        --seed ${seed} \
-#        --train-dtype O1 \
-#        --train-json ${feat_tr_dir}/data.json \
-#        --valid-json ${feat_dt_dir}/data.json
-#fi
-
-
-# if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
-#     echo "stage 4: Decoding"
-#     nj=16
-
-#     extra_opts=""
-#     if ${use_lm}; then
-#       extra_opts="--rnnlm ${lmexpdir}/rnnlm.model.best ${extra_opts}"
-#     fi
-
-#     pids=() # initialize pids
-#     for rtask in ${recog_set}; do
-#     (
-#         decode_dir=decode_${rtask}_$(basename ${decode_config%.*})
-#         if ${use_lm}; then
-#             decode_dir=${decode_dir}_rnnlm_${lmtag}
-#         fi
-#         feat_recog_dir=${dumpdir}/${rtask}/delta${do_delta}
-
-#         # split data
-#         splitjson.py --parts ${nj} ${feat_recog_dir}/data.json
-
-#         #### use CPU for decoding
-#         ngpu=1
-
-#         ${decode_cmd} JOB=1:${nj} ${expdir}/${decode_dir}/log/decode.JOB.log \
-#             asr_recog.py \
-#             --config ${decode_config} \
-#             --ngpu ${ngpu} \
-#             --backend ${backend} \
-#             --recog-json ${feat_recog_dir}/split${nj}utt/data.JOB.json \
-#             --result-label ${expdir}/${decode_dir}/data.JOB.json \
-#             --model ${expdir}/results/${recog_model}  \
-#             ${extra_opts}
-
-#         score_sclite.sh --wer true --nlsyms ${nlsyms} ${expdir}/${decode_dir} ${dict}
-
-#     ) &
-#     pids+=($!) # store background pids
-#     done
-#     i=0; for pid in "${pids[@]}"; do wait ${pid} || ((++i)); done
-#     [ ${i} -gt 0 ] && echo "$0: ${i} background jobs are failed." && false
-#     echo "Finished"
-# fi
