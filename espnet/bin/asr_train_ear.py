@@ -502,6 +502,13 @@ def get_parser(parser=None, required=True):
     )
     parser.add_argument("--fbank-fmin", type=float, default=0.0, help="")
     parser.add_argument("--fbank-fmax", type=float, default=None, help="")
+
+    # whether to use equal accuracy ratio
+    parser.add_argument("--equal-accuracy-ratio", type=str, default=None, help="")
+    parser.add_argument("--ita", type=float, default=0.0, help="")
+    parser.add_argument("--ctc-ita", type=float, default=0.0, help="")
+    parser.add_argument("--att-ita", type=float, default=0.0, help="")
+    parser.add_argument("--signature-map", type=str, default="data/arti_attr_mat.npy", help="")
     return parser
 
 
@@ -603,9 +610,18 @@ def main(cmd_args):
 
             train(args)
         elif args.backend == "pytorch":
-            from espnet.asr.pytorch_backend.asr import train
-
-            train(args)
+            logging.warning(f'{args.equal_accuracy_ratio}')
+            if args.equal_accuracy_ratio == 'mix':
+                from espnet.asr.pytorch_backend.asr_ear_mix import train
+                print('equal_accuracy_ratio mix train')
+                train(args)
+            elif args.equal_accuracy_ratio == 'single':
+                from espnet.asr.pytorch_backend.asr_ear import train
+                print('equal_accuracy_ratio train')
+                train(args)
+            else:
+                from espnet.asr.pytorch_backend.asr import train
+                train(args)
         else:
             raise ValueError("Only chainer and pytorch are supported.")
     else:

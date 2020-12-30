@@ -502,6 +502,9 @@ def get_parser(parser=None, required=True):
     )
     parser.add_argument("--fbank-fmin", type=float, default=0.0, help="")
     parser.add_argument("--fbank-fmax", type=float, default=None, help="")
+    parser.add_argument("--sim-mat", default=None, type=str, help="Location of similarity mat")
+    parser.add_argument("--augment-ratio", default=None, type=float, help="ratio of data to be augmented")
+
     return parser
 
 
@@ -603,9 +606,9 @@ def main(cmd_args):
 
             train(args)
         elif args.backend == "pytorch":
-            from espnet.asr.pytorch_backend.asr import train
-
+            from espnet.asr.pytorch_backend.asr_irm import train
             train(args)
+
         else:
             raise ValueError("Only chainer and pytorch are supported.")
     else:

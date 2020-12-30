@@ -2,6 +2,7 @@ from distutils.version import LooseVersion
 import logging
 
 import numpy as np
+import six
 import torch
 import torch.nn.functional as F
 
@@ -18,22 +19,19 @@ class CTC(torch.nn.Module):
     :param bool reduce: reduce the CTC loss into a scalar
     """
 
-    def __init__(self, odim, eprojs, dropout_rate, ctc_type="warpctc", reduce=True, ctc_lo=None, signature_map=None):
+    def __init__(self, odim, eprojs, dropout_rate, ctc_type="warpctc", reduce=True):
         super().__init__()
         self.dropout_rate = dropout_rate
         self.loss = None
-        if ctc_lo is not None:
-            self.ctc_lo = ctc_lo
-        else:
-            self.ctc_lo = torch.nn.Linear(eprojs, odim)
-        self.signature_map = signature_map
-        # In case of Pytorch >= 1.2.0, CTC will be always builtin
-        # self.ctc_type = (
-        #     ctc_type
-        #     if LooseVersion(torch.__version__) < LooseVersion("1.2.0")
-        #     else "builtin"
-        # )
-        self.ctc_type = ctc_type
+        self.ctc_lo = torch.nn.Linear(eprojs, odim)
+        self.probs = None  # for visualization
+
+        # In case of Pytorch >= 1.7.0, CTC will be always builtin
+        self.ctc_type = (
+            ctc_type
+            if LooseVersion(torch.__version__) < LooseVersion("1.7.0")
+            else "builtin"
+        )
         if ctc_type != self.ctc_type:
             logging.warning(f"CTC was set to {self.ctc_type} due to PyTorch version.")
         if self.ctc_type == "builtin":
@@ -59,15 +57,14 @@ class CTC(torch.nn.Module):
             with torch.backends.cudnn.flags(deterministic=True):
                 loss = self.ctc_loss(th_pred, th_target, th_ilen, th_olen)
             # Batch-size average
-
             loss = loss / th_pred.size(1)
             return loss
         elif self.ctc_type == "warpctc":
-            return self.ctc_loss(th_pred, th_target, th_ilen, th_olen).view(-1)
+            return self.ctc_loss(th_pred, th_target, th_ilen, th_olen)
         else:
             raise NotImplementedError
 
-    def forward(self, hs_pad, hlens, ys_pad, w=None):
+    def forward(self, hs_pad, hlens, ys_pad):
         """CTC forward
 
         :param torch.Tensor hs_pad: batch of padded hidden state sequences (B, Tmax, D)
@@ -77,7 +74,6 @@ class CTC(torch.nn.Module):
         :return: ctc loss value
         :rtype: torch.Tensor
         """
-        # logging.warning(f"CTC [forward ys_pad] {ys_pad.size()}")
         # TODO(kan-bayashi): need to make more smart way
         ys = [y[y != self.ignore_id] for y in ys_pad]  # parse padded ys
 
@@ -87,12 +83,7 @@ class CTC(torch.nn.Module):
 
         # zero padding for hs
         ys_hat = self.ctc_lo(F.dropout(hs_pad, p=self.dropout_rate))
-        if self.signature_map is not None:
-            self.signature_map = self.signature_map.to(hs_pad.device)
-            ys_hat = torch.matmul(ys_hat, self.signature_map.unsqueeze(0))
 
-        if w is not None:
-            ys_hat = ys_hat * w
         # zero padding for ys
         ys_true = torch.cat(ys).cpu().int()  # batch x olen
 
@@ -118,8 +109,8 @@ class CTC(torch.nn.Module):
             ys_hat = ys_hat.to(dtype=torch.float32)
         if self.ctc_type == "builtin":
             # use GPU when using the cuDNN implementation
-            ys_true = to_device(self, ys_true)
-        self.loss = to_device(self, self.loss_fn(ys_hat, ys_true, hlens, olens)).to(
+            ys_true = to_device(hs_pad, ys_true)
+        self.loss = to_device(hs_pad, self.loss_fn(ys_hat, ys_true, hlens, olens)).to(
             dtype=dtype
         )
         if self.reduce:
@@ -131,6 +122,16 @@ class CTC(torch.nn.Module):
 
         return self.loss
 
+    def softmax(self, hs_pad):
+        """softmax of frame activations
+
+        :param torch.Tensor hs_pad: 3d tensor (B, Tmax, eprojs)
+        :return: log softmax applied 3d tensor (B, Tmax, odim)
+        :rtype: torch.Tensor
+        """
+        self.probs = F.softmax(self.ctc_lo(hs_pad), dim=2)
+        return self.probs
+
     def log_softmax(self, hs_pad):
         """log_softmax of frame activations
 
@@ -138,19 +139,7 @@ class CTC(torch.nn.Module):
         :return: log softmax applied 3d tensor (B, Tmax, odim)
         :rtype: torch.Tensor
         """
-        # logging.warning(f'CTC [hs_pad] {torch.mean(hs_pad)} {hs_pad} ')
-        # logging.error(f"CTC LOSS LOG SOFTMAX")
-        # logging.warning(f'CTC [hs_pad] {hs_pad.size()} ')
-        
-        ys_hat = self.ctc_lo(hs_pad)
-        
-        if self.signature_map is not None:
-            self.signature_map = self.signature_map.to(hs_pad.device)
-            logging.warning(f'CTC [signature map] Yes')
-            ys_hat = torch.matmul(ys_hat, self.signature_map.unsqueeze(0))
-        # else:
-            # logging.warning(f'CTC [signature map] None')
-        return F.log_softmax(ys_hat, dim=2)
+        return F.log_softmax(self.ctc_lo(hs_pad), dim=2)
 
     def argmax(self, hs_pad):
         """argmax of frame activations
@@ -160,6 +149,71 @@ class CTC(torch.nn.Module):
         :rtype: torch.Tensor
         """
         return torch.argmax(self.ctc_lo(hs_pad), dim=2)
+
+    def forced_align(self, h, y, blank_id=0):
+        """forced alignment.
+
+        :param torch.Tensor h: hidden state sequence, 2d tensor (T, D)
+        :param torch.Tensor y: id sequence tensor 1d tensor (L)
+        :param int y: blank symbol index
+        :return: best alignment results
+        :rtype: list
+        """
+
+        def interpolate_blank(label, blank_id=0):
+            """Insert blank token between every two label token."""
+            label = np.expand_dims(label, 1)
+            blanks = np.zeros((label.shape[0], 1), dtype=np.int64) + blank_id
+            label = np.concatenate([blanks, label], axis=1)
+            label = label.reshape(-1)
+            label = np.append(label, label[0])
+            return label
+
+        lpz = self.log_softmax(h)
+        lpz = lpz.squeeze(0)
+
+        y_int = interpolate_blank(y, blank_id)
+
+        logdelta = np.zeros((lpz.size(0), len(y_int))) - 100000000000.0  # log of zero
+        state_path = (
+            np.zeros((lpz.size(0), len(y_int)), dtype=np.int16) - 1
+        )  # state path
+
+        logdelta[0, 0] = lpz[0][y_int[0]]
+        logdelta[0, 1] = lpz[0][y_int[1]]
+
+        for t in six.moves.range(1, lpz.size(0)):
+            for s in six.moves.range(len(y_int)):
+                if y_int[s] == blank_id or s < 2 or y_int[s] == y_int[s - 2]:
+                    candidates = np.array([logdelta[t - 1, s], logdelta[t - 1, s - 1]])
+                    prev_state = [s, s - 1]
+                else:
+                    candidates = np.array(
+                        [
+                            logdelta[t - 1, s],
+                            logdelta[t - 1, s - 1],
+                            logdelta[t - 1, s - 2],
+                        ]
+                    )
+                    prev_state = [s, s - 1, s - 2]
+                logdelta[t, s] = np.max(candidates) + lpz[t][y_int[s]]
+                state_path[t, s] = prev_state[np.argmax(candidates)]
+
+        state_seq = -1 * np.ones((lpz.size(0), 1), dtype=np.int16)
+
+        candidates = np.array(
+            [logdelta[-1, len(y_int) - 1], logdelta[-1, len(y_int) - 2]]
+        )
+        prev_state = [len(y_int) - 1, len(y_int) - 2]
+        state_seq[-1] = prev_state[np.argmax(candidates)]
+        for t in six.moves.range(lpz.size(0) - 2, -1, -1):
+            state_seq[t] = state_path[t + 1, state_seq[t + 1, 0]]
+
+        output_state_seq = []
+        for t in six.moves.range(0, lpz.size(0)):
+            output_state_seq.append(y_int[state_seq[t, 0]])
+
+        return output_state_seq
 
 
 def ctc_for(args, odim, reduce=True):
