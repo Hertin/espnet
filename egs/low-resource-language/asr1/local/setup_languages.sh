@@ -185,7 +185,7 @@ for l in ${all_langs}; do
       cd data/${l}
       ./local/cgn_data_prep.sh $cgn $lang $comp || exit 1;
       cd ${cwd}
-      for split in train eval; do
+      for split in train dev eval; do
         data_dir=data/${l}/data/${split}_${l}
         python3 local/normalize_or_remove_text.py --strip-punctuation --remove-digit-utts $data_dir/text
         python3 local/prepare_lexicons.py \
