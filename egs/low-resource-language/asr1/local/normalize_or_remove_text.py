@@ -25,7 +25,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--strip-punctuation",
-    action="store_true",
+    action="store_false",
     help="Strip punctuation from utterances.",
 )
 
@@ -37,7 +37,11 @@ remove_counter = 0
 norm_counter = 0
 with open(text_path) as fin, open(norm_text_path, "w") as fout:
     for idx, line in enumerate(fin):
-        key, text = line.strip().split(maxsplit=1)
+        ret = line.strip().split(sep = " ", maxsplit=1)
+        if len(ret) == 1:
+            continue
+        key = ret[0]
+        text = ret[1].strip()
         if args.remove_digit_utts and number.search(text):
             remove_counter += 1
             continue

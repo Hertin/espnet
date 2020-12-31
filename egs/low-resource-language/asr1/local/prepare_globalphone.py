@@ -41,7 +41,7 @@ def main():
         "--languages",
         nargs="+",
         required=True,
-        default="Arabic Czech French Korean Mandarin Spanish Thai".split(),
+        default="Arabic Czech Croatian French Korean Mandarin Spanish Thai Bulgarian Hausa Polish German Turkish Portuguese".split(),
         help="Which languages to prepare.",
     )
     parser.add_argument(
@@ -79,24 +79,38 @@ def main():
 
 CODE2LANG = {
     "S0192": "Arabic",
+    "S0195": "Croatian",
     "S0196": "Czech",
     "S0197": "French",
+    "S0198": "German",
     "S0200": "Korean",
+    "S0201": "Portuguese",
+    "S0206": "Turkish",
     "S0193": "Mandarin",
     "S0203": "Spanish",
     "S0321": "Thai",
+    "S0319": "Bulgarian",
+    "S0320": "Polish",
+    "S0347":"Hausa"
 }
 
 LANG2CODE = {l: c for c, l in CODE2LANG.items()}
 
 LANG2ENCODING = {
     "Arabic": "ISO8859-1",
+    "Bulgarian": "UTF-8",
     "Czech": "ISO8859-2",
+    "Croatian": "ISO8859-2",
     "French": "ISO8859-2",
+    "German": "ISO8859-1",
+    "Hausa": "UTF-8",
     "Korean": "EUC-KR",
     "Mandarin": "GB18030",
+    "Portuguese": "ISO8859-1",
+    "Polish": "UTF-8",
     "Spanish": "ISO8859-1",
     "Thai": "TIS-620",
+    "Turkish": "ISO8859-9"
 }
 
 LANG2SPLIT = {
@@ -116,6 +130,14 @@ LANG2SPLIT = {
     "Czech": {  # TODO: docs say TBA... I'm putting 9 speakers in each set
         "dev": [1, 2, 3, 4, 5, 6, 7, 8, 9],
         "eval": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+    },
+    "Croatian": {  # as docs
+        "eval": [37,38,39,40,41,42,43,44,45,47],
+        "dev": [33,34,35,36,46,48,51,53,54,57],
+    },
+    "German": {
+        "eval": [18, 20, 21, 26, 29, 73],
+        "dev": [1,2,3,4,8,10],
     },
     "French": {
         "dev": [
@@ -142,9 +164,29 @@ LANG2SPLIT = {
         "dev": list(range(1, 11)),  # 1-10
         "eval": list(range(11, 19)),  # 11-18
     },
+    "Polish": {  # TODO: docs say TBA... I'm putting 9 speakers in each set
+        "dev": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "eval": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+    },
+    "Bulgarian": {
+        "eval": [40,59,63,68,95,109,110],
+        "dev": [51,55,58,84,90,100,106],
+    },
+    "Hausa": {
+        "eval": [2, 14, 25, 28, 30, 52, 53, 62, 70, 88],
+        "dev": [18, 31, 34, 38, 46, 47, 50, 55,58, 72],
+    },
+    "Turkish": {
+        "eval": [25, 30, 31, 32, 37, 39, 41, 46, 56, 63],
+        "dev": [1,2,3,5,6,8,13,14,15,16,19],
+    },
     "Thai": {
         "dev": [23, 25, 28, 37, 45, 61, 73, 85],
         "eval": list(range(101, 109)),  # 101-108
+    },
+    "Portuguese": {
+        "dev": [64,65,72,73,102,103,104,132,133,134],
+        "eval": [135,136,137,138,139,142,143,312],
     },
 }
 

@@ -57,19 +57,12 @@ else
   # BABEL TEST:
   # Georgian - 404
   # Lao - 203
-  babel_langs="307"
-  babel_recog="307"
-  # babel_langs="505"
-  # babel_recog="505"
-  # gp_langs="Czech French Mandarin Spanish Thai"
-  # gp_recog="Czech French Mandarin Spanish Thai"
-  remove_lang="404,203"
-#   babel_recog="404 203"
-#   babel_recog="404 203"
-  gp_langs="Thai"
-  gp_recog="${gp_langs}"
-#  gp_langs=""
-#  gp_recog=""
+  babel_langs="103 107 206 307 402 404 505"
+  babel_dev="103 107 206 307 402 404 505"
+  babel_recog="101 203"
+  gp_langs="Czech French Mandarin Thai Bulgarian German Turkish Portuguese"
+  gp_dev="Czech French Mandarin Thai Bulgarian German Turkish Portuguese"
+  gp_recog="Spanish Polish Croatian"
   mboshi_train=false
   mboshi_recog=false
   gp_romanized=false
@@ -107,14 +100,16 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
   echo "stage 0: Setting up individual languages"
   local/setup_languages.sh \
     --langs "${babel_langs}" \
+    --dev "${babel_dev}" \
     --recog "${babel_recog}" \
     --gp-langs "${gp_langs}" \
+    --gp-dev "${gp_dev}" \
     --gp-recog "${gp_recog}" \
     --mboshi-train "${mboshi_train}" \
     --mboshi-recog "${mboshi_recog}" \
     --gp-romanized "${gp_romanized}" \
     --ipa-transcript "${ipa_transcript}"
-  
+
   for x in ${train_set} ${train_dev} ${recog_set}; do
 	  sed -i.bak -e "s/$/ sox -R -t wav - -t wav - rate 16000 dither | /" data/${x}/wav.scp
   done
@@ -188,7 +183,7 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
 
     # python retain_lang_feat.py --retain-langs=${retain_lang} --feat-path ${feat_tr_dir}/feats.scp
     # python retain_lang_feat.py --retain-langs=${retain_lang} --feat-path ${feat_dt_dir}/feats.scp
-    
+
     echo "make json files"
     data2json.sh --feat ${feat_tr_dir}/feats.scp --nlsyms ${nlsyms} \
          data/${train_set} ${dict} > ${feat_tr_dir}/data.json

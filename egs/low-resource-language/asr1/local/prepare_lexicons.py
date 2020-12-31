@@ -157,6 +157,8 @@ class G2PModelProvider:
     def get(self, lang: str) -> str:
         if lang == "arabic":
             lang = "gulf-arabic"  # TODO: confirm that GlobalPhone has Gulf Arabic
+        if lang == "cantonese":
+            lang = "yue"  # TODO: confirm that GlobalPhone has Gulf Arabic
         return self.lang2fst[lang]
 
 

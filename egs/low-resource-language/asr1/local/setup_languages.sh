@@ -8,24 +8,21 @@
 . ./cmd.sh
 . ./conf/lang.conf
 
-# langs="101 102 103 104 105 106 202 203 204 205 206 207 301 302 303 304 305 306 401 402 403 505"
-# recog="107 201 307 404"
-langs="307"
-# langs="307"
-recog="307"
-# recog="307 103 101 402 107 206"
-# langs="505"
-# recog="505"
+langs="101 102 103 104 105 106 107 201 202 203 204 205 206 207 301 302 303 304 305 306 307 401 402 403 404 505"
+dev="101 102 103 104 105 106 107 201 202 203 204 205 206 207 301 302 303 304 305 306 307 401 402 403 404 505"
+recog="101 102 103 104 105 106 107 201 202 203 204 205 206 207 301 302 303 304 305 306 307 401 402 403 404 505"
+
 FLP=true
 
 # CGN related setups
-cgn=/home/hertin/Workplace/SST/dataset/CGN_2.0.3/		# point this to CGN
 if [ -n "$(hostname | grep -i clsp)" ]; then
     cgn=/export/cgn/CGN_2.0.3/;
 elif [ -n "$(hostname | grep -i ifp)" ]; then
     cgn=/ws/ifp-53_1/hasegawa/data/cgn/CGN_2.0.3/;
 elif [ -n "$(hostname | grep -i hertin)" ]; then
     cgn=/home/hertin/Workplace/SST/dataset/CGN_2.0.3/;
+elif [ -n "$(hostname | grep -i jerome)" ]; then
+    cgn=/home/jerome/Documents/20151207_CGN_2_0_3/CGN_2.0.3/;
 fi
 
 lang="nl" # pointed to folder for Dutch spoken in Netherlands #
@@ -38,12 +35,12 @@ elif [ -n "$(hostname | grep -i ifp)" ]; then
     gp_path="/ws/ifp-53_1/hasegawa/data/globalphone/data"
 elif [ -n "$(hostname | grep -i hertin)" ]; then
     gp_path="/home/hertin/Workplace/SST/dataset/babel"
-fi    
-# gp_langs="Czech French Mandarin Spanish Thai"
-# gp_recog="Czech French Mandarin Spanish Thai"
-gp_langs="Thai"
-gp_recog="Thai"
-# gp_langs=""
+elif [ -n "$(hostname | grep -i jerome)" ]; then
+    gp_path="/mnt/ssd/globalphone/"
+fi
+gp_langs="Arabic Czech Croatian French Korean Mandarin Spanish Thai Bulgarian Hausa Polish German Turkish Portuguese"
+gp_dev="Arabic Czech Croatian French Korean Mandarin Spanish Thai Bulgarian Hausa Polish German Turkish Portuguese"
+gp_recog="Arabic Czech Croatian French Korean Mandarin Spanish Thai Bulgarian Hausa Polish German Turkish Portuguese"
 # gp_recog=""
 mboshi_train=false
 mboshi_recog=false
@@ -57,7 +54,7 @@ set -euo pipefail
 echo "Stage 0: Prepare GlobalPhone"
 
 all_gp_langs=""
-for l in $(cat <(echo ${gp_langs}) <(echo ${gp_recog}) | tr " " "\n" | sort -u); do
+for l in $(cat <(echo ${gp_langs}) <(echo ${gp_dev}) <(echo ${gp_recog}) | tr " " "\n" | sort -u); do
   all_gp_langs="${l} ${all_gp_langs}"
 done
 all_gp_langs=${all_gp_langs%% }
@@ -96,9 +93,7 @@ if $ipa_transcript; then
   ipa_transcript_opt="--substitute-text"
 fi
 echo "ipa_transcript_opt ${ipa_transcript_opt}"
-# GLOBALPHONE
-
-if [ "$gp_langs" ] || [ "$gp_recog" ]; then
+if [ "$gp_langs" ] || [ "$gp_dev" ] || [ "$gp_recog" ]; then
   extra_args=
   if $gp_romanized; then
     extra_args="--romanized"
@@ -109,7 +104,7 @@ if [ "$gp_langs" ] || [ "$gp_recog" ]; then
     --languages $all_gp_langs \
     $extra_args
 
-  for l in $gp_langs; do
+  for l in $all_gp_langs; do
     for split in train dev eval; do
       data_dir=data/GlobalPhone/gp_${l}_${split}
       echo "(GP) Processing: $data_dir"
@@ -132,54 +127,23 @@ if [ "$gp_langs" ] || [ "$gp_recog" ]; then
   done
 fi
 
-
-
-# MBOSHI
-
-# if [ $mboshi_train ] || [ $mboshi_recog ]; then
-#   if [ ! -d ../mboshi-french-parallel-corpus ]; then
-#     git clone https://github.com/besacier/mboshi-french-parallel-corpus ../mboshi-french-parallel-corpus
-#   fi
-#   python3 local/prepare_mboshi.py \
-#     "$(readlink -f ../mboshi-french-parallel-corpus)" \
-#     data/Mboshi
-#   for split in train dev eval; do
-#     data_dir=data/Mboshi/Mboshi_${split}
-#     utils/fix_data_dir.sh $data_dir
-#     utils/utt2spk_to_spk2utt.pl $data_dir/utt2spk > $data_dir/spk2utt
-#     local/get_utt2dur.sh --read-entire-file true $data_dir
-#     python3 -c "for line in open('$data_dir/utt2dur'):
-#     utt, dur = line.strip().split()
-#     print(f'{utt} {utt} 0.00 {float(dur):.2f}')
-# " > $data_dir/segments
-#     python3 local/prepare_lexicons.py \
-#       --lang Mboshi \
-#       --data-dir $data_dir \
-#       --g2p-models-dir g2ps/models \
-#       $ipa_transcript_opt
-#     utils/fix_data_dir.sh $data_dir
-#     utils/validate_data_dir.sh --no-feats $data_dir
-#   done
-# fi
-
 # Now onto Babel (and CGN)
 
-
-
 all_langs=""
-for l in $(cat <(echo ${langs}) <(echo ${recog}) | tr " " "\n" | sort -u); do
+for l in $(cat <(echo ${langs}) <(echo ${dev}) <(echo ${recog}) | tr " " "\n" | sort -u); do
   all_langs="${l} ${all_langs}"
 done
 all_langs=${all_langs%% }
 
-# Save top-level directory
-cwd=$(utils/make_absolute.sh $(pwd))
 echo "Stage 1: Setup Language Specific Directories"
 
 echo " --------------------------------------------"
 echo "Languagues: ${all_langs}"
 
-if [ "$langs" ] || [ "$recog" ]; then
+# Save top-level directory
+cwd=$(utils/make_absolute.sh $(pwd))
+
+if [ "$langs" ] || [ "$dev" ] || [ "$recog" ]; then
   # Basic directory prep
   for l in ${all_langs}; do
     [ -d data/${l} ] || mkdir -p data/${l}
@@ -218,11 +182,10 @@ for l in ${all_langs}; do
     ) &
   else
     (
-      echo $l
       cd data/${l}
       ./local/cgn_data_prep.sh $cgn $lang $comp || exit 1;
       cd ${cwd}
-      for split in train dev eval; do
+      for split in train eval; do
         data_dir=data/${l}/data/${split}_${l}
         python3 local/normalize_or_remove_text.py --strip-punctuation --remove-digit-utts $data_dir/text
         python3 local/prepare_lexicons.py \
@@ -244,25 +207,21 @@ train_dirs=""
 dev_dirs=""
 for l in ${langs}; do
   train_dirs="data/${l}/data/train_${l} ${train_dirs}"
+  # train_dirs="data/${l}/data/eval_${l} ${train_dirs}"
 done
 
-for l in ${recog}; do
+for l in ${dev}; do
   dev_dirs="data/${l}/data/dev_${l} ${dev_dirs}"
 done
 
-# Now Mboshi
-
-# if [ $mboshi_train ]; then
-#   train_dirs="data/Mboshi/Mboshi_train ${train_dirs}"
-#   dev_dirs="data/Mboshi/Mboshi_dev ${dev_dirs}"
-# fi
 
 # Now add GlobalPhone
 for l in ${gp_langs}; do
   train_dirs="data/GlobalPhone/gp_${l}_train ${train_dirs}"
+  # train_dirs="data/GlobalPhone/gp_${l}_eval ${train_dirs}"
 done
 
-for l in ${gp_recog}; do
+for l in ${gp_dev}; do
   dev_dirs="data/GlobalPhone/gp_${l}_dev ${dev_dirs}"
 done
 
@@ -275,13 +234,6 @@ for l in ${recog}; do
     ln -s ${cwd}/data/${l}/data/eval_${l} $target_link
   fi
 done
-
-# if [ $mboshi_recog ]; then
-#   target_link="data/Mboshi/Mboshi_eval"
-#   if [ ! -L $target_link ]; then
-#     ln -s ${cwd}/data/Mboshi/Mboshi_eval $target_link
-#   fi
-# fi
 
 for l in ${gp_recog}; do
   target_link=${cwd}/data/eval_${l}

@@ -55,7 +55,7 @@ def get_parser():
         "--trans_type",
         "-t",
         type=str,
-        default="char",
+        default="phn",
         choices=["char", "phn"],
         help="""Transcript type. char/phn. e.g., for TIMIT FADG0_SI1279 -
                         If trans_type is char,
