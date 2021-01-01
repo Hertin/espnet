@@ -137,6 +137,7 @@ def main():
             for line in fin:
                 utt_id, *words = line.strip().split()
                 phonetic = ["".join(lexicon.transcribe(w)).strip() for w in words]
+                   
                 if not phonetic:
                     continue  # skip empty utterances
                 print(utt_id, *[w for w in phonetic if w], file=fout)
@@ -204,7 +205,7 @@ class LanguageNetLexicon:
         phonetic = [
             p
             for p in phonetic
-            if p and is_not_special_marker_or_special_markers_are_ok(p)
+            if p and is_not_special_marker_or_special_markers_are_ok(p) and (not p.isdigit())
         ]
         return phonetic
 

@@ -12,6 +12,7 @@ number = re.compile(r"\d")
 # https://stackoverflow.com/questions/21209024/
 # python-regex-remove-all-punctuation-except-hyphen-for-unicode-string
 punctuation = re.compile(r"[^\P{P}-]+")
+mand_punc = "！？｡。＂＃＄％＆＇（）＊＋，－／：；＜＝＞＠［＼］＾＿｀｛｜｝～｟｠｢｣､、〃》「」『』【】〔〕〖〗〘〙〚〛〜〝〞〟〰〾〿–—‘’‛“”„‟…‧﹏."
 
 parser = ArgumentParser(
     description="Filter a Kaldi text file to remove utterances with numbers."
@@ -42,11 +43,24 @@ with open(text_path) as fin, open(norm_text_path, "w") as fout:
             continue
         key = ret[0]
         text = ret[1].strip()
+        if 'GlobalPhone' in str(text_path):
+            text = text.replace('<', '')
+            text = text.replace('->', '')
+            text = text.replace('>', '')
+        else:
+            text = text.replace('<hes>','')
+            text = text.replace('<noise>','')
+            text = text.replace('<silence>','')
+            text = text.replace('<unk>','')
+            text = text.replace('<v-noise>','')
+        text = re.sub(' +', ' ', text)
         if args.remove_digit_utts and number.search(text):
             remove_counter += 1
             continue
         if args.strip_punctuation:
             text = punctuation.sub("", text)
+            if 'Mandarin' in str(text_path):
+                text = re.sub(r"[%s]+" % mand_punc, "", text)
             norm_counter += 1
         print(key, text, file=fout)
 
