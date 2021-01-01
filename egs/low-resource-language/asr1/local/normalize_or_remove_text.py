@@ -48,6 +48,18 @@ with open(text_path) as fin, open(norm_text_path, "w") as fout:
             text = text.replace('<', '')
             text = text.replace('->', '')
             text = text.replace('>', '')
+            if 'French' in str(text_path):
+                if 'ë' in text:
+                    remove_counter += 1
+                    continue
+                if 'ü' in text:
+                    remove_counter += 1
+                    continue
+                text = text.replace('ď','ï')
+                text = text.replace('ę', 'ê')  
+                text = text.replace('ů', 'u')
+                text = text.replace('ű','û')
+ 
         else:
             text = text.replace('<hes>','')
             text = text.replace('<noise>','')
