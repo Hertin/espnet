@@ -26,7 +26,7 @@ parser.add_argument(
 )
 parser.add_argument(
     "--strip-punctuation",
-    action="store_false",
+    action="store_true",
     help="Strip punctuation from utterances.",
 )
 
@@ -36,6 +36,7 @@ norm_text_path = text_path.with_suffix(".norm")
 
 remove_counter = 0
 norm_counter = 0
+print(args.remove_digit_utts, args.strip_punctuation,file=stderr)
 with open(text_path) as fin, open(norm_text_path, "w") as fout:
     for idx, line in enumerate(fin):
         ret = line.strip().split(sep = " ", maxsplit=1)
