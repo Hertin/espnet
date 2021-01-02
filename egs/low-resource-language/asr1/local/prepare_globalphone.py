@@ -262,6 +262,9 @@ def parse_gp(path: Path, lang: str, romanized=True):
             if not transcript:
                 logger.warning(f"Empty utterance {utt_id} in file {p}")
                 continue
+            if utt_id == 'BG095_UTT029' or utt_id == 'PO058_UTT016' or utt_id == 'PO058_UTT018':
+                # hard code invalid file
+                continue
             text[utt_id] = transcript
             utt2spk[utt_id] = spk_id
             num_utts[spk_id] += 1
