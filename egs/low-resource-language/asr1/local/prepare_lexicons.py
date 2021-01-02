@@ -38,6 +38,27 @@ BABELCODE2LANG = {
 }
 
 
+def remove_special_chars(tokens, token_special):
+    tokens = [t.strip() for t in tokens if t.strip() not in ['<', '>', '-', '-', '─', '─', '──', '───', '□', '"', '(', ')', ',', '.', '/', '?', '&', '○']]
+    ret_tokens = []
+    for t in tokens:
+        if '_' in t: # if token contains '_' or '-' (A_B-C)
+            t = t.replace('_', ' ') # convert it to without-hypen version (A_B-C => ABC)
+            token_special[t] = t
+        if t.startswith('───'):
+            token_converted = t.replace('───', '')
+            token_special[token_converted] = t
+        elif t.startswith('─'):
+            token_converted = t.replace('─', '')
+            token_special[token_converted] = t
+        elif t.startswith('-'):
+            token_converted = t.replace('-', '')
+            token_special[token_converted] = t
+        else:
+            token_converted = t # no conversion
+        ret_tokens.append(token_converted)
+    return ret_tokens, token_special
+
 def main():
     # noinspection PyTypeChecker
     parser = ArgumentParser(
@@ -75,36 +96,44 @@ def main():
         raise ValueError(f"No such file: {text}")
 
     lexicon_path = data_dir / "lexicon_ipa.txt"
+    
+    token_special = {}
     with NamedTemporaryFile("w+") as f:
+        text_bbkp = text.with_suffix(".bbkp")
+        shutil.copyfile(text, text_bbkp)
         if lang == "mandarin":
-            text_bkp = text.with_suffix(".bbkp")
-            shutil.copyfile(text, text_bkp)
             # use jieba to tokenize mandarin
             import jieba
             jieba.enable_paddle()
-            with text.open("w") as fout, text_bkp.open("r") as fin:
-
+            with text.open("w") as fout, text_bbkp.open("r") as fin:
                 for l in fin:
                     # remove "\n" and utterance id, and split into tokens 
                     utt, txt = l.strip().split(' ', maxsplit=1)
                     tokens = jieba.cut(txt, use_paddle=True)
-                    line = ' '.join([t for t in tokens if t  not in ['<', '>', '-', '─', '──', '───',]])
-                    line = ' '.join(line.replace('-', ' ').replace('<', ' ').replace('>', ' ').replace('□', ' ').replace('─', ' ').split())
+                    tokens, token_special = remove_special_chars(tokens, token_special)
+                    line = ' '.join(tokens)
+                    if not line: continue
                     fout.write(f'{utt} {line}\n')
-        
-        if lang == 'thai':
-            text_bkp = text.with_suffix(".bbkp")
-            shutil.copyfile(text, text_bkp)
+        elif lang == 'thai':
             from thai_segmenter import sentence_segment, tokenize
-            with text.open("w") as fout, text_bkp.open("r") as fin:
+            with text.open("w") as fout, text_bbkp.open("r") as fin:
                 for l in fin:
                     # remove "\n" and utterance id, and split into tokens 
                     utt, txt = l.strip().split(' ', maxsplit=1)
                     tokens = tokenize(txt)
-                    line = ' '.join([t for t in tokens if t  not in ['-',]])
-                    # line = ' '.join(line.replace('-', ' ').split())
+                    tokens, token_special = remove_special_chars(tokens, token_special)
+                    line = ' '.join(tokens)
+                    if not line: continue
                     fout.write(f'{utt} {line}\n')
-
+        else: # other languages; Assume already tokenized
+            with text.open("w") as fout, text_bbkp.open("r") as fin:
+                for l in fin:
+                    # remove "\n" and utterance id, and split into tokens 
+                    utt, *tokens = l.strip().split()
+                    tokens, token_special = remove_special_chars(tokens, token_special)
+                    line = ' '.join(tokens)
+                    if not line: continue
+                    fout.write(f'{utt} {line}\n')
         uniq_words = run(
             f"cut -f2- -d' ' {text} | tr ' ' '\n' | sort | uniq",
             text=True,
@@ -114,19 +143,49 @@ def main():
         ).stdout
         f.write(uniq_words)
         f.flush()
-        lexicon_path.write_text(
-            run(
-                [
-                    "phonetisaurus-g2pfst",
-                    f"--model={g2p_models_dir / model}",
-                    f"--wordlist={f.name}",
-                ],
-                check=True,
-                text=True,
-                stdout=PIPE,
-                stderr=DEVNULL,
-            ).stdout
-        )
+
+        lexicon_str = run(
+            [
+                "phonetisaurus-g2pfst",
+                f"--model={g2p_models_dir / model}",
+                f"--wordlist={f.name}",
+            ],
+            check=True,
+            text=True,
+            stdout=PIPE,
+            stderr=DEVNULL,
+        ).stdout
+
+        lines = []
+        # problematic_lines = []
+        
+        print('#'*100, lang, data_dir, 'special tokens')
+        with open(data_dir / 'token_special.txt', 'w') as fsp:
+            for to, torig in token_special.items():
+                print(f'{to}:\t{torig}')
+                fsp.write(f'{to}:\t{torig}\n')
+            print('='*100)
+            fsp.write(f'='*100+'\n')
+            for i, l in enumerate(lexicon_str.strip().split('\n')):
+                try:
+                    token, score, phones = l.split('\t')
+                except:
+                    fsp.write(f'Exception at line {i} {l}')
+                    print(i, 'l', l,  l.split('\t'))
+                    continue
+                if not phones: continue
+                if token in token_special:
+                    fsp.write(f'{token_special[token]} {l}')
+                    print(f'{token_special[token]} {l}')
+
+                # remove lines that are empty
+                lines.append(l)
+        lexicon_str = '\n'.join(lines) + '\n'
+
+        print('@'*100, lang, data_dir, 'lexicon')
+        print(lexicon_str[:1000])
+
+        lexicon_path.write_text(lexicon_str)
 
         lexicon = LanguageNetLexicon.from_path(lexicon_path)
 
@@ -137,9 +196,8 @@ def main():
             for line in fin:
                 utt_id, *words = line.strip().split()
                 phonetic = ["".join(lexicon.transcribe(w)).strip() for w in words]
-                   
-                if not phonetic:
-                    continue  # skip empty utterances
+                if not phonetic or '' in phonetic:
+                    continue  # skip empty utterances and utterances that have empty word
                 print(utt_id, *[w for w in phonetic if w], file=fout)
 
         if args.substitute_text:
