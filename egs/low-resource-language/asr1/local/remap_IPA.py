@@ -90,6 +90,8 @@ with open(text_path) as fin, open(norm_text_path, "w") as fout:
             text = text.replace('∅','')
         if 'Portuguese' in str(text_path):
             text = text.replace('∅','')
+        if 'Turkish' in str(text_path):
+            text = text.replace('*','')
         if 'Portuguese' in str(text_path):
             text = text.replace('ã','a  ̃')
         if 'Portuguese' in str(text_path):

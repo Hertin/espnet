@@ -38,6 +38,9 @@ train_config=conf/train_li10_dptr_add_el6_eu512.yaml
 lm_config=conf/lm.yaml
 decode_config=conf/decode_li10_dptr_nosignature.yaml
 
+exp_tag="cross-lingual"
+
+
 # Generate configs with local/prepare_experiment_configs.py
 langs_config=
 remove_lang=
@@ -99,6 +102,7 @@ recog_set=${recog_set%% }
 if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
   echo "stage 0: Setting up individual languages"
   local/setup_languages.sh \
+    --exp_tag "${exp_tag}" \
     --langs "${babel_langs}" \
     --dev "${babel_dev}" \
     --recog "${babel_recog}" \
@@ -122,6 +126,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
   fbankdir=fbank
   # Generate the fbank features; by default 80-dimensional fbanks with pitch on each frame
   for x in ${train_set} ${train_dev} ${recog_set}; do
+    utils/fix_data_dir.sh data/${x}
     steps/make_fbank_pitch.sh --cmd "$train_cmd" --nj 30 --write_utt2num_frames true \
         data/${x} exp/make_fbank/${x} ${fbankdir}
     utils/fix_data_dir.sh data/${x}
