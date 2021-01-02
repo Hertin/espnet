@@ -7,7 +7,7 @@
 . ./path.sh
 . ./cmd.sh
 . ./conf/lang.conf
-
+exp_tag="cross-lingual"
 langs="101 102 103 104 105 106 107 201 202 203 204 205 206 207 301 302 303 304 305 306 307 401 402 403 404 505"
 dev="101 102 103 104 105 106 107 201 202 203 204 205 206 207 301 302 303 304 305 306 307 401 402 403 404 505"
 recog="101 102 103 104 105 106 107 201 202 203 204 205 206 207 301 302 303 304 305 306 307 401 402 403 404 505"
@@ -121,6 +121,7 @@ if [ "$gp_langs" ] || [ "$gp_dev" ] || [ "$gp_recog" ]; then
         --data-dir $data_dir \
         --g2p-models-dir g2ps/models \
         $ipa_transcript_opt
+      python3 local/remap_IPA.py --data-dir $data_dir --text $data_dir/text  --expname $exp_tag
       utils/fix_data_dir.sh $data_dir
       utils/validate_data_dir.sh --no-feats $data_dir
     done
@@ -177,6 +178,7 @@ for l in ${all_langs}; do
           --data-dir $data_dir \
           --g2p-models-dir g2ps/models \
           $ipa_transcript_opt
+        python3 local/remap_IPA.py --data-dir $data_dir --text $data_dir/text --expname $exp_tag
         utils/fix_data_dir.sh $data_dir
       done
     ) &
@@ -193,6 +195,7 @@ for l in ${all_langs}; do
           --data-dir $data_dir \
           --g2p-models-dir g2ps/models \
           $ipa_transcript_opt
+        python3 local/remap_IPA.py --data-dir $data_dir --text $data_dir/text --expname $exp_tag
         utils/fix_data_dir.sh $data_dir
       done
     )&
