@@ -3,7 +3,7 @@
 elayers: 12
 eunits: 2048
 # decoder related
-dlayers: 6
+dlayers: 1
 dunits: 2048
 # attention related
 adim: 256
@@ -14,6 +14,7 @@ mtlalpha: 1
 ctc-type: warpctc
 # label smoothing
 lsm-weight: 0.1
+report-cer: true
 
 # minibatch related
 batch-size: 32
