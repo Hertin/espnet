@@ -38,154 +38,20 @@ lmtag=            # tag for managing LMs
 # decoding parameter
 # recog_model=model.loss.best # set a model to be used for decoding: 'model.acc.best' or 'model.loss.best'
 
-# tag="l14_transformer_dist" # tag for managing experiments.
-# train_config=conf/train_transformer_dist.yaml
-# lm_config=conf/lm.yaml
-# decode_config=conf/decode_transformer_dist.yaml
-# equal_accuracy_ratio=mix
-# babel_langs="103 101 107 206 404 203 505  402 307"
-# babel_recog="103 101 107 206 404 203 505 402 307"
-# gp_langs="Czech Mandarin Spanish Thai"
-# gp_recog="Czech Mandarin Spanish Thai"
-# ita=0.0
-# ctc_ita=0.1
-# att_ita=0.0
-# # recog_function="recog_transformer"
-# recog_function="recog"
-# # Generate configs with local/prepare_experiment_configs.py
-# langs_config=
-# resume=
-# recog_model=model.acc.best
-
-# tag="l14_transformer_sim" # tag for managing experiments.
-# train_config=conf/train_transformer_sim.yaml
-# lm_config=conf/lm.yaml
-# decode_config=conf/decode_transformer.yaml
-# equal_accuracy_ratio=mix
-# babel_langs="103 101 107 206 404 203 505 402 307"
-# babel_recog="103 101 107 206 404 203 505 402 307"
-# gp_langs="Czech Mandarin Spanish Thai"
-# gp_recog="Czech Mandarin Spanish Thai"
-# ita=0.0
-# ctc_ita=0.0
-# att_ita=0.0
-# # recog_function="recog_transformer"
-# recog_function="recog"
-# # Generate configs with local/prepare_experiment_configs.py
-# langs_config=
-# resume=
-# recog_model=model.acc.best
-
-# tag="l13_transformer_sim_0.5" # tag for managing experiments.
-# train_config=conf/train_transformer_sim_lsm0.5.yaml
-# lm_config=conf/lm.yaml
-# decode_config=conf/decode_transformer.yaml
-# equal_accuracy_ratio=mix
-# babel_langs="307 103 101 402 107 206 404 203 505"
-# babel_recog="307 103 101 402 107 206 404 203 505"
-# gp_langs="Czech Mandarin Spanish Thai"
-# gp_recog="Czech Mandarin Spanish Thai"
-# ita=0.0
-# ctc_ita=0.0
-# att_ita=0.0
-# # Generate configs with local/prepare_experiment_configs.py
-# resume=
-# langs_config=
-
-tag="l13_transformer_ctc_cross_base" # tag for managing experiments.
+tag="loo_french_transformer_ctc" # tag for managing experiments.
 train_config=conf/train_transformer_ctc.yaml
 lm_config=conf/lm.yaml
 decode_config=conf/decode.yaml
-equal_accuracy_ratio=mix
-babel_langs="307"
-babel_recog="307"
-gp_langs="Czech"
-gp_recog="Czech"
-ita=0.0
-ctc_ita=0.0
-att_ita=0.0
+babel_recog="101 203"
+gp_recog="Spanish Polish Croatian"
 # Generate configs with local/prepare_experiment_configs.py
 resume=
 langs_config=
 recog_model=model.loss.best
-recog_function="recog"
-
-# tag="l13_transformer_ctc_signature_cross" # tag for managing experiments.
-# train_config=conf/train_transformer_signature.yaml
-# lm_config=conf/lm.yaml
-# decode_config=conf/decode_transformer_ctc.yaml
-# babel_langs="307 103 101 402 107 206 404 203 505"
-# babel_recog="307 103 101 402 107 206 404 203 505"
-# gp_langs="Czech Mandarin Spanish Thai"
-# gp_recog="Czech Mandarin Spanish Thai"
-# # Generate configs with local/prepare_experiment_configs.py
-# resume=
-# langs_config=
-# recog_model=snapshot.ep.27
-# recog_function="recog_transformer"
-
-
-# tag="l13_transformer_cross" # tag for managing experiments.
-# train_config=conf/train_transformer.yaml
-# lm_config=conf/lm.yaml
-# decode_config=conf/decode_transformer.yaml
-# equal_accuracy_ratio=mix
-# babel_langs="307 103 101 402 107 206 404 203 505"
-# babel_recog="307 103 101 402 107 206 404 203 505"
-# gp_langs="Czech Mandarin Spanish Thai"
-# gp_recog="Czech Mandarin Spanish Thai"
-# ita=0.0
-# ctc_ita=0.0
-# att_ita=0.0
-# # Generate configs with local/prepare_experiment_configs.py
-# resume=
-# langs_config=
-# recog_model=model.acc.best
-
-# tag="l13_transformer" # tag for managing experiments.
-# train_config=conf/train_transformer.yaml
-# lm_config=conf/lm.yaml
-# decode_config=conf/decode_transformer.yaml
-# equal_accuracy_ratio=mix
-# babel_langs="307 103 101 402 107 206 404 203 505"
-# babel_recog="307 103 101 402 107 206 404 203 505"
-# gp_langs="Czech Mandarin Spanish Thai"
-# gp_recog="Czech Mandarin Spanish Thai"
-# ita=0.0
-# ctc_ita=0.0
-# att_ita=0.0
-# # Generate configs with local/prepare_experiment_configs.py
-# resume=
-# langs_config=
-
-
-
-# tag="l14_transformer_dist_cross" # tag for managing experiments.
-# train_config=conf/train_transformer_dist.yaml
-# lm_config=conf/lm.yaml
-# decode_config=conf/decode_transformer_dist.yaml
-# equal_accuracy_ratio=mix
-# babel_langs="307 103 101 402 107 206 404 203 505"
-# babel_recog="307 103 101 402 107 206 404 203 505"
-# gp_langs="Czech Mandarin Spanish Thai"
-# gp_recog="Czech Mandarin Spanish Thai"
-# # babel_langs=""
-# # babel_recog=""
-# # gp_langs="Mandarin"
-# # gp_recog="Mandarin"
-# ita=0.0
-# ctc_ita=0.1
-# att_ita=0.0
-# # recog_function="recog_transformer"
-# recog_function="recog"
-# # Generate configs with local/prepare_experiment_configs.py
-# langs_config=
-# resume=
-# recog_model=model.acc.best
+recog_function="recog_ctconly"
 
 # Generate configs with local/prepare_experiment_configs.py
 langs_config=
-retain_langs="307,103,101,402,107,206"
 
 mboshi_train=false
 mboshi_recog=false

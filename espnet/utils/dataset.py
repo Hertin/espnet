@@ -181,7 +181,7 @@ class TransformDatasetEar(torch.utils.data.Dataset):
         # logging.warning(f'TransformDatasetEar __getitem__ {idx} {xs_pad.size(), ilens.size(), ys_pad.size()}') 
         return lang, xs_pad, ilens, ys_pad
 
-class TransformDatasetEarEval(torch.utils.data.Dataset):
+class TransformDatasetEval(torch.utils.data.Dataset):
     """Transform Dataset for pytorch backend.
 
     Args:

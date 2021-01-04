@@ -78,7 +78,8 @@ class E2E(ASRInterface, torch.nn.Module):
 
         # fill missing arguments for compatibility
         args = fill_missing_args(args, self.add_arguments)
-
+        self.args = args
+        
         if args.transformer_attn_dropout_rate is None:
             args.transformer_attn_dropout_rate = args.dropout_rate
         self.encoder = Encoder(
@@ -255,6 +256,25 @@ class E2E(ASRInterface, torch.nn.Module):
         x = torch.as_tensor(x).unsqueeze(0)
         enc_output, _ = self.encoder(x, None)
         return enc_output.squeeze(0)
+
+    def encode_with_length(self, xs_pad, ilens):
+        """Encode acoustic features.
+
+        :param ndarray x: source acoustic feature (T, D)
+        :return: encoder outputs
+        :rtype: torch.Tensor
+        """
+        self.eval()
+        xs_pad = xs_pad[:, : max(ilens)]  # for data parallel
+        src_mask = make_non_pad_mask(ilens.tolist()).to(xs_pad.device).unsqueeze(-2)
+        hs_pad, hs_mask = self.encoder(xs_pad, src_mask)
+        self.hs_pad = hs_pad
+        # x = torch.as_tensor(x).unsqueeze(0)
+        # enc_output, hs_mask = self.encoder(x, None)
+        batch_size = xs_pad.size(0)
+        hs_len = hs_mask.view(batch_size, -1).sum(1)
+        log_probs = self.ctc.log_softmax(hs_pad.view(batch_size, -1, self.adim))
+        return log_probs, hs_len
 
     def recognize(self, x, recog_args, char_list=None, rnnlm=None, use_jit=False):
         """Recognize input speech.

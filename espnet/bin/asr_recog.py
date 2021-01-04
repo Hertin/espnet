@@ -338,29 +338,15 @@ def main(args):
             if args.num_encs == 1:
                 # Experimental API that supports custom LMs
                 if args.api == "v2":
-                    if 'nosignature' in args.config:
-                        from espnet.asr.pytorch_backend.recog import recog_ctc
-
-                        recog_ctc(args)
-                    elif 'signature' in args.config:
-                        from espnet.asr.pytorch_backend.recog import recog_deepspeech
-
-                        recog_deepspeech(args)
-                    elif args.recog_function == 'recog':
+                    if args.recog_function == 'recog_ctconly':
+                        from espnet.asr.pytorch_backend.recog import recog_ctconly
+                        recog_ctconly(args)
+                    elif args.recog_function == 'recog_v2':
                         from espnet.asr.pytorch_backend.recog import recog_v2
 
                         recog_v2(args)
-                    elif args.recog_function == 'recog_transformer':
-                        from espnet.asr.pytorch_backend.recog import recog_transformer
-
-                        recog_transformer(args)
-                    elif args.recog_function == 'recog_deepspeech':
-                        from espnet.asr.pytorch_backend.recog import recog_deepspeech
-                        recog_deepspeech(args)
                     else:
-                        from espnet.asr.pytorch_backend.recog import recog_v2
-
-                        recog_v2(args)
+                        raise NotImplementedError('Recognition function is not found.')
                 else:
                     from espnet.asr.pytorch_backend.asr import recog
 
