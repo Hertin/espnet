@@ -11,7 +11,7 @@ import logging
 import numpy as np
 import string
 import re
-
+import torch.nn.functional as F
 
 
 class TransformDataset(torch.utils.data.Dataset):
@@ -89,11 +89,28 @@ class TransformDataset(torch.utils.data.Dataset):
 
     """
 
-    def __init__(self, data, transform):
+    def __init__(self, data, transform, utt=False, lang=False, lang_onehot=False, num_langs=None):
         """Init function."""
         super(TransformDataset).__init__()
         self.data = data
         self.transform = transform
+        self.utt, self.lang, self.lang_onehot = utt, lang, lang_onehot
+        if self.lang or self.lang_onehot:
+            self.all_lang = set()
+            for dt in self.data:
+                self.all_lang.update([self.get_lang(d) for d in dt])
+            from collections import Counter
+            
+            cnt = Counter()
+            for dt in self.data:
+                cnt.update([d[0].split('_')[0] for d in dt])
+            # logging.warning(f'TransformDataset [counter] {cnt}')
+
+            self.num_langs = num_langs
+            self.lang2int = {l: i for i, l in enumerate(sorted(self.all_lang))}
+            self.int2lang = {i: l for l, i in self.lang2int.items()}
+            logging.warning(f'TransformDatasetEar [all_lang] {self.all_lang}')
+            logging.warning(f'TransformDatasetEar [lang2int] {self.lang2int}')
         # logging.warning(f'TransformDataset {data[0]}')
         # logging.warning(f'TransformDataset {self.transform}')
 
@@ -101,17 +118,51 @@ class TransformDataset(torch.utils.data.Dataset):
         """Len function."""
         return len(self.data)
 
+    def get_lang(self, d):
+        s = d[0].split('_')[0]
+        s = re.sub(r'\d+$', '', s.split('-')[0]) if re.search('[a-zA-Z]+', s) else s
+        return s
+
     def __getitem__(self, idx):
         """[] operator."""
-        xs_pad, ilens, ys_pad = self.transform(self.data[idx])
-        # logging.warning(f"TransformDataset __getitem__ {idx} [total] {len(self.data[idx])}")
-        # logging.warning(f"TransformDataset __getitem__ {idx} [0] {self.data[idx][0]}")
-        # logging.warning(f"TransformDataset __getitem__ {idx} [1] {self.data[idx][1]}")
-        # logging.warning(f"TransformDataset __getitem__ {idx} [lang] {[d[0].split('_')[0] for d in self.data[idx]]}")
-        # logging.warning(f'TransformDataset __getitem__ {idx} {xs_pad.size(), ilens.size(), ys_pad.size()}')
-        # raise 
-        return self.transform(self.data[idx])
+        return self.custom_transform(self.data[idx])
+        # items = []
+        # xs_pad, ilens, ys_pad = self.transform(self.data[idx])
+        # if self.lang:
+        #     langs = torch.from_numpy(np.array([
+        #             self.lang2int[self.get_lang(d)] for d in self.data[idx]
+        #     ])).long()
+        #     items.append(langs)
+        # if self.lang_onehot:
+        #     langs_onehot = F.one_hot(torch.from_numpy(np.array([
+        #         self.lang2int[self.get_lang(d)] for d in self.data[idx]
+        #     ])), num_classes=self.num_langs).float()
+        #     items.append(langs_onehot)
+        # if self.utt:
+        #     utts = [d[0] for d in self.data[idx]]
+        #     items.append(utts)
+        # items.extend([xs_pad, ilens, ys_pad])
 
+        # return tuple(items)
+
+    def custom_transform(self, data):
+        items = []
+        xs_pad, ilens, ys_pad = self.transform(data)
+        if self.lang:
+            langs = torch.from_numpy(np.array([
+                    self.lang2int[self.get_lang(d)] for d in data
+            ])).long()
+            items.append(langs)
+        if self.lang_onehot:
+            langs_onehot = F.one_hot(torch.from_numpy(np.array([
+                self.lang2int[self.get_lang(d)] for d in data
+            ])), num_classes=self.num_langs).float()
+            items.append(langs_onehot)
+        if self.utt:
+            utts = [d[0] for d in data]
+            items.append(utts)
+        items.extend([xs_pad, ilens, ys_pad])
+        return tuple(items)
 
 class TransformDatasetEar(torch.utils.data.Dataset):
     """Transform Dataset for pytorch backend.

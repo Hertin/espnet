@@ -7,6 +7,7 @@
 """Multi-Head Attention layer definition."""
 
 import math
+import logging
 
 import numpy
 import torch
@@ -23,16 +24,17 @@ class MultiHeadedAttention(nn.Module):
 
     """
 
-    def __init__(self, n_head, n_feat, dropout_rate):
+    def __init__(self, n_head, n_feat, dropout_rate, n_input_feat=None):
         """Construct an MultiHeadedAttention object."""
         super(MultiHeadedAttention, self).__init__()
         assert n_feat % n_head == 0
+        n_input_feat = n_feat if n_input_feat is None else n_input_feat
         # We assume d_v always equals d_k
         self.d_k = n_feat // n_head
         self.h = n_head
-        self.linear_q = nn.Linear(n_feat, n_feat)
-        self.linear_k = nn.Linear(n_feat, n_feat)
-        self.linear_v = nn.Linear(n_feat, n_feat)
+        self.linear_q = nn.Linear(n_input_feat, n_feat)
+        self.linear_k = nn.Linear(n_input_feat, n_feat)
+        self.linear_v = nn.Linear(n_input_feat, n_feat)
         self.linear_out = nn.Linear(n_feat, n_feat)
         self.attn = None
         self.dropout = nn.Dropout(p=dropout_rate)
@@ -81,7 +83,7 @@ class MultiHeadedAttention(nn.Module):
         max_value = float(
             numpy.finfo(torch.tensor(0, dtype=scores.dtype).numpy().dtype).max
         )
-        scores = torch.clamp(scores, min_value, max_value)
+        scores = torch.clamp(scores, min_value+1, max_value-1)
         if mask is not None:
             mask = mask.unsqueeze(1).eq(0)  # (batch, 1, *, time2)
             scores = scores.masked_fill(mask, min_value)

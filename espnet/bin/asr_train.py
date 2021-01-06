@@ -514,6 +514,9 @@ def get_parser(parser=None, required=True):
     )
     parser.add_argument("--fbank-fmin", type=float, default=0.0, help="")
     parser.add_argument("--fbank-fmax", type=float, default=None, help="")
+
+    parser.add_argument("--num-langs", type=int, default=None, help="")
+    parser.add_argument("--experiment", type=str, default=None, help="")
     return parser
 
 
@@ -614,16 +617,23 @@ def main(cmd_args):
     logging.info("backend = " + args.backend)
 
     if args.num_spkrs == 1:
-        if args.backend == "chainer":
-            from espnet.asr.chainer_backend.asr import train
+        if args.experiment is None: # default
+            if args.backend == "chainer":
+                from espnet.asr.chainer_backend.asr import train
 
-            train(args)
-        elif args.backend == "pytorch":
-            from espnet.asr.pytorch_backend.asr import train
+                train(args)
+            elif args.backend == "pytorch":
+                from espnet.asr.pytorch_backend.asr import train
 
+                train(args)
+            else:
+                raise ValueError("Only chainer and pytorch are supported.")
+        elif args.experiment == 'Multilingual_LangAware':
+            logging.warning(f'Running experiment {args.experiment}')
+            from espnet.asr.pytorch_backend.asr_multlang import train
             train(args)
         else:
-            raise ValueError("Only chainer and pytorch are supported.")
+            raise ValueError("Experiment not Implemented")
     else:
         # FIXME(kamo): Support --model-module
         if args.backend == "pytorch":

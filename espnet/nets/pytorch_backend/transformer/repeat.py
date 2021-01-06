@@ -31,3 +31,28 @@ def repeat(N, fn):
 
     """
     return MultiSequential(*[fn(n) for n in range(N)])
+
+
+class MultiSequentialLang(torch.nn.Sequential):
+    """Multi-input multi-output torch.nn.Sequential."""
+
+    def forward(self, *args):
+        langs, x = args[0], args[1:]
+        """Repeat."""
+        for m in self:
+            x = m(langs, *x)
+        return x
+
+
+def repeat_lang(N, fn):
+    """Repeat module N times.
+
+    Args:
+        N (int): Number of repeat time.
+        fn (Callable): Function to generate module.
+
+    Returns:
+        MultiSequential: Repeated model instance.
+
+    """
+    return MultiSequentialLang(*[fn(n) for n in range(N)])

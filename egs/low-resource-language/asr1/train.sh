@@ -42,30 +42,24 @@ lmtag=            # tag for managing LMs
 recog_model= # set a model to be used for decoding: 'model.acc.best' or 'model.loss.best'
 
 # exp settings
+# multilingual phoneme recognition without language label
+# tag="multi_transformer_ctc_c" # tag for managing experiments.
+# train_config=conf/train_transformer_ctconly.yaml
+# lm_config=conf/lm.yaml
+# decode_config=conf/decode.yaml
+# # Generate configs with local/prepare_experiment_configs.py
+# resume=exp/train_pytorch_multi_transformer_ctc/results/snapshot.ep.21
+# langs_config=
 
-tag="l13_transformer_ctc_cross_base" # tag for managing experiments.
-train_config=conf/train_transformer_ctconly.yaml
+# multilingual phoneme recognition with language label
+tag="multilang_transformer_ctc" # tag for managing experiments.
+experiment="Multilingual_LangAware"
+train_config=conf/train_transformer_ctconly_multlang.yaml
 lm_config=conf/lm.yaml
-decode_config=conf/decode_transformer.yaml
-babel_langs="307"
-babel_recog="307"
-gp_langs="Czech"
-gp_recog="Czech"
+decode_config=conf/decode.yaml
 # Generate configs with local/prepare_experiment_configs.py
 resume=
 langs_config=
-
-# tag="l13_transformer_ctc_signature_cross" # tag for managing experiments.
-# train_config=conf/train_transformer_signature.yaml
-# lm_config=conf/lm.yaml
-# decode_config=conf/decode_transformer.yaml
-# babel_langs="307 103 101 402 107 206 404 203 505"
-# babel_recog="307 103 101 402 107 206 404 203 505"
-# gp_langs="Czech Mandarin Spanish Thai"
-# gp_recog="Czech Mandarin Spanish Thai"
-# # Generate configs with local/prepare_experiment_configs.py
-# resume=
-# langs_config=
 
 # BABEL TRAIN:
 # Amharic - 307
@@ -106,11 +100,6 @@ fi
 # lm_train_set=data/local/train.txt
 # lm_valid_set=data/local/dev.txt
 
-recog_set=""
-for l in ${babel_recog} ${gp_recog}; do
-  recog_set="eval_${l} ${recog_set}"
-done
-recog_set=${recog_set%% }
 
 feat_tr_dir=${dumpdir}/${train_set}/delta${do_delta}; mkdir -p ${feat_tr_dir}
 feat_dt_dir=${dumpdir}/${train_dev}/delta${do_delta}; mkdir -p ${feat_dt_dir}
@@ -152,5 +141,6 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --train-dtype O1 \
         --train-json ${feat_tr_dir}/data.json \
         --valid-json ${feat_dt_dir}/data.json \
-        --sortagrad 0
+        --sortagrad 0 \
+        --experiment ${experiment}
 fi

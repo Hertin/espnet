@@ -32,7 +32,7 @@ from espnet.nets.pytorch_backend.transformer.attention import (
 from espnet.nets.pytorch_backend.transformer.decoder import Decoder
 from espnet.nets.pytorch_backend.transformer.dynamic_conv import DynamicConvolution
 from espnet.nets.pytorch_backend.transformer.dynamic_conv2d import DynamicConvolution2D
-from espnet.nets.pytorch_backend.transformer.encoder import Encoder
+from espnet.nets.pytorch_backend.transformer.encoder import EncoderLang as Encoder
 from espnet.nets.pytorch_backend.transformer.initializer import initialize
 from espnet.nets.pytorch_backend.transformer.label_smoothing_loss import (
     LabelSmoothingLoss,  # noqa: H301
@@ -96,6 +96,7 @@ class E2E(ASRInterface, torch.nn.Module):
             dropout_rate=args.dropout_rate,
             positional_dropout_rate=args.dropout_rate,
             attention_dropout_rate=args.transformer_attn_dropout_rate,
+            num_langs=args.num_langs
         )
         if args.mtlalpha < 1:
             self.decoder = Decoder(
@@ -157,7 +158,7 @@ class E2E(ASRInterface, torch.nn.Module):
         # initialize parameters
         initialize(self, args.transformer_init)
 
-    def forward(self, xs_pad, ilens, ys_pad):
+    def forward(self, langs, xs_pad, ilens, ys_pad):
         """E2E forward.
 
         :param torch.Tensor xs_pad: batch of padded source sequences (B, Tmax, idim)
@@ -177,7 +178,7 @@ class E2E(ASRInterface, torch.nn.Module):
         # 1. forward encoder
         xs_pad = xs_pad[:, : max(ilens)]  # for data parallel
         src_mask = make_non_pad_mask(ilens.tolist()).to(xs_pad.device).unsqueeze(-2)
-        hs_pad, hs_mask = self.encoder(xs_pad, src_mask)
+        hs_pad, hs_mask = self.encoder(langs, xs_pad, src_mask)
 
         # remove utterances that are shorter than target
         hs_len = hs_mask.view(batch_size, -1).sum(1)
@@ -185,7 +186,7 @@ class E2E(ASRInterface, torch.nn.Module):
         # hs_pad, hs_mask, hs_len, ys_pad = hs_pad[valid_indices], hs_mask[valid_indices], hs_len[valid_indices], ys_pad[valid_indices]
         invalid = False
         if torch.sum(valid_indices) < batch_size:
-            # logging.warning(f'Remove {batch_size - torch.sum(valid_indices)} invalid utterances')
+        #     # logging.warning(f'Remove {batch_size - torch.sum(valid_indices)} invalid utterances')
             invalid = True
         # batch_size = hs_pad.size(0) # update new batch_size
 
@@ -224,9 +225,6 @@ class E2E(ASRInterface, torch.nn.Module):
             loss_ctc_nonreduce[invalid_idx] = 0
             # loss_ctc_nonreduce[torch.isnan(loss_ctc_nonreduce)] = 0
             loss_ctc = loss_ctc_nonreduce[loss_ctc_nonreduce!=0].mean() if any(loss_ctc_nonreduce!=0) else 0
-
-            
-
             if not self.training and self.error_calculator is not None:
                 ys_hat = self.ctc.argmax(hs_pad.view(batch_size, -1, self.adim)).data
                 cer_ctc = self.error_calculator(ys_hat.cpu(), ys_pad.cpu(), is_ctc=True)
@@ -522,7 +520,7 @@ class E2E(ASRInterface, torch.nn.Module):
         )
         return nbest_hyps
 
-    def calculate_all_attentions(self, xs_pad, ilens, ys_pad):
+    def calculate_all_attentions(self, langs, xs_pad, ilens, ys_pad):
         """E2E attention calculation.
 
         :param torch.Tensor xs_pad: batch of padded input sequences (B, Tmax, idim)
@@ -533,7 +531,7 @@ class E2E(ASRInterface, torch.nn.Module):
         """
         self.eval()
         with torch.no_grad():
-            self.forward(xs_pad, ilens, ys_pad)
+            self.forward(langs, xs_pad, ilens, ys_pad)
         ret = dict()
         for name, m in self.named_modules():
             if (
@@ -548,7 +546,7 @@ class E2E(ASRInterface, torch.nn.Module):
         self.train()
         return ret
 
-    def calculate_all_ctc_probs(self, xs_pad, ilens, ys_pad):
+    def calculate_all_ctc_probs(self, langs, xs_pad, ilens, ys_pad):
         """E2E CTC probability calculation.
 
         :param torch.Tensor xs_pad: batch of padded input sequences (B, Tmax)
@@ -563,7 +561,7 @@ class E2E(ASRInterface, torch.nn.Module):
 
         self.eval()
         with torch.no_grad():
-            self.forward(xs_pad, ilens, ys_pad)
+            self.forward(langs, xs_pad, ilens, ys_pad)
         for name, m in self.named_modules():
             if isinstance(m, CTC) and m.probs is not None:
                 ret = m.probs.cpu().numpy()
