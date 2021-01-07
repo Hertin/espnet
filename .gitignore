@@ -70,3 +70,5 @@ tools/open_jtalk*
 tools/pyopenjtalk*
 tools/sctk*
 tools/sph2pipe*
+tools/activate_python.sh
+
