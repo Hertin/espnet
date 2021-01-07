@@ -19,9 +19,9 @@ from espnet.utils.deterministic_utils import set_deterministic_pytorch
 from espnet.utils.io_utils import LoadInputsAndTargets
 
 from espnet.utils.dataset import ChainerDataLoader
-from espnet.utils.dataset import TransformDatasetEval
+from espnet.utils.dataset import TransformDataset
 from espnet.utils.training.batchfy import make_batchset
-from espnet.asr.pytorch_backend.asr import CustomConverterEval, _recursive_to
+from espnet.asr.pytorch_backend.asr import CustomConverter, _recursive_to
 from ctcdecode import CTCBeamDecoder
 
 def recog_v2(args):
@@ -132,6 +132,15 @@ def recog_v2(args):
     # read json data
     with open(args.recog_json, "rb") as f:
         js = json.load(f)["utts"]
+
+    from collections import OrderedDict
+    import random
+    random.seed(args.seed)
+    items = list(js.items())
+    random.shuffle(items)
+    js = OrderedDict(items[:2])
+    logging.warning(f'data json len {len(js)}')
+
     new_js = {}
     with torch.no_grad():
         for idx, name in enumerate(js.keys(), 1):
@@ -211,7 +220,7 @@ def recog_ctconly(args):
 
     use_sortagrad = model.args.sortagrad == -1 or model.args.sortagrad > 0
 
-    converter = CustomConverterEval(subsampling_factor=model.subsample[0], dtype=dtype)
+    converter = CustomConverter(subsampling_factor=model.subsample[0], dtype=dtype)
 
     # make minibatch list (variable length)
     recog = make_batchset(
@@ -238,13 +247,14 @@ def recog_ctconly(args):
     )
 
     recog_iter = ChainerDataLoader(
-        dataset=TransformDatasetEval(recog, lambda data: converter([load_rc(data)])),
+        dataset=TransformDataset(
+            recog, lambda data: converter([load_rc(data)]), utt=True
+        ),
         batch_size=1,
         num_workers=model.args.n_iter_processes,
         shuffle=not use_sortagrad,
         collate_fn=lambda x: x[0],
     )
-    
 
     logging.info(f'Character list: {model.args.char_list}')
 

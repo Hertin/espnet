@@ -218,14 +218,6 @@ class CustomUpdater(StandardUpdater):
             _x = _recursive_to(batch, self.device)
             x = _x + tuple([dummy_w.expand(batch_size).view(-1, 1, 1)])
 
-            # is_new_epoch |= (train_iter.epoch != epoch)
-            # if is_new_epoch:
-            #     new_epoch = train_iter.epoch
-            #     optimizer.zero_grad()
-            #     for l in all_langs:
-            #         self.get_iterator(l).synchronize(new_epoch)
-            #         return
-
             # When the last minibatch in the current epoch is given,
             # gradient accumulation is turned off in order to evaluate the model
             # on the validation set in every epoch.
@@ -233,17 +225,15 @@ class CustomUpdater(StandardUpdater):
 
             # Compute the loss at this time step and accumulate it
             if self.ngpu == 0:
-                loss, loss_ctc, loss_att = self.model(*x).mean() / self.accum_grad
+                loss = self.model(*x).mean() / self.accum_grad
             else:
                 # apex does not support torch.nn.DataParallel
-                loss, loss_ctc, loss_att = data_parallel(self.model, x, range(self.ngpu))
-
+                loss = data_parallel(self.model, x, range(self.ngpu))
                 loss /= self.accum_grad
-                loss_ctc /= self.accum_grad
-                loss_att /= self.accum_grad
+
 
             error += loss.mean()
-            penalty += self.compute_irm_penalty(loss_att, dummy_w)
+            penalty += self.compute_irm_penalty(loss, dummy_w)
         
         # logging.warning(f'penalty {penalty}')
         is_new_epoch = self.get_iterator('main').epoch != epoch
@@ -269,11 +259,14 @@ class CustomUpdater(StandardUpdater):
                 self.model, self.iteration, duration=100, eta=1.0, scale_factor=0.55
             )
 
-        # update parameters
+        
         self.forward_count += 1
         if not is_new_epoch and self.forward_count != self.accum_grad:
+            # if not forward_count not reaching the accum_grad
+            # do not update parameters
             return
 
+        # update parameters
         self.forward_count = 0
         # compute the gradient norm to check if it is normal or not
         grad_norm = torch.nn.utils.clip_grad_norm_(

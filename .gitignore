@@ -13,6 +13,10 @@ tmp*
 .hypothesis/
 .idea
 .pytest_cache/
+.ipynb_checkpoints/
+apex/
+ctcdecode/
+g2ps/
 __pycache__/
 check_autopep8
 .coverage
@@ -39,6 +43,8 @@ egs*/*/*/mfcc
 egs*/*/*/stft
 egs*/*/*/tensorboard
 egs*/*/*/wav*
+egs*/*/*/shorten-3.6.1.tar.gz
+egs*/*/*/shorten-3.6.1
 
 # tools related
 tools/bin
