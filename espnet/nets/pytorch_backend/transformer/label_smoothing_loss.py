@@ -61,3 +61,66 @@ class LabelSmoothingLoss(nn.Module):
         kl = self.criterion(torch.log_softmax(x, dim=1), true_dist)
         denom = total if self.normalize_length else batch_size
         return kl.masked_fill(ignore.unsqueeze(1), 0).sum() / denom
+
+
+
+class LabelSmoothingLossNoreduce(nn.Module):
+    """Label-smoothing loss.
+
+    :param int size: the number of class
+    :param int padding_idx: ignored class id
+    :param float smoothing: smoothing rate (0.0 means the conventional CE)
+    :param bool normalize_length: normalize loss by sequence length if True
+    :param torch.nn.Module criterion: loss function to be smoothed
+    """
+
+    def __init__(
+        self,
+        size,
+        padding_idx,
+        smoothing,
+        normalize_length=False,
+        criterion=nn.KLDivLoss(reduction="none"),
+    ):
+        """Construct an LabelSmoothingLoss object."""
+        super(LabelSmoothingLossNoreduce, self).__init__()
+        self.criterion = criterion
+        self.padding_idx = padding_idx
+        self.confidence = 1.0 - smoothing
+        self.smoothing = smoothing
+        self.size = size
+        self.true_dist = None
+        self.normalize_length = normalize_length
+
+    def forward(self, x, target):
+        """Compute loss between x and target.
+
+        :param torch.Tensor x: prediction (batch, seqlen, class)
+        :param torch.Tensor target:
+            target signal masked with self.padding_id (batch, seqlen)
+        :return: scalar float value
+        :rtype torch.Tensor
+        """
+        assert x.size(2) == self.size
+        batch_size = x.size(0)
+        x_flat = x.view(-1, self.size) # (batch x seqlen, class)
+        target_flat = target.view(-1) # (batch x seqlen)
+        # logging.warning(f'Label [target] {target_flat.size()} {target.size()} {target}')
+        with torch.no_grad():
+            true_dist = x_flat.clone() # (batch x seqlen, class)
+            true_dist.fill_(self.smoothing / (self.size - 1)) 
+            ignore = target == self.padding_idx  # (batch, seqlen)
+            ignore_flat = ignore.view(-1)
+            # total = len(target) - ignore.sum().item() # batch x seqlen - len(ignore)
+            target_flat = target_flat.masked_fill(ignore_flat, 0)  # avoid -1 index
+            true_dist.scatter_(1, target_flat.unsqueeze(1), self.confidence)
+
+            total = target.size(1) - ignore.sum(-1) # (batch) seqlen - ignore
+        # logging.warning(f'Label [ignore] {ignore_flat.size()} {ignore.size()} {ignore}')
+        # logging.warning(f'Label [total] {total.size()} {total}')
+        kl = self.criterion(torch.log_softmax(x_flat, dim=1), true_dist)
+        # logging.warning(f'Label [kl]  {kl.size()} {kl.view(batch_size, -1).size()} {kl}')
+        kl = kl.masked_fill(ignore_flat.unsqueeze(1), 0)
+        loss = kl.view(batch_size, -1).sum(-1) / total
+        # logging.warning(f'Label [loss] {loss.size()} {loss}')
+        return loss

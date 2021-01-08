@@ -14,7 +14,7 @@ import os
 import sys
 import re
 from collections import OrderedDict
-from random import shuffle
+from random import shuffle, sample
 
 from chainer import reporter as reporter_module
 from chainer import report, report_scope
@@ -172,6 +172,7 @@ class CustomUpdater(StandardUpdater):
         optimizer,
         device,
         ngpu,
+        dro_num_lang,
         grad_noise=False,
         accum_grad=1,
         use_apex=False,
@@ -186,90 +187,75 @@ class CustomUpdater(StandardUpdater):
         self.grad_noise = grad_noise
         self.iteration = 0
         self.use_apex = use_apex
+        self.dro_num_lang = dro_num_lang
 
     # The core part of the update routine can be customized by overriding.
-    def compute_irm_penalty(self, losses, w):
-        # g1 = grad(losses[0::2].mean(), w, create_graph=True)[0]
-        # g2 = grad(losses[1::2].mean(), w, create_graph=True)[0]
-        logging.warning(f'{losses.size()}')
-        g = grad(losses.mean(), w, create_graph=True)[0]
-        # logging.warning(f'compute_irm penalty {g1.size()}, {g2.size()} {(g1 * g2).sum()}')
-        return (g).sum()
 
     def update_core(self):
         """Main update routine of the CustomUpdater."""
         # When we pass one iterator and optimizer to StandardUpdater.__init__,
         # they are automatically named 'main'.
         global all_langs
-        logging.warning(f'epoch {self.get_iterator("main").epoch}')
-        with torch.autograd.set_detect_anomaly(True):
-            dummy_w = torch.nn.Parameter(torch.Tensor([1.0])).to(self.device)
-
-            # train_iter = self.get_iterator("main")
-            optimizer = self.get_optimizer("main")
-            epoch = self.get_iterator('main').epoch
-
-            penalty_multiplier = epoch ** 1.6
-            # Get the next batch (a list of json files)
-            error, penalty = 0, 0
-            # logging.warning(f'iteration: {self.get_iterator("main").epoch} {self.get_iterator("main").current_position}')
-            for i, l in enumerate(all_langs):
-                train_iter = self.get_iterator(l)
-            
-                batch = train_iter.next()
-                batch_size = batch[0].size(0)
-                # logging.warning(f'batch size {batch_size}')
-                # self.iteration += 1 # Increase may result in early report,
-                # which is done in other place automatically.
-                _x = _recursive_to(batch, self.device)
-                x = _x + tuple([dummy_w.expand(batch_size).view(-1, 1, 1)])
-
-                # When the last minibatch in the current epoch is given,
-                # gradient accumulation is turned off in order to evaluate the model
-                # on the validation set in every epoch.
-                # see details in https://github.com/espnet/espnet/pull/1388
-
-                # Compute the loss at this time step and accumulate it
-                if self.ngpu == 0:
-                    loss, loss_att_nonreduce, loss_ctc_nonreduce = self.model(*x).mean()
-                else:
-                    # apex does not support torch.nn.DataParallel
-                    loss, loss_att_nonreduce, loss_ctc_nonreduce = data_parallel(self.model, x, range(self.ngpu))
-                loss /= self.accum_grad
-                loss_att_nonreduce /= self.accum_grad
-                loss_ctc_nonreduce /= self.accum_grad
-
-                error += loss.mean()
-                penalty += self.compute_irm_penalty(loss_ctc_nonreduce, dummy_w)
-
-                if i > 3:
-                    break
-            
-            # logging.warning(f'penalty {penalty}')
-            is_new_epoch = self.get_iterator('main').epoch != epoch
-            # if is_new_epoch:
-            #     logging.warning('[Converter] is new epoch')
-
-            loss = error + penalty_multiplier * penalty
-            
-            if self.use_apex:
-                from apex import amp
-
-                # NOTE: for a compatibility with noam optimizer
-                opt = optimizer.optimizer if hasattr(optimizer, "optimizer") else optimizer
-                with amp.scale_loss(loss, opt) as scaled_loss:
-                    scaled_loss.backward()
-            else:
-                loss.backward()
-            # gradient noise injection
-            if self.grad_noise:
-                from espnet.asr.asr_utils import add_gradient_noise
-
-                add_gradient_noise(
-                    self.model, self.iteration, duration=100, eta=1.0, scale_factor=0.55
-                )
+        # train_iter = self.get_iterator("main")
+        optimizer = self.get_optimizer("main")
+        epoch = self.get_iterator('main').epoch
 
         
+        # Get the next batch (a list of json files)
+        error, penalty = 0, 0
+        # logging.warning(f'iteration: {self.get_iterator("main").epoch} {self.get_iterator("main").current_position}')
+        losses = []
+        langs = sample(all_langs, self.dro_num_lang)
+        for i, l in enumerate(langs):
+            train_iter = self.get_iterator(l)
+        
+            batch = train_iter.next()
+            batch_size = batch[0].size(0)
+            # logging.warning(f'batch size {batch_size}')
+            # self.iteration += 1 # Increase may result in early report,
+            # which is done in other place automatically.
+            x = _recursive_to(batch, self.device)
+
+            # When the last minibatch in the current epoch is given,
+            # gradient accumulation is turned off in order to evaluate the model
+            # on the validation set in every epoch.
+            # see details in https://github.com/espnet/espnet/pull/1388
+
+            # Compute the loss at this time step and accumulate it
+            if self.ngpu == 0:
+                loss = self.model(*x).mean()
+            else:
+                # apex does not support torch.nn.DataParallel
+                loss = data_parallel(self.model, x, range(self.ngpu))
+            loss /= self.accum_grad
+
+            losses.append(loss)
+        losses = torch.stack(losses)
+        prob = np.array([l.item() for l in losses])
+        choice = np.random.choice(list(range(self.dro_num_lang)), p=prob/prob.sum(), size=1)
+
+        # logging.warning(f'penalty {penalty}')
+        is_new_epoch = self.get_iterator('main').epoch != epoch
+
+        loss = losses[choice]
+        
+        if self.use_apex:
+            from apex import amp
+
+            # NOTE: for a compatibility with noam optimizer
+            opt = optimizer.optimizer if hasattr(optimizer, "optimizer") else optimizer
+            with amp.scale_loss(loss, opt) as scaled_loss:
+                scaled_loss.backward()
+        else:
+            loss.backward()
+        # gradient noise injection
+        if self.grad_noise:
+            from espnet.asr.asr_utils import add_gradient_noise
+
+            add_gradient_noise(
+                self.model, self.iteration, duration=100, eta=1.0, scale_factor=0.55
+            )
+
         self.forward_count += 1
         if not is_new_epoch and self.forward_count != self.accum_grad:
             # if not forward_count not reaching the accum_grad
@@ -745,6 +731,7 @@ def train(args):
         optimizer,
         device,
         args.ngpu,
+        args.dro_num_lang,
         args.grad_noise,
         args.accum_grad,
         use_apex=use_apex,

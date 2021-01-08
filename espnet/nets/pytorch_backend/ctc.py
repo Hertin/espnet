@@ -18,7 +18,9 @@ class CTC(torch.nn.Module):
     :param bool reduce: reduce the CTC loss into a scalar
     """
 
-    def __init__(self, odim, eprojs, dropout_rate, ctc_type="warpctc", reduce=True, ctc_lo=None, signature_map=None):
+    def __init__(self, odim, eprojs, dropout_rate, 
+        ctc_type="warpctc", reduce=True, ctc_lo=None, signature_map=None, length_average=False
+    ):
         super().__init__()
         self.dropout_rate = dropout_rate
         self.loss = None
@@ -33,6 +35,7 @@ class CTC(torch.nn.Module):
         #     if LooseVersion(torch.__version__) < LooseVersion("1.2.0")
         #     else "builtin"
         # )
+        logging.warning(f'warpctc_length_average {length_average}')
         self.ctc_type = ctc_type
         if ctc_type != self.ctc_type:
             logging.warning(f"CTC was set to {self.ctc_type} due to PyTorch version.")
@@ -42,7 +45,7 @@ class CTC(torch.nn.Module):
         elif self.ctc_type == "warpctc":
             import warpctc_pytorch as warp_ctc
 
-            self.ctc_loss = warp_ctc.CTCLoss(size_average=True, reduce=reduce)
+            self.ctc_loss = warp_ctc.CTCLoss(size_average=not length_average, length_average=length_average, reduce=reduce)
         else:
             raise ValueError(
                 'ctc_type must be "builtin" or "warpctc": {}'.format(self.ctc_type)
@@ -86,7 +89,7 @@ class CTC(torch.nn.Module):
         olens = torch.from_numpy(np.fromiter((x.size(0) for x in ys), dtype=np.int32))
 
         # zero padding for hs
-        ys_hat = self.ctc_lo(F.dropout(hs_pad, p=self.dropout_rate))
+        ys_hat = self.ctc_lo(F.dropout(hs_pad, p=self.dropout_rate, inplace=False))
         if self.signature_map is not None:
             self.signature_map = self.signature_map.to(hs_pad.device)
             ys_hat = torch.matmul(ys_hat, self.signature_map.unsqueeze(0))

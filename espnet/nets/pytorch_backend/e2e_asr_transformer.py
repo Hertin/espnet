@@ -135,7 +135,9 @@ class E2E(ASRInterface, torch.nn.Module):
         self.mtlalpha = args.mtlalpha
         if args.mtlalpha > 0.0:
             self.ctc = CTC(
-                odim, args.adim, args.dropout_rate, ctc_type=args.ctc_type, reduce=False
+                odim, args.adim, args.dropout_rate, 
+                ctc_type=args.ctc_type, reduce=False,
+                length_average=args.warpctc_length_average
             )
         else:
             self.ctc = None
@@ -223,7 +225,7 @@ class E2E(ASRInterface, torch.nn.Module):
 
             loss_ctc_nonreduce[invalid_idx] = 0
             # loss_ctc_nonreduce[torch.isnan(loss_ctc_nonreduce)] = 0
-            loss_ctc = loss_ctc_nonreduce[loss_ctc_nonreduce!=0].mean() if any(loss_ctc_nonreduce!=0) else 0
+            loss_ctc = loss_ctc_nonreduce[~invalid_idx].mean() if any(~invalid_idx) else 0
 
             
 
