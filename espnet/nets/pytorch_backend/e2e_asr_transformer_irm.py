@@ -35,7 +35,7 @@ from espnet.nets.pytorch_backend.transformer.dynamic_conv2d import DynamicConvol
 from espnet.nets.pytorch_backend.transformer.encoder import Encoder
 from espnet.nets.pytorch_backend.transformer.initializer import initialize
 from espnet.nets.pytorch_backend.transformer.label_smoothing_loss import (
-    LabelSmoothingLoss,  # noqa: H301
+    LabelSmoothingLoss, LabelSmoothingLossNoreduce  # noqa: H301
 )
 from espnet.nets.pytorch_backend.transformer.mask import subsequent_mask
 from espnet.nets.pytorch_backend.transformer.mask import target_mask
@@ -97,10 +97,31 @@ class E2E(ASRInterface, torch.nn.Module):
             positional_dropout_rate=args.dropout_rate,
             attention_dropout_rate=args.transformer_attn_dropout_rate,
         )
-        
-        self.decoder = None
-        self.criterion = None
-
+        if args.mtlalpha < 1:
+            self.decoder = Decoder(
+                odim=odim,
+                selfattention_layer_type=args.transformer_decoder_selfattn_layer_type,
+                attention_dim=args.adim,
+                attention_heads=args.aheads,
+                conv_wshare=args.wshare,
+                conv_kernel_length=args.ldconv_decoder_kernel_length,
+                conv_usebias=args.ldconv_usebias,
+                linear_units=args.dunits,
+                num_blocks=args.dlayers,
+                dropout_rate=args.dropout_rate,
+                positional_dropout_rate=args.dropout_rate,
+                self_attention_dropout_rate=args.transformer_attn_dropout_rate,
+                src_attention_dropout_rate=args.transformer_attn_dropout_rate,
+            )
+            self.criterion = LabelSmoothingLossNoreduce(
+                odim,
+                ignore_id,
+                args.lsm_weight,
+                args.transformer_length_normalized_loss,
+            )
+        else:
+            self.decoder = None
+            self.criterion = None
         self.blank = 0
         self.sos = odim - 1
         self.eos = odim - 1
@@ -168,32 +189,54 @@ class E2E(ASRInterface, torch.nn.Module):
             invalid = True
         # batch_size = hs_pad.size(0) # update new batch_size
 
+        # if w is not None:
+        #     hs_pad = hs_pad * w
         self.hs_pad = hs_pad
 
         # 2. forward decoder
-        
-        loss_att = None
-        self.acc = None
+        loss_att_nonreduce = None
+        if self.decoder is not None:
+            ys_in_pad, ys_out_pad = add_sos_eos(
+                ys_pad, self.sos, self.eos, self.ignore_id
+            )
+            ys_mask = target_mask(ys_in_pad, self.ignore_id)
+            pred_pad, pred_mask = self.decoder(ys_in_pad, ys_mask, hs_pad, hs_mask)
+            self.pred_pad = pred_pad
+
+            # 3. compute attention loss
+            loss_att_nonreduce = self.criterion(pred_pad, ys_out_pad)
+            loss_att = loss_att_nonreduce.mean()
+            self.acc = th_accuracy(
+                pred_pad.view(-1, self.odim), ys_out_pad, ignore_label=self.ignore_id
+            )
+        else:
+            loss_att = None
+            self.acc = None
 
         # TODO(karita) show predicted text
         # TODO(karita) calculate these stats
         cer_ctc = None
+        if self.mtlalpha == 0.0:
+            loss_ctc = None
+        else:            
+            # loss_ctc = self.ctc(hs_pad.view(batch_size, -1, self.adim), hs_len, ys_pad)
+            loss_ctc_nonreduce = self.ctc(hs_pad.view(batch_size, -1, self.adim), hs_len, ys_pad, w)
+            invalid_idx = torch.isinf(loss_ctc_nonreduce) | torch.isnan(loss_ctc_nonreduce)
+            if torch.sum(invalid_idx != 0):
+                logging.warning(f'Invalid ctc loss {invalid} num invalid {torch.sum(invalid_idx != 0)} {loss_ctc_nonreduce[invalid_idx]}')
 
-        loss_ctc_nonreduce = self.ctc(hs_pad.view(batch_size, -1, self.adim), hs_len, ys_pad, w=w)
-        invalid_idx = torch.isinf(loss_ctc_nonreduce) | torch.isnan(loss_ctc_nonreduce)
-        if torch.sum(invalid_idx != 0):
-            logging.warning(f'Invalid ctc loss {invalid} num invalid {torch.sum(invalid_idx != 0)} {loss_ctc_nonreduce[invalid_idx]}')
+            loss_ctc_nonreduce[invalid_idx] = 0
+            # loss_ctc_nonreduce[torch.isnan(loss_ctc_nonreduce)] = 0
+            loss_ctc = loss_ctc_nonreduce[~invalid_idx].mean() if any(~invalid_idx) else None
 
-        loss_ctc_nonreduce[invalid_idx] = 0
-        # loss_ctc_nonreduce[torch.isnan(loss_ctc_nonreduce)] = 0
-        loss_ctc = loss_ctc_nonreduce[loss_ctc_nonreduce!=0].mean() if any(loss_ctc_nonreduce!=0) else 0
+            
 
-        if not self.training and self.error_calculator is not None:
-            ys_hat = self.ctc.argmax(hs_pad.view(batch_size, -1, self.adim)).data
-            cer_ctc = self.error_calculator(ys_hat.cpu(), ys_pad.cpu(), is_ctc=True)
-        # for visualization
-        if not self.training:
-            self.ctc.softmax(hs_pad)
+            if not self.training and self.error_calculator is not None:
+                ys_hat = self.ctc.argmax(hs_pad.view(batch_size, -1, self.adim)).data
+                cer_ctc = self.error_calculator(ys_hat.cpu(), ys_pad.cpu(), is_ctc=True)
+            # for visualization
+            if not self.training:
+                self.ctc.softmax(hs_pad)
 
         # if invalid:
         #     logging.warning(f'ctc loss {loss_ctc}')
@@ -206,10 +249,18 @@ class E2E(ASRInterface, torch.nn.Module):
 
         # copied from e2e_asr
         alpha = self.mtlalpha
-
-        self.loss = loss_ctc
-        loss_att_data = None
-        loss_ctc_data = float(loss_ctc)
+        if alpha == 0:
+            self.loss = loss_att
+            loss_att_data = float(loss_att)
+            loss_ctc_data = None
+        elif alpha == 1:
+            self.loss = loss_ctc
+            loss_att_data = None
+            loss_ctc_data = float(loss_ctc)
+        else:
+            self.loss = alpha * loss_ctc + (1 - alpha) * loss_att
+            loss_att_data = float(loss_att)
+            loss_ctc_data = float(loss_ctc)
 
         loss_data = float(self.loss)
         if loss_data < CTC_LOSS_THRESHOLD and not math.isnan(loss_data):
@@ -218,8 +269,7 @@ class E2E(ASRInterface, torch.nn.Module):
             )
         else:
             logging.warning("loss (=%f) is not correct", loss_data)
-
-        return loss_ctc_nonreduce[loss_ctc_nonreduce!=0]
+        return self.loss, loss_att_nonreduce, loss_ctc_nonreduce
 
     def scorers(self):
         """Scorers."""

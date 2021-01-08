@@ -82,20 +82,24 @@ class CTC(torch.nn.Module):
         """
         # logging.warning(f"CTC [forward ys_pad] {ys_pad.size()}")
         # TODO(kan-bayashi): need to make more smart way
+        
         ys = [y[y != self.ignore_id] for y in ys_pad]  # parse padded ys
 
         self.loss = None
         hlens = torch.from_numpy(np.fromiter(hlens, dtype=np.int32))
         olens = torch.from_numpy(np.fromiter((x.size(0) for x in ys), dtype=np.int32))
 
+        # dummy w for irm
+        if w is not None:
+            hs_pad = hs_pad * w
+
         # zero padding for hs
         ys_hat = self.ctc_lo(F.dropout(hs_pad, p=self.dropout_rate, inplace=False))
+        
         if self.signature_map is not None:
             self.signature_map = self.signature_map.to(hs_pad.device)
             ys_hat = torch.matmul(ys_hat, self.signature_map.unsqueeze(0))
 
-        if w is not None:
-            ys_hat = ys_hat * w
         # zero padding for ys
         ys_true = torch.cat(ys).cpu().int()  # batch x olen
 

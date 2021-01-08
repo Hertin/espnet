@@ -14,7 +14,7 @@ import os
 import sys
 import re
 from collections import OrderedDict
-from random import shuffle
+from random import shuffle, sample
 
 from chainer import reporter as reporter_module
 from chainer import report, report_scope
@@ -172,6 +172,7 @@ class CustomUpdater(StandardUpdater):
         optimizer,
         device,
         ngpu,
+        irm_num_lang,
         grad_noise=False,
         accum_grad=1,
         use_apex=False,
@@ -181,6 +182,7 @@ class CustomUpdater(StandardUpdater):
         self.grad_clip_threshold = grad_clip_threshold
         self.device = device
         self.ngpu = ngpu
+        self.irm_num_lang = irm_num_lang
         self.accum_grad = accum_grad
         self.forward_count = 0
         self.grad_noise = grad_noise
@@ -191,18 +193,18 @@ class CustomUpdater(StandardUpdater):
     def compute_irm_penalty(self, losses, w):
         # g1 = grad(losses[0::2].mean(), w, create_graph=True)[0]
         # g2 = grad(losses[1::2].mean(), w, create_graph=True)[0]
-        logging.warning(f'{losses.size()}')
+        # logging.warning(f'{losses.size()}')
         g = grad(losses.mean(), w, create_graph=True)[0]
         # logging.warning(f'compute_irm penalty {g1.size()}, {g2.size()} {(g1 * g2).sum()}')
-        return (g).sum()
+        return (g * g).sum()
 
     def update_core(self):
         """Main update routine of the CustomUpdater."""
         # When we pass one iterator and optimizer to StandardUpdater.__init__,
         # they are automatically named 'main'.
         global all_langs
-        logging.warning(f'epoch {self.get_iterator("main").epoch}')
-        with torch.autograd.set_detect_anomaly(True):
+        # logging.warning(f'epoch {self.get_iterator("main").epoch}')
+        with torch.autograd.set_detect_anomaly(False):
             dummy_w = torch.nn.Parameter(torch.Tensor([1.0])).to(self.device)
 
             # train_iter = self.get_iterator("main")
@@ -213,7 +215,9 @@ class CustomUpdater(StandardUpdater):
             # Get the next batch (a list of json files)
             error, penalty = 0, 0
             # logging.warning(f'iteration: {self.get_iterator("main").epoch} {self.get_iterator("main").current_position}')
-            for i, l in enumerate(all_langs):
+            langs = sample(all_langs, self.irm_num_lang)
+            # logging.warning(f'langs {langs}')
+            for i, l in enumerate(langs):
                 train_iter = self.get_iterator(l)
             
                 batch = train_iter.next()
@@ -235,20 +239,22 @@ class CustomUpdater(StandardUpdater):
                 else:
                     # apex does not support torch.nn.DataParallel
                     loss, loss_att_nonreduce, loss_ctc_nonreduce = data_parallel(self.model, x, range(self.ngpu))
-                loss /= self.accum_grad
-                loss_att_nonreduce /= self.accum_grad
+                
+                if loss is not None:
+                    loss /= self.accum_grad
+                else:
+                    logging.warning(f'No valid loss {loss_ctc_nonreduce} skip')
+                    continue
+                if loss_att_nonreduce is not None:
+                    loss_att_nonreduce /= self.accum_grad
                 loss_ctc_nonreduce /= self.accum_grad
 
                 error += loss.mean()
                 penalty += self.compute_irm_penalty(loss_ctc_nonreduce, dummy_w)
 
-                if i > 3:
-                    break
-            
-            # logging.warning(f'penalty {penalty}')
             is_new_epoch = self.get_iterator('main').epoch != epoch
-            # if is_new_epoch:
-            #     logging.warning('[Converter] is new epoch')
+            if is_new_epoch:
+                logging.warning(f'loss {error} {penalty}')
 
             loss = error + penalty_multiplier * penalty
             
@@ -269,7 +275,6 @@ class CustomUpdater(StandardUpdater):
                     self.model, self.iteration, duration=100, eta=1.0, scale_factor=0.55
                 )
 
-        
         self.forward_count += 1
         if not is_new_epoch and self.forward_count != self.accum_grad:
             # if not forward_count not reaching the accum_grad
@@ -372,73 +377,6 @@ class CustomConverter(object):
         ).to(device)
 
         return xs_pad, ilens, ys_pad
-
-class CustomConverterMulEnc(object):
-    """Custom batch converter for Pytorch in multi-encoder case.
-
-    Args:
-        subsampling_factors (list): List of subsampling factors for each encoder.
-        dtype (torch.dtype): Data type to convert.
-
-    """
-
-    def __init__(self, subsamping_factors=[1, 1], dtype=torch.float32):
-        """Initialize the converter."""
-        self.subsamping_factors = subsamping_factors
-        self.ignore_id = -1
-        self.dtype = dtype
-        self.num_encs = len(subsamping_factors)
-
-    def __call__(self, batch, device=torch.device("cpu")):
-        """Transform a batch and send it to a device.
-
-        Args:
-            batch (list): The batch to transform.
-            device (torch.device): The device to send to.
-
-        Returns:
-            tuple( list(torch.Tensor), list(torch.Tensor), torch.Tensor)
-
-        """
-        # batch should be located in list
-        assert len(batch) == 1
-        xs_list = batch[0][: self.num_encs]
-        ys = batch[0][-1]
-
-        # perform subsampling
-        if np.sum(self.subsamping_factors) > self.num_encs:
-            xs_list = [
-                [x[:: self.subsampling_factors[i], :] for x in xs_list[i]]
-                for i in range(self.num_encs)
-            ]
-
-        # get batch of lengths of input sequences
-        ilens_list = [
-            np.array([x.shape[0] for x in xs_list[i]]) for i in range(self.num_encs)
-        ]
-
-        # perform padding and convert to tensor
-        # currently only support real number
-        xs_list_pad = [
-            pad_list([torch.from_numpy(x).float() for x in xs_list[i]], 0).to(
-                device, dtype=self.dtype
-            )
-            for i in range(self.num_encs)
-        ]
-
-        ilens_list = [
-            torch.from_numpy(ilens_list[i]).to(device) for i in range(self.num_encs)
-        ]
-        # NOTE: this is for multi-task learning (e.g., speech translation)
-        ys_pad = pad_list(
-            [
-                torch.from_numpy(np.array(y[0]) if isinstance(y, tuple) else y).long()
-                for y in ys
-            ],
-            self.ignore_id,
-        ).to(device)
-
-        return xs_list_pad, ilens_list, ys_pad
 
 def get_lang(utt):
     s = utt.split('_')[0]
@@ -745,6 +683,7 @@ def train(args):
         optimizer,
         device,
         args.ngpu,
+        args.irm_num_lang,
         args.grad_noise,
         args.accum_grad,
         use_apex=use_apex,

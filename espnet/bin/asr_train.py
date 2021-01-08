@@ -524,6 +524,7 @@ def get_parser(parser=None, required=True):
     parser.add_argument("--num-langs", type=int, default=None, help="")
     parser.add_argument("--experiment", type=str, default="", help="")
     parser.add_argument("--dro-num-lang", type=int, default=None, help="")
+    parser.add_argument("--irm-num-lang", type=int, default=None, help="")
     return parser
 
 
