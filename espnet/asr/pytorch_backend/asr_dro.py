@@ -26,6 +26,7 @@ from tensorboardX import SummaryWriter
 import torch
 from torch.autograd import grad
 from torch.nn.parallel import data_parallel # DataParallel
+import torch.nn.functional as F
 # from apex.parallel import DistributedDataParallel
 
 from espnet.asr.asr_utils import adadelta_eps_decay
@@ -231,8 +232,11 @@ class CustomUpdater(StandardUpdater):
 
             losses.append(loss)
         losses = torch.stack(losses)
-        prob = np.array([l.item() for l in losses])
-        choice = np.random.choice(list(range(self.dro_num_lang)), p=prob/prob.sum(), size=1)
+        logging.warning(f'losses {losses}')
+        probs = np.array([l.item() for l in losses])
+        probs = probs - np.min(probs) + 0.1 # remove negative loss
+        logging.warning(f'prob {probs} {probs/np.sum(probs)}')
+        choice = np.random.choice(list(range(self.dro_num_lang)), p=probs/np.sum(probs), size=1)
 
         # logging.warning(f'penalty {penalty}')
         is_new_epoch = self.get_iterator('main').epoch != epoch
