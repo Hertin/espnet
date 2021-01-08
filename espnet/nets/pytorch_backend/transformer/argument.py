@@ -156,4 +156,10 @@ def add_arguments_transformer_common(group):
     group.add_argument(
         "--dunits", default=320, type=int, help="Number of decoder hidden units"
     )
+    group.add_argument(
+        "--rgm-lambda", default=0.5, type=float, help="Lambda for RGM"
+    )
+    group.add_argument(
+        "--num-langs", default=15, type=int, help="Lambda for RGM"
+    )
     return group
