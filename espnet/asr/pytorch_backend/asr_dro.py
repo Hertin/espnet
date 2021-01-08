@@ -232,10 +232,10 @@ class CustomUpdater(StandardUpdater):
 
             losses.append(loss)
         losses = torch.stack(losses)
-        logging.warning(f'losses {losses}')
+        # logging.warning(f'losses {losses}')
         probs = np.array([l.item() for l in losses])
         probs = probs - np.min(probs) + 0.1 # remove negative loss
-        logging.warning(f'prob {probs} {probs/np.sum(probs)}')
+        # logging.warning(f'prob {probs} {probs/np.sum(probs)}')
         choice = np.random.choice(list(range(self.dro_num_lang)), p=probs/np.sum(probs), size=1)
 
         # logging.warning(f'penalty {penalty}')
