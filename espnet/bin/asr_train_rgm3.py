@@ -635,6 +635,10 @@ def main(cmd_args):
             logging.warning(f'Running experiment {args.experiment}')
             from espnet.asr.pytorch_backend.asr_rgm3 import train
             train(args)
+        elif args.experiment == 'RGM_3_Players_2s':
+            logging.warning(f'Running experiment {args.experiment}')
+            from espnet.asr.pytorch_backend.asr_rgm3_2s import train
+            train(args)
         else:
             raise ValueError("Experiment not Implemented")
     else:

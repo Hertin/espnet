@@ -37,11 +37,11 @@ dropout-rate: 0.0
 
 # transformer specific setting
 backend: pytorch
-model-module: "espnet.nets.pytorch_backend.e2e_asr_transformer_rgm3_2s:E2E"
+model-module: "espnet.nets.pytorch_backend.e2e_asr_transformer_rgm3:E2E"
 transformer-input-layer: conv2d     # encoder architecture type
 transformer-lr: 1
 transformer-warmup-steps: 25000
 transformer-attn-dropout-rate: 0.0
 transformer-length-normalized-loss: false
 transformer-init: pytorch
-experiment: RGM_3_Players_2s
+experiment: RGM_3_Players

@@ -224,7 +224,7 @@ class CustomUpdater(StandardUpdater):
             # print('Update Flag: ', update_flag)
             # for k, v in self.model.named_parameters():
             #     if 'encoder_phi.embed.conv.0.bias' in k or 'encoder_f.encoders.0.self_attn.linear_q.bias' in k or 'encoder_h.encoders.0.self_attn.linear_q.bias' in k:
-            #         print(k, v.grad)
+            #         print(k, v)
             # gradient noise injection
             if self.grad_noise:
                 from espnet.asr.asr_utils_rgm3 import add_gradient_noise
@@ -259,7 +259,9 @@ class CustomUpdater(StandardUpdater):
             if math.isnan(grad_norm):
                 logging.warning("grad norm is nan. Do not update model.")
             else:
+                #pass
                 optimizer.step()
+            # print('Zero Grad')
             optimizer.zero_grad()
 
     def update(self):
@@ -540,10 +542,10 @@ def train(args):
     from collections import OrderedDict
     with open(args.train_json, "rb") as f:
         train_json = json.load(f)["utts"]
-        # train_json = OrderedDict(list(train_json.items())[:20]) # used to verify training pipeline
+        #train_json = OrderedDict(list(train_json.items())[:200]) # used to verify training pipeline
     with open(args.valid_json, "rb") as f:
         valid_json = json.load(f)["utts"]
-        # valid_json = OrderedDict(list(valid_json.items())[:20])
+        #valid_json = OrderedDict(list(valid_json.items())[:200])
 
     logging.warning(f'train valid size {len(train_json)} {len(valid_json)}')
     use_sortagrad = args.sortagrad == -1 or args.sortagrad > 0
@@ -733,20 +735,24 @@ def train(args):
     # Make a plot for training and validation values
     if args.num_encs > 1:
         report_keys_loss_ctc = [
-            "3p/loss_ctc{}".format(i + 1) for i in range(model.num_encs)
-        ] + ["validation/main/loss_ctc{}".format(i + 1) for i in range(model.num_encs)]
+            "3p/loss_f{}".format(i + 1) for i in range(model.num_encs)
+        ] + ["validation/main/loss_f{}".format(i + 1) for i in range(model.num_encs)]
         report_keys_cer_ctc = [
-            "3p/cer_ctc{}".format(i + 1) for i in range(model.num_encs)
-        ] + ["validation/main/cer_ctc{}".format(i + 1) for i in range(model.num_encs)]
+            "3p/cer_ctc_f{}".format(i + 1) for i in range(model.num_encs)
+        ] + ["validation/main/cer_ctc_f{}".format(i + 1) for i in range(model.num_encs)]
     trainer.extend(
         extensions.PlotReport(
             [
                 "3p/loss",
                 "validation/main/loss",
-                "3p/loss_ctc",
-                "validation/main/loss_ctc",
-                "3p/loss_att",
-                "validation/main/loss_att",
+                "3p/loss_f",
+                "validation/main/loss_f",
+                "3p/loss_h",
+                "validation/main/loss_h",
+                "3p/loss_f_fake",
+                "validation/main/loss_f_fake",
+                "3p/penalty",
+                "validation/main/penalty",
             ]
             + ([] if args.num_encs == 1 else report_keys_loss_ctc),
             "epoch",
@@ -755,15 +761,9 @@ def train(args):
     )
     trainer.extend(
         extensions.PlotReport(
-            ["3p/acc", "validation/main/acc"], "epoch", file_name="acc.png"
-        )
-    )
-    trainer.extend(
-        extensions.PlotReport(
-            ["3p/cer_ctc", "validation/main/cer_ctc"]
-            + ([] if args.num_encs == 1 else report_keys_loss_ctc),
-            "epoch",
-            file_name="cer.png",
+            ["3p/cer_ctc_h", "validation/main/cer_ctc_h", "3p/cer_ctc_f",
+            "validation/main/cer_ctc_f","3p/cer_ctc_fake", "validation/main/cer_ctc_fake"]
+            + ([] if args.num_encs == 1 else report_keys_cer_ctc), "epoch", file_name="cer_ctc.png"
         )
     )
 
@@ -772,10 +772,34 @@ def train(args):
         snapshot_object(model, "model.loss.best"),
         trigger=training.triggers.MinValueTrigger("validation/main/loss"),
     )
-    if mtl_mode not in ["ctc", "transducer", "transformer_transducer"]:
+    trainer.extend(
+        snapshot_object(model, "model.loss_f.best"),
+        trigger=training.triggers.MaxValueTrigger("validation/main/loss_f"),
+    )
+    trainer.extend(
+        snapshot_object(model, "model.loss_h.best"),
+        trigger=training.triggers.MaxValueTrigger("validation/main/loss_h"),
+    )
+    trainer.extend(
+        snapshot_object(model, "model.loss_f_fake.best"),
+        trigger=training.triggers.MaxValueTrigger("validation/main/loss_f_fake"),
+    )
+    trainer.extend(
+        snapshot_object(model, "model.penalty.best"),
+        trigger=training.triggers.MaxValueTrigger("validation/main/penalty"),
+    )
+    if mtl_mode not in ["transducer", "transformer_transducer"]:
         trainer.extend(
-            snapshot_object(model, "model.acc.best"),
-            trigger=training.triggers.MaxValueTrigger("validation/main/acc"),
+            snapshot_object(model, "model.cer_ctc_h.best"),
+            trigger=training.triggers.MaxValueTrigger("validation/main/cer_ctc_h"),
+        )
+        trainer.extend(
+            snapshot_object(model, "model.cer_ctc_f.best"),
+            trigger=training.triggers.MaxValueTrigger("validation/main/cer_ctc_f"),
+        )
+        trainer.extend(
+            snapshot_object(model, "model.cer_ctc_fake.best"),
+            trigger=training.triggers.MaxValueTrigger("validation/main/cer_ctc_fake"),
         )
 
     # save snapshot which contains model and optimizer states
@@ -790,20 +814,54 @@ def train(args):
 
     # epsilon decay in the optimizer
     if args.opt == "adadelta":
-        if args.criterion == "acc" and mtl_mode != "ctc":
+        if args.criterion == "cer_ctc_h":
             trainer.extend(
                 restore_snapshot(
-                    model, args.outdir + "/model.acc.best", load_fn=torch_load
+                    model, args.outdir + "/model.cer_ctc_h.best", load_fn=torch_load
                 ),
                 trigger=CompareValueTrigger(
-                    "validation/main/acc",
+                    "validation/main/cer_ctc_h",
                     lambda best_value, current_value: best_value > current_value,
                 ),
             )
             trainer.extend(
                 adadelta_eps_decay(args.eps_decay),
                 trigger=CompareValueTrigger(
-                    "validation/main/acc",
+                    "validation/main/cer_ctc_h",
+                    lambda best_value, current_value: best_value > current_value,
+                ),
+            )
+        if args.criterion == "cer_ctc_f":
+            trainer.extend(
+                restore_snapshot(
+                    model, args.outdir + "/model.cer_ctc_f.best", load_fn=torch_load
+                ),
+                trigger=CompareValueTrigger(
+                    "validation/main/cer_ctc_f",
+                    lambda best_value, current_value: best_value > current_value,
+                ),
+            )
+            trainer.extend(
+                adadelta_eps_decay(args.eps_decay),
+                trigger=CompareValueTrigger(
+                    "validation/main/cer_ctc_f",
+                    lambda best_value, current_value: best_value > current_value,
+                ),
+            )
+        if args.criterion == "cer_ctc_fake":
+            trainer.extend(
+                restore_snapshot(
+                    model, args.outdir + "/model.cer_ctc_fake.best", load_fn=torch_load
+                ),
+                trigger=CompareValueTrigger(
+                    "validation/main/cer_ctc_fake",
+                    lambda best_value, current_value: best_value > current_value,
+                ),
+            )
+            trainer.extend(
+                adadelta_eps_decay(args.eps_decay),
+                trigger=CompareValueTrigger(
+                    "validation/main/cer_ctc_fake",
                     lambda best_value, current_value: best_value > current_value,
                 ),
             )
@@ -821,6 +879,74 @@ def train(args):
                 adadelta_eps_decay(args.eps_decay),
                 trigger=CompareValueTrigger(
                     "validation/main/loss",
+                    lambda best_value, current_value: best_value < current_value,
+                ),
+            )
+        elif args.criterion == "loss_f":
+            trainer.extend(
+                restore_snapshot(
+                    model, args.outdir + "/model.loss_f.best", load_fn=torch_load
+                ),
+                trigger=CompareValueTrigger(
+                    "validation/main/loss_f",
+                    lambda best_value, current_value: best_value < current_value,
+                ),
+            )
+            trainer.extend(
+                adadelta_eps_decay(args.eps_decay),
+                trigger=CompareValueTrigger(
+                    "validation/main/loss_f",
+                    lambda best_value, current_value: best_value < current_value,
+                ),
+            )
+        elif args.criterion == "loss_f_fake":
+            trainer.extend(
+                restore_snapshot(
+                    model, args.outdir + "/model.loss_f_fake.best", load_fn=torch_load
+                ),
+                trigger=CompareValueTrigger(
+                    "validation/main/loss_f_fake",
+                    lambda best_value, current_value: best_value < current_value,
+                ),
+            )
+            trainer.extend(
+                adadelta_eps_decay(args.eps_decay),
+                trigger=CompareValueTrigger(
+                    "validation/main/loss_f_fake",
+                    lambda best_value, current_value: best_value < current_value,
+                ),
+            )
+        elif args.criterion == "loss_h":
+            trainer.extend(
+                restore_snapshot(
+                    model, args.outdir + "/model.loss_h.best", load_fn=torch_load
+                ),
+                trigger=CompareValueTrigger(
+                    "validation/main/loss_h",
+                    lambda best_value, current_value: best_value < current_value,
+                ),
+            )
+            trainer.extend(
+                adadelta_eps_decay(args.eps_decay),
+                trigger=CompareValueTrigger(
+                    "validation/main/loss_h",
+                    lambda best_value, current_value: best_value < current_value,
+                ),
+            )
+        elif args.criterion == "penalty":
+            trainer.extend(
+                restore_snapshot(
+                    model, args.outdir + "/model.penalty.best", load_fn=torch_load
+                ),
+                trigger=CompareValueTrigger(
+                    "validation/main/penalty",
+                    lambda best_value, current_value: best_value < current_value,
+                ),
+            )
+            trainer.extend(
+                adadelta_eps_decay(args.eps_decay),
+                trigger=CompareValueTrigger(
+                    "validation/main/penalty",
                     lambda best_value, current_value: best_value < current_value,
                 ),
             )
@@ -845,15 +971,21 @@ def train(args):
         "epoch",
         "iteration",
         "3p/loss",
-        "3p/loss_ctc",
-        "3p/loss_att",
+        "3p/loss_f",
+        "3p/loss_h",
+        "3p/loss_f_fake",
         "validation/main/loss",
-        "validation/main/loss_ctc",
-        "validation/main/loss_att",
-        "3p/acc",
-        "validation/main/acc",
-        "3p/cer_ctc",
-        "validation/main/cer_ctc",
+        "validation/main/loss_f",
+        "validation/main/loss_h",
+        "validation/main/loss_f_fake",
+        "3p/cer_ctc_h",
+        "validation/main/cer_ctc_h",
+        "3p/cer_ctc_f",
+        "validation/main/cer_ctc_f",
+        "3p/cer_ctc_fake",
+        "validation/main/cer_ctc_fake",
+        "3p/penalty",
+        "validation/main/penalty",
         "elapsed_time",
     ] + ([] if args.num_encs == 1 else report_keys_cer_ctc + report_keys_loss_ctc)
     if args.opt == "adadelta":
