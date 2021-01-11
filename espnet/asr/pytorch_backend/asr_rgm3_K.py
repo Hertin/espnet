@@ -184,7 +184,7 @@ class CustomUpdater(StandardUpdater):
         self.use_apex = use_apex
         self.num_K = num_K
 
-    def loss_bwd(self, update_flag):
+    def loss_bwd(self, update_flag, x):
         optimizer = self.get_optimizer(update_flag)
 
         if self.ngpu == 0:
@@ -309,7 +309,7 @@ class CustomUpdater(StandardUpdater):
         epoch = train_iter.epoch
 
         save_list = []
-        save_k = np.random.choice(K)
+        save_k = np.random.choice(self.num_K)
         self.forward_count = 0
         if train_iter.len - train_iter.current_position < (self.num_K) * self.accum_grad:
             self.update_core_K1()
@@ -327,8 +327,8 @@ class CustomUpdater(StandardUpdater):
                 # see details in https://github.com/espnet/espnet/pull/1388
 
                 # Compute the loss at this time step and accumulate it
-                self.loss_bwd('1f')
-                self.loss_bwd('2h')
+                self.loss_bwd('1f',x)
+                self.loss_bwd('2h',x)
                 # if k == self.num_K - 1:
                 #     self.loss_bwd('3p')
                 if k == save_k:
@@ -365,7 +365,7 @@ class CustomUpdater(StandardUpdater):
             x = _recursive_to(batch, self.device)
 
             # Compute the loss at this time step and accumulate it
-            self.loss_bwd('3p')
+            self.loss_bwd('3p',x)
 
             grad_norm_3p = torch.nn.utils.clip_grad_norm_(
                 self.model.encoder_phi.parameters(), self.grad_clip_threshold
@@ -386,7 +386,7 @@ class CustomUpdater(StandardUpdater):
         # #iterations with accum_grad > 1
         # Ref.: https://github.com/espnet/espnet/issues/777
         if self.forward_count == self.num_K:
-            self.iterations += self.num_K
+            self.iteration += self.num_K
 
         elif self.forward_counts['3p'] == 0:
             self.iteration += 1
