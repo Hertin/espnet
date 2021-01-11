@@ -277,12 +277,12 @@ class E2E(ASRInterface, torch.nn.Module):
         if step == '1f':
             # filter invalid CTC loss for classifier f
             loss_ctc_nonreduce_f = self.ctc_f(hs_pad_f.view(batch_size, -1, self.adim), hs_len, ys_pad)
-            invalid_idx_f = torch.isinf(loss_ctc_nonreduce_f) | torch.isnan(loss_ctc_nonreduce_f)
+            invalid_idx_f = torch.isinf(loss_ctc_nonreduce_f) | torch.isnan(loss_ctc_nonreduce_f) | (loss_ctc_nonreduce_f < 0) | (loss_ctc_nonreduce_f > CTC_LOSS_THRESHOLD)
             # print('Step 1 Loss')
             # print(xs_pad.size())
             # print(invalid_idx_f, invalid)
-            if torch.sum(invalid_idx_f != 0):
-                print(f'Step 1: Invalid ctc loss for classifier f {invalid} num invalid {torch.sum(invalid_idx_f != 0)} {loss_ctc_nonreduce_f[invalid_idx_f]}')
+            # if torch.sum(invalid_idx_f != 0):
+            #     print(f'Step 1: Invalid ctc loss for classifier f {invalid} num invalid {torch.sum(invalid_idx_f != 0)} {loss_ctc_nonreduce_f[invalid_idx_f]}')
 
             loss_ctc_nonreduce_f[invalid_idx_f] = 0
             # loss_ctc_nonreduce[torch.isnan(loss_ctc_nonreduce)] = 0
@@ -294,18 +294,18 @@ class E2E(ASRInterface, torch.nn.Module):
             if cc == True:
                 print('Step 1 Loss Check (h): ')
                 loss_ctc_nonreduce_h_check = self.ctc_h(hs_pad_h_check.view(batch_size, -1, self.adim), hs_len, ys_pad)
-                invalid_idx_h_check = torch.isinf(loss_ctc_nonreduce_h_check) | torch.isnan(loss_ctc_nonreduce_h_check)
+                invalid_idx_h_check = torch.isinf(loss_ctc_nonreduce_h_check) | torch.isnan(loss_ctc_nonreduce_h_check) | (loss_ctc_nonreduce_h_check < 0) | (loss_ctc_nonreduce_h_check > CTC_LOSS_THRESHOLD)
                 print(loss_ctc_nonreduce_h_check)
 
         elif step == '2h':
             # filter invalid CTC loss for classifier h
             loss_ctc_nonreduce_h = self.ctc_h(hs_pad_h.view(batch_size, -1, self.adim), hs_len, ys_pad)
-            invalid_idx_h = torch.isinf(loss_ctc_nonreduce_h) | torch.isnan(loss_ctc_nonreduce_h)
+            invalid_idx_h = torch.isinf(loss_ctc_nonreduce_h) | torch.isnan(loss_ctc_nonreduce_h) | (loss_ctc_nonreduce_h < 0) | (loss_ctc_nonreduce_h > CTC_LOSS_THRESHOLD)
             # print('Step 2 Loss')
             # print(xs_pad.size())
             # print(invalid_idx_h, invalid)
-            if torch.sum(invalid_idx_h != 0):
-                print(f'Step 2: Invalid ctc loss for classifier h {invalid} num invalid {torch.sum(invalid_idx_h != 0)} {loss_ctc_nonreduce_h[invalid_idx_h]}')
+            # if torch.sum(invalid_idx_h != 0):
+            #     print(f'Step 2: Invalid ctc loss for classifier h {invalid} num invalid {torch.sum(invalid_idx_h != 0)} {loss_ctc_nonreduce_h[invalid_idx_h]}')
             loss_ctc_nonreduce_h[invalid_idx_h] = 0
             # loss_ctc_nonreduce[torch.isnan(loss_ctc_nonreduce)] = 0
             loss_ctc = loss_ctc_nonreduce_h[loss_ctc_nonreduce_h!=0].mean() if any(loss_ctc_nonreduce_h!=0) else 0
@@ -316,23 +316,23 @@ class E2E(ASRInterface, torch.nn.Module):
             if cc == True:
                 print('Step 2 Loss Check (f real): ')
                 loss_ctc_nonreduce_f_check = self.ctc_f(hs_pad_f_check.view(batch_size, -1, self.adim), hs_len, ys_pad)
-                invalid_idx_f_check = torch.isinf(loss_ctc_nonreduce_f_check) | torch.isnan(loss_ctc_nonreduce_f_check)
+                invalid_idx_f_check = torch.isinf(loss_ctc_nonreduce_f_check) | torch.isnan(loss_ctc_nonreduce_f_check) | (loss_ctc_nonreduce_f_check < 0) | (loss_ctc_nonreduce_f_check > CTC_LOSS_THRESHOLD)
                 print(loss_ctc_nonreduce_f_check)
         else:
             loss_ctc_nonreduce_fake = self.ctc_f(hs_pad_f_fake.view(batch_size, -1, self.adim), hs_len, ys_pad)
-            invalid_idx_fake = torch.isinf(loss_ctc_nonreduce_fake) | torch.isnan(loss_ctc_nonreduce_fake)
-            if torch.sum(invalid_idx_fake != 0):
-                print(f'Step 3: Invalid fake ctc loss for classifier f {invalid} num invalid {torch.sum(invalid_idx_fake != 0)} {loss_ctc_nonreduce_fake[invalid_idx_fake]}')
+            invalid_idx_fake = torch.isinf(loss_ctc_nonreduce_fake) | torch.isnan(loss_ctc_nonreduce_fake) | (loss_ctc_nonreduce_fake < 0) | (loss_ctc_nonreduce_fake > CTC_LOSS_THRESHOLD)
+            # if torch.sum(invalid_idx_fake != 0):
+            #     print(f'Step 3: Invalid fake ctc loss for classifier f {invalid} num invalid {torch.sum(invalid_idx_fake != 0)} {loss_ctc_nonreduce_fake[invalid_idx_fake]}')
 
             loss_ctc_nonreduce_real = self.ctc_f(hs_pad_f_real.view(batch_size, -1, self.adim), hs_len, ys_pad)
-            invalid_idx_real = torch.isinf(loss_ctc_nonreduce_real) | torch.isnan(loss_ctc_nonreduce_real)
-            if torch.sum(invalid_idx_real != 0):
-                print(f'Step 3: Invalid real ctc loss for classifier f {invalid} num invalid {torch.sum(invalid_idx_real != 0)} {loss_ctc_nonreduce_real[invalid_idx_real]}')
+            invalid_idx_real = torch.isinf(loss_ctc_nonreduce_real) | torch.isnan(loss_ctc_nonreduce_real) | (loss_ctc_nonreduce_real < 0) | (loss_ctc_nonreduce_real > CTC_LOSS_THRESHOLD)
+            # if torch.sum(invalid_idx_real != 0):
+            #     print(f'Step 3: Invalid real ctc loss for classifier f {invalid} num invalid {torch.sum(invalid_idx_real != 0)} {loss_ctc_nonreduce_real[invalid_idx_real]}')
 
             loss_ctc_nonreduce_h = self.ctc_h(hs_pad_h.view(batch_size, -1, self.adim), hs_len, ys_pad)
-            invalid_idx_h = torch.isinf(loss_ctc_nonreduce_h) | torch.isnan(loss_ctc_nonreduce_h)
-            if torch.sum(invalid_idx_h != 0):
-                print(f'Step 3: Invalid ctc loss for classifier h {invalid} num invalid {torch.sum(invalid_idx_h != 0)} {loss_ctc_nonreduce_h[invalid_idx_h]}')
+            invalid_idx_h = torch.isinf(loss_ctc_nonreduce_h) | torch.isnan(loss_ctc_nonreduce_h) | (loss_ctc_nonreduce_h < 0) | (loss_ctc_nonreduce_h > CTC_LOSS_THRESHOLD)
+            # if torch.sum(invalid_idx_h != 0):
+            #     print(f'Step 3: Invalid ctc loss for classifier h {invalid} num invalid {torch.sum(invalid_idx_h != 0)} {loss_ctc_nonreduce_h[invalid_idx_h]}')
 
             # print('Step 3 Loss check (f_fake, f_real, h) ')
             # print(loss_ctc_nonreduce_fake, loss_ctc_nonreduce_real, loss_ctc_nonreduce_h)
@@ -403,7 +403,14 @@ class E2E(ASRInterface, torch.nn.Module):
                     loss_ctc_f_data, loss_ctc_h_data, cer_ctc_h, cer_ctc_f, loss_ctc_fake_data, cer_ctc_fake, None, None, loss_data, penalty_data
                 )
         else:
-            logging.warning("loss (=%f) is not correct", loss_data)
+            print("loss (=%f) is not correct", loss_data)
+            print('Step: ', step)
+            if step == '1f':
+                print(loss_ctc_f_data)
+            if step == '2h':
+                print(loss_ctc_h_data)
+            if step == '3p':
+                print(loss_ctc_f_data, loss_ctc_h_data, loss_ctc_fake_data)
         return self.loss
 
     def scorers(self):

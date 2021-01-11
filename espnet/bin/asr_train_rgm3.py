@@ -516,6 +516,7 @@ def get_parser(parser=None, required=True):
     parser.add_argument("--fbank-fmax", type=float, default=None, help="")
 
     parser.add_argument("--experiment", type=str, default=None, help="")
+    parser.add_argument("--num-K", type=int, default=1, help="")
     return parser
 
 
@@ -634,6 +635,10 @@ def main(cmd_args):
         elif args.experiment == 'RGM_3_Players':
             logging.warning(f'Running experiment {args.experiment}')
             from espnet.asr.pytorch_backend.asr_rgm3 import train
+            train(args)
+        elif args.experiment == 'RGM_3_Players_K':
+            logging.warning(f'Running experiment {args.experiment}')
+            from espnet.asr.pytorch_backend.asr_rgm3_K import train
             train(args)
         elif args.experiment == 'RGM_3_Players_2s':
             logging.warning(f'Running experiment {args.experiment}')
