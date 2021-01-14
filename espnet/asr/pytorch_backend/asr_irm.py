@@ -129,21 +129,23 @@ class CustomEvaluator(BaseEvaluator):
 
         self.model.eval()
         
-        with torch.no_grad():
-            for batch in it:
-                x = _recursive_to(batch, self.device)
-                observation = {}
-                with reporter_module.report_scope(observation):
-                    # read scp files
-                    # x: original json with loaded features
-                    #    will be converted to chainer variable later
-                    if self.ngpu == 0:
-                        self.model(*x)
-                    else:
-                        # apex does not support torch.nn.DataParallel
-                        data_parallel(self.model, x, range(self.ngpu))
-                        # self.model(*x)
-                summary.add(observation)
+        
+        dummy_w = torch.nn.Parameter(torch.Tensor([1.0])).to(self.device)
+
+        for i, batch in enumerate(it):
+            _x = _recursive_to(batch, self.device)
+            x = _x + tuple([dummy_w])
+            observation = {}
+            with reporter_module.report_scope(observation):
+                # read scp files
+                # x: original json with loaded features
+                #    will be converted to chainer variable later
+
+                # apex does not support torch.nn.DataParallel
+                with torch.set_grad_enabled(i <= 5):
+                    data_parallel(self.model, x, range(self.ngpu))
+                # self.model(*x)
+            summary.add(observation)
         self.model.train()
 
         return summary.compute_mean()
@@ -190,14 +192,6 @@ class CustomUpdater(StandardUpdater):
         self.use_apex = use_apex
 
     # The core part of the update routine can be customized by overriding.
-    def compute_irm_penalty(self, losses, w):
-        # g1 = grad(losses[0::2].mean(), w, create_graph=True)[0]
-        # g2 = grad(losses[1::2].mean(), w, create_graph=True)[0]
-        # logging.warning(f'{losses.size()}')
-        g = grad(losses.mean(), w, create_graph=True)[0]
-        # logging.warning(f'compute_irm penalty {g1.size()}, {g2.size()} {(g1 * g2).sum()}')
-        return (g * g).sum()
-
     def update_core(self):
         """Main update routine of the CustomUpdater."""
         # When we pass one iterator and optimizer to StandardUpdater.__init__,
@@ -211,7 +205,7 @@ class CustomUpdater(StandardUpdater):
             optimizer = self.get_optimizer("main")
             epoch = self.get_iterator('main').epoch
 
-            penalty_multiplier = epoch ** 1.6
+            penalty_multiplier = 0.00001
             # Get the next batch (a list of json files)
             error, penalty = 0, 0
             # logging.warning(f'iteration: {self.get_iterator("main").epoch} {self.get_iterator("main").current_position}')
@@ -226,7 +220,8 @@ class CustomUpdater(StandardUpdater):
                 # self.iteration += 1 # Increase may result in early report,
                 # which is done in other place automatically.
                 _x = _recursive_to(batch, self.device)
-                x = _x + tuple([dummy_w.expand(batch_size).view(-1, 1, 1)])
+                # x = _x + tuple([dummy_w.expand(batch_size).view(-1, 1, 1)])
+                x = _x + tuple([dummy_w])
 
                 # When the last minibatch in the current epoch is given,
                 # gradient accumulation is turned off in order to evaluate the model
@@ -235,29 +230,26 @@ class CustomUpdater(StandardUpdater):
 
                 # Compute the loss at this time step and accumulate it
                 if self.ngpu == 0:
-                    loss, loss_att_nonreduce, loss_ctc_nonreduce = self.model(*x).mean()
+                    loss, penalty = self.model(*x).mean()
                 else:
                     # apex does not support torch.nn.DataParallel
-                    loss, loss_att_nonreduce, loss_ctc_nonreduce = data_parallel(self.model, x, range(self.ngpu))
+                    loss, penalty = data_parallel(self.model, x, range(self.ngpu))
                 
-                if loss is not None:
-                    loss /= self.accum_grad
-                else:
-                    logging.warning(f'No valid loss {loss_ctc_nonreduce} skip')
+                if loss is None:
                     continue
-                if loss_att_nonreduce is not None:
-                    loss_att_nonreduce /= self.accum_grad
-                loss_ctc_nonreduce /= self.accum_grad
+
+                loss /= self.accum_grad
+                penalty /= self.accum_grad
 
                 error += loss.mean()
-                penalty += self.compute_irm_penalty(loss_ctc_nonreduce, dummy_w)
-
+                penalty += penalty.mean()
+            
             is_new_epoch = self.get_iterator('main').epoch != epoch
             if is_new_epoch:
                 logging.warning(f'loss {error} {penalty}')
 
             loss = error + penalty_multiplier * penalty
-            
+
             if self.use_apex:
                 from apex import amp
 
@@ -280,7 +272,6 @@ class CustomUpdater(StandardUpdater):
             # if not forward_count not reaching the accum_grad
             # do not update parameters
             return
-
         # update parameters
         self.forward_count = 0
         # compute the gradient norm to check if it is normal or not
@@ -574,9 +565,15 @@ def train(args):
     with open(args.valid_json, "rb") as f:
         valid_json = json.load(f)["utts"]
 
-    # valid_items = list(valid_json.items())
-    # shuffle(valid_items)
-    # valid_json = dict(valid_items[:100])
+    ############ just for testing
+    train_items = list(train_json.items())
+    shuffle(train_items)
+    train_json = dict(train_items[:500])
+    
+    valid_items = list(valid_json.items())
+    shuffle(valid_items)
+    valid_json = dict(valid_items[:100])
+    ############ just for testing
 
     use_sortagrad = args.sortagrad == -1 or args.sortagrad > 0
     # make minibatch list (variable length)
@@ -800,6 +797,18 @@ def train(args):
             file_name="loss.png",
         )
     )
+    
+    trainer.extend(
+        extensions.PlotReport(
+            [
+                "main/penalty",
+                "validation/main/penalty",
+            ]
+            + ([] if args.num_encs == 1 else report_keys_loss_ctc),
+            "epoch",
+            file_name="penalty.png",
+        )
+    )
     trainer.extend(
         extensions.PlotReport(
             ["main/acc", "validation/main/acc"], "epoch", file_name="acc.png"
@@ -901,6 +910,8 @@ def train(args):
         "validation/main/acc",
         "main/cer_ctc",
         "validation/main/cer_ctc",
+        "main/penalty", 
+        "validation/main/penalty",
         "elapsed_time",
     ] + ([] if args.num_encs == 1 else report_keys_cer_ctc + report_keys_loss_ctc)
     if args.opt == "adadelta":
