@@ -522,7 +522,7 @@ def get_parser(parser=None, required=True):
     parser.add_argument("--fbank-fmax", type=float, default=None, help="")
 
     parser.add_argument("--num-langs", type=int, default=None, help="")
-    parser.add_argument("--experiment", type=str, default="", help="")
+    parser.add_argument("--experiment", type=str, default="Default", help="")
     parser.add_argument("--dro-num-lang", type=int, default=None, help="")
     parser.add_argument("--irm-num-lang", type=int, default=None, help="")
     return parser
@@ -626,7 +626,7 @@ def main(cmd_args):
 
     if args.num_spkrs == 1:
         logging.warning(f'Running experiment {args.experiment}')
-        if args.experiment == '': # default
+        if args.experiment == 'Default': # default
             if args.backend == "chainer":
                 from espnet.asr.chainer_backend.asr import train
 
