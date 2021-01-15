@@ -160,6 +160,15 @@ def add_arguments_transformer_common(group):
         "--rgm-lambda", default=0.5, type=float, help="Lambda for RGM"
     )
     group.add_argument(
-        "--num-langs", default=15, type=int, help="Lambda for RGM"
+        "--num-langs", default=15, type=int, help="Languages for RGM"
     )
+    group.add_argument(
+        "--num-langs-f", default=10, type=int, help="Language family for RGM"
+    )
+    group.add_argument(
+        "--elayers-extractor", default=0, type=int, help="Extractor transformer layers"
+    )
+    group.add_argument("--sampling-lf", type=strtobool, default=False, help="Whether to sample from language family only")
+    group.add_argument("--lf-dict-dir-model", type=str, default=None, help="Language family dictionary path")
+    group.add_argument("--extractor-lf", type=strtobool, default=False, help="Extractor use language family")
     return group

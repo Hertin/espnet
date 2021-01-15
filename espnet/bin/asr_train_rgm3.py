@@ -517,6 +517,8 @@ def get_parser(parser=None, required=True):
 
     parser.add_argument("--experiment", type=str, default=None, help="")
     parser.add_argument("--num-K", type=int, default=1, help="")
+    parser.add_argument("--lf-dict-dir-frontend", type=str, default=None, help="")
+    parser.add_argument("--num-family", type=int, default=None, help="")
     return parser
 
 

@@ -44,6 +44,7 @@ from espnet.nets.pytorch_backend.transformer.plot import PlotAttentionReport
 from espnet.nets.scorers.ctc import CTCPrefixScorer
 from espnet.utils.fill_missing_args import fill_missing_args
 from espnet.nets.pytorch_backend.transformer.subsampling import Conv2dSubsampling
+import pickle
 
 
 class Reporter(chainer.Chain):
@@ -112,7 +113,7 @@ class E2E(ASRInterface, torch.nn.Module):
             attention_dim=args.adim,
             attention_heads=args.aheads,
             linear_units=args.eunits,
-            num_blocks=args.elayers,
+            num_blocks=args.elayers - args.elayers_extractor,
             input_layer='Identity',
             dropout_rate=args.dropout_rate,
             positional_dropout_rate=args.dropout_rate,
@@ -124,23 +125,65 @@ class E2E(ASRInterface, torch.nn.Module):
             attention_dim=args.adim,
             attention_heads=args.aheads,
             linear_units=args.eunits,
-            num_blocks=args.elayers,
+            num_blocks=args.elayers -args.elayers_extractor,
             input_layer='Identity',
             dropout_rate=args.dropout_rate,
             positional_dropout_rate=args.dropout_rate,
             attention_dropout_rate=args.transformer_attn_dropout_rate,
         )
-        self.encoder_phi = Extractor(
-            idim=idim,
-            attention_dim=args.adim,
-            attention_heads=args.aheads,
-            linear_units=args.eunits,
-            num_blocks=args.elayers,
-            input_layer='conv2d',
-            dropout_rate=args.dropout_rate,
-            positional_dropout_rate=args.dropout_rate,
-            attention_dropout_rate=args.transformer_attn_dropout_rate,
-        )
+        if args.extractor_lf == False:
+            if args.elayers_extractor == 0:
+                self.encoder_phi = Extractor(
+                    idim=idim,
+                    attention_dim=args.adim,
+                    attention_heads=args.aheads,
+                    linear_units=args.eunits,
+                    num_blocks=args.elayers,
+                    input_layer='conv2d',
+                    dropout_rate=args.dropout_rate,
+                    positional_dropout_rate=args.dropout_rate,
+                    attention_dropout_rate=args.transformer_attn_dropout_rate,
+                )
+            else:
+                self.encoder_phi = Encoder(
+                    idim=idim,
+                    attention_dim=args.adim,
+                    attention_heads=args.aheads,
+                    linear_units=args.eunits,
+                    num_blocks=args.elayers_extractor,
+                    input_layer='conv2d',
+                    dropout_rate=args.dropout_rate,
+                    positional_dropout_rate=args.dropout_rate,
+                    attention_dropout_rate=args.transformer_attn_dropout_rate,
+                )
+        else:
+            if args.elayers_extractor == 0:
+                self.encoder_phi = ExtractorLang(
+                    idim=idim,
+                    attention_dim=args.adim,
+                    attention_heads=args.aheads,
+                    linear_units=args.eunits,
+                    num_blocks=args.elayers,
+                    input_layer='conv2d',
+                    dropout_rate=args.dropout_rate,
+                    positional_dropout_rate=args.dropout_rate,
+                    attention_dropout_rate=args.transformer_attn_dropout_rate,
+                    num_langs=args.num_langs_f
+                )
+            else:
+                self.encoder_phi = EncoderLang(
+                    idim=idim,
+                    attention_dim=args.adim,
+                    attention_heads=args.aheads,
+                    linear_units=args.eunits,
+                    num_blocks=args.elayers_extractor,
+                    input_layer='conv2d',
+                    dropout_rate=args.dropout_rate,
+                    positional_dropout_rate=args.dropout_rate,
+                    attention_dropout_rate=args.transformer_attn_dropout_rate,
+                    num_langs=args.num_langs_f,
+                    condition_ex=True
+                )
         self.decoder = None
         self.criterion = None
         self.sos = odim - 1
@@ -174,13 +217,19 @@ class E2E(ASRInterface, torch.nn.Module):
         self.clamp = torch.nn.ReLU()
         self.rgm_lambda = args.rgm_lambda
         self.num_langs = args.num_langs
+        self.sampling_lf = args.sampling_lf
+        self.extractor_lf = args.extractor_lf
+        if self.extractor_lf:
+            with open(args.lf_dict_dir_model, 'rb') as f:
+                self.lang_family = pickle.load(f)
+
 
     def reset_parameters(self, args):
         """Initialize parameters."""
         # initialize parameters
         initialize(self, args.transformer_init)
 
-    def forward(self, langs, xs_pad, ilens, ys_pad, step, cc= False):
+    def forward(self, langs, xs_pad, ilens, ys_pad, langs_f, step, cc= False):
         """E2E forward.
 
         :param torch.Tensor xs_pad: batch of padded source sequences (B, Tmax, idim)
@@ -223,8 +272,10 @@ class E2E(ASRInterface, torch.nn.Module):
 
         src_mask = make_non_pad_mask(ilens.tolist()).to(xs_pad.device).unsqueeze(-2)
         # extract from feature extractor phi
-        es_pad, es_mask = self.encoder_phi(xs_pad, src_mask)
-        # print('es pad:', es_pad)
+        if not self.extractor_lf:
+            es_pad, es_mask = self.encoder_phi(xs_pad, src_mask)
+        else:
+            es_pad, es_mask = self.encoder_phi(langs_f, xs_pad, src_mask)
 
         if step == '1f':
             hs_pad_f, hs_mask_f = self.encoder_f(langs, es_pad, es_mask)
@@ -256,8 +307,12 @@ class E2E(ASRInterface, torch.nn.Module):
             for batch_idx in range(len(fake_langs)):
                 lang_idx = torch.argmax(fake_langs[batch_idx])
                 fake_langs[batch_idx][lang_idx] = 0
-                fake_lang_idx = numpy.random.choice([a for a in range(num_langs) if a != lang_idx])
+                if not self.sampling_lf:
+                    fake_lang_idx = numpy.random.choice([a for a in range(num_langs) if a != lang_idx])
+                else:
+                    fake_lang_idx = numpy.random.choice(self.lang_family[int(lang_idx)])
                 fake_langs[batch_idx][fake_lang_idx] = 1
+            #print('hs pad f real fake:')
             hs_pad_f_real, hs_mask_f_real = self.encoder_f(langs, es_pad, es_mask)
             hs_pad_f_fake, hs_mask_f_fake = self.encoder_f(fake_langs, es_pad, es_mask)
             hs_pad_h, hs_mask_h = self.encoder_h(es_pad, es_mask)
@@ -426,6 +481,7 @@ class E2E(ASRInterface, torch.nn.Module):
         """
         self.eval()
         x = torch.as_tensor(x).unsqueeze(0)
+        x = self.encoder_phi(x, None)
         enc_output, _ = self.encoder_h(x, None)
         return enc_output.squeeze(0)
 
@@ -439,7 +495,8 @@ class E2E(ASRInterface, torch.nn.Module):
         self.eval()
         xs_pad = xs_pad[:, : max(ilens)]  # for data parallel
         src_mask = make_non_pad_mask(ilens.tolist()).to(xs_pad.device).unsqueeze(-2)
-        hs_pad, hs_mask = self.encoder_h(xs_pad, src_mask)
+        es_pad, es_mask = self.encoder_phi(xs_pad, src_mask)
+        hs_pad, hs_mask = self.encoder_h(es_pad, es_mask)
         self.hs_pad = hs_pad
         # x = torch.as_tensor(x).unsqueeze(0)
         # enc_output, hs_mask = self.encoder(x, None)

@@ -723,14 +723,15 @@ def train(args):
         converter = CustomConverterMulEnc(
             [i[0] for i in model.subsample_list], dtype=dtype
         )
+    with open(args.lf_dict_dir_frontend, 'r') as f:
+        lang_family = json.load(f)
     dataset_tr = TransformDataset(
-        train, lambda data: converter([load_tr(data)]), lang_onehot=True, num_langs=args.num_langs
+        train, lambda data: converter([load_tr(data)]), lang_onehot=True, num_langs=args.num_langs, lang_family=lang_family, num_family=args.num_family
     )
 
     dataset_cv = TransformDataset(
-        valid, lambda data: converter([load_cv(data)]), lang_onehot=True, num_langs=args.num_langs
+        valid, lambda data: converter([load_cv(data)]), lang_onehot=True, num_langs=args.num_langs, lang_family=lang_family, num_family=args.num_family
     )
-
     assert dataset_cv.lang2int == dataset_tr.lang2int
 
     # hack to make batchsize argument as 1

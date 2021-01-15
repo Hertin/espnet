@@ -89,7 +89,7 @@ class TransformDataset(torch.utils.data.Dataset):
 
     """
 
-    def __init__(self, data, transform, utt=False, lang=False, lang_onehot=False, num_langs=None):
+    def __init__(self, data, transform, utt=False, lang=False, lang_onehot=False, num_langs=None, lang_family=None, num_family=None):
         """Init function."""
         super(TransformDataset).__init__()
         self.data = data
@@ -111,6 +111,14 @@ class TransformDataset(torch.utils.data.Dataset):
             self.int2lang = {i: l for l, i in self.lang2int.items()}
             logging.warning(f'TransformDatasetEar [all_lang] {self.all_lang}')
             logging.warning(f'TransformDatasetEar [lang2int] {self.lang2int}')
+        if lang_family is not None:
+            self.langf_onehot = True
+            self.num_family = num_family
+            self.lang_family = lang_family
+            self.langf2int = {l: i for i, l in enumerate(list(set(sorted(lang_family.values()))))}
+            self.int2langf = {i: l for l, i in self.langf2int.items()}
+            logging.warning(f'TransformDatasetEar [all_langf] {self.lang_family}')
+            logging.warning(f'TransformDatasetEar [langf2int] {self.langf2int}')
         # logging.warning(f'TransformDataset {data[0]}')
         # logging.warning(f'TransformDataset {self.transform}')
 
@@ -122,6 +130,10 @@ class TransformDataset(torch.utils.data.Dataset):
         s = d[0].split('_')[0]
         s = re.sub(r'\d+$', '', s.split('-')[0]) if re.search('[a-zA-Z]+', s) else s
         return s
+
+    def get_langf(self, d):
+        lang = self.get_lang(d)
+        return self.lang_family[lang]
 
     def __getitem__(self, idx):
         """[] operator."""
@@ -162,6 +174,11 @@ class TransformDataset(torch.utils.data.Dataset):
             utts = [d[0] for d in data]
             items.append(utts)
         items.extend([xs_pad, ilens, ys_pad])
+        if self.langf_onehot:
+            langfs_onehot = F.one_hot(torch.from_numpy(np.array([
+                self.langf2int[self.get_langf(d)] for d in data
+            ])), num_classes=self.num_family).float()
+            items.append(langfs_onehot)
         return tuple(items)
 
 class TransformDatasetEar(torch.utils.data.Dataset):

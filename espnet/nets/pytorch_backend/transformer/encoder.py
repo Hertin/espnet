@@ -379,7 +379,8 @@ class EncoderLang(torch.nn.Module):
         positionwise_layer_type="linear",
         positionwise_conv_kernel_size=1,
         padding_idx=-1,
-        num_langs=0
+        num_langs=0,
+        condition_ex = None
     ):
         from espnet.nets.pytorch_backend.transformer.repeat import repeat_lang as repeat
         from espnet.nets.pytorch_backend.transformer.encoder_layer import EncoderLayerLang as EncoderLayer
@@ -388,6 +389,9 @@ class EncoderLang(torch.nn.Module):
         super(EncoderLang, self).__init__()
         self._register_load_state_dict_pre_hook(_pre_hook)
         self.num_langs = num_langs
+        self.condition_ex = condition_ex
+        if condition_ex is not None:
+            idim = idim + num_langs
 
         if input_layer == "linear":
             self.embed = torch.nn.Sequential(
@@ -505,13 +509,25 @@ class EncoderLang(torch.nn.Module):
             torch.Tensor: Mask tensor (#batch, time).
 
         """
+        if self.condition_ex is not None:
+            batch_size, T, num_features = xs.size()
+            langs_cat = langs.unsqueeze(1).expand(-1, T, -1) # (#batch, time, #lang)
+            xs_cat = torch.cat([xs, langs_cat], dim=-1) # append language feature to acoustic features
+        else:
+            xs_cat = xs
         if isinstance(
             self.embed,
             (Conv2dSubsampling, Conv2dSubsampling6, Conv2dSubsampling8, VGG2L),
         ):
-            xs, masks = self.embed(xs, masks)
-        else:
+            #print('Check 1')
+            xs, masks = self.embed(xs_cat, masks)
+            #print('Check 2')
+        elif isinstance(
+            self.embed, torch.nn.Identity
+        ):
             xs = self.embed(xs)
+        else:
+            xs = self.embed(xs_cat)
         xs, masks = self.encoders(langs, xs, masks)
         if self.normalize_before:
             xs = self.after_norm(xs)
@@ -531,15 +547,28 @@ class EncoderLang(torch.nn.Module):
             List[torch.Tensor]: List of new cache tensors.
 
         """
-        if isinstance(self.embed, Conv2dSubsampling):
-            xs, masks = self.embed(xs, masks)
+        if self.condition_ex is not None:
+            batch_size, T, num_features = xs.size()
+            langs_cat = langs.unsqueeze(1).expand(-1, T, -1) # (#batch, time, #lang)
+            xs_cat = torch.cat([xs, langs_cat], dim=-1) # append language feature to acoustic features
         else:
+            xs_cat = xs
+        if isinstance(
+            self.embed,
+            (Conv2dSubsampling, Conv2dSubsampling6, Conv2dSubsampling8, VGG2L),
+        ):
+            xs, masks = self.embed(xs_cat, masks)
+        elif isinstance(
+            self.embed, torch.nn.Identity
+        ):
             xs = self.embed(xs)
+        else:
+            xs = self.embed(xs_cat)
         if cache is None:
             cache = [None for _ in range(len(self.encoders))]
         new_cache = []
         for c, e in zip(cache, self.encoders):
-            xs, masks = e(xs, masks, cache=c)
+            xs, masks = e(langs, xs, masks, cache=c)
             new_cache.append(xs)
         if self.normalize_before:
             xs = self.after_norm(xs)
@@ -592,11 +621,13 @@ class Extractor(torch.nn.Module):
         positionwise_layer_type="linear",
         positionwise_conv_kernel_size=1,
         padding_idx=-1,
+        num_langs=0,
     ):
         """Construct an Encoder object."""
         super(Extractor, self).__init__()
         self._register_load_state_dict_pre_hook(_pre_hook)
-
+        idim = idim + num_langs
+        self.num_langs = num_langs
         if input_layer == "linear":
             self.embed = torch.nn.Sequential(
                 torch.nn.Linear(idim, attention_dim),
@@ -634,8 +665,6 @@ class Extractor(torch.nn.Module):
             self.embed = torch.nn.Sequential(
                 pos_enc_class(attention_dim, positional_dropout_rate)
             )
-        elif input_layer == 'Identity':
-            self.embed = torch.nn.Identity()
         else:
             raise ValueError("unknown input_layer: " + input_layer)
 
@@ -671,7 +700,7 @@ class Extractor(torch.nn.Module):
             raise NotImplementedError("Support only linear or conv1d.")
         return positionwise_layer, positionwise_layer_args
 
-    def forward(self, xs, masks):
+    def forward(self, xs, masks, langs = None):
         """Encode input sequence.
 
         Args:
@@ -683,6 +712,11 @@ class Extractor(torch.nn.Module):
             torch.Tensor: Mask tensor (#batch, time).
 
         """
+        if self.num_langs != 0:
+            batch_size, T, num_features = xs.size()
+            langs_cat = langs.unsqueeze(1).expand(-1, T, -1) # (#batch, time, #lang)
+            xs = torch.cat([xs, langs_cat], dim=-1) # append language feature to acoustic features
+
         if isinstance(
             self.embed,
             (Conv2dSubsampling, Conv2dSubsampling6, Conv2dSubsampling8, VGG2L),
