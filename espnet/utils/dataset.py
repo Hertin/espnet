@@ -89,19 +89,20 @@ class TransformDataset(torch.utils.data.Dataset):
 
     """
 
-    def __init__(self, data, transform, utt=False, lang=False, lang_onehot=False, num_langs=None, all_lang=None):
+    def __init__(self, data, transform, utt=False, lang=False, lang_onehot=False, speech_type=False,  num_langs=None, all_lang=None):
         """Init function."""
         super(TransformDataset).__init__()
         self.data = data
         self.transform = transform
         self.utt, self.lang, self.lang_onehot = utt, lang, lang_onehot
+        self.speech_type = speech_type
         if all_lang is not None: # passing all the languages manually
             self.num_langs = len(all_lang)
             self.all_lang = all_lang
             self.lang2int = {l: i for i, l in enumerate(sorted(self.all_lang))}
             self.int2lang = {i: l for l, i in self.lang2int.items()}
-            logging.warning(f'TransformDatasetEar [all_lang] {self.all_lang}')
-            logging.warning(f'TransformDatasetEar [lang2int] {self.lang2int}')
+            logging.warning(f'TransformDataset [all_lang] {self.all_lang}')
+            logging.warning(f'TransformDataset [lang2int] {self.lang2int}')
         elif self.lang or self.lang_onehot:
             self.all_lang = set()
             for dt in self.data:
@@ -120,7 +121,12 @@ class TransformDataset(torch.utils.data.Dataset):
             logging.warning(f'TransformDatasetEar [lang2int] {self.lang2int}')
         # logging.warning(f'TransformDataset {data[0]}')
         # logging.warning(f'TransformDataset {self.transform}')
-
+        if self.speech_type:
+            assert self.lang or self.lang_onehot
+        self.lang2type = {
+            '101': 0, '103': 0, '107': 0, '203': 0, '206': 0, '307': 0, '402': 0, '404': 0,
+            'BG': 1, 'CH': 1, 'CR': 1, 'CZ': 1, 'FR': 1, 'GE': 1, 'N': 0, 'PL': 1, 'PO': 1, 'SP': 1, 'TH': 1, 'TU': 1
+        } # 0 is spontaneous speech; 1 is read speech
     def __len__(self):
         """Len function."""
         return len(self.data)
@@ -150,6 +156,11 @@ class TransformDataset(torch.utils.data.Dataset):
                 self.lang2int[self.get_lang(d)] for d in data
             ])), num_classes=self.num_langs).float()
             items.append(langs_onehot)
+        if self.speech_type:
+            speech_type = torch.from_numpy(np.array([
+                    self.lang2type[self.get_lang(d)] for d in data
+            ])).long()
+            items.append(speech_type)
         items.extend([xs_pad, ilens, ys_pad])
         return tuple(items)
 

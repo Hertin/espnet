@@ -60,6 +60,7 @@ class Reporter(chainer.Chain):
         logging.info("mtl loss:" + str(mtl_loss))
         reporter.report({"loss": mtl_loss}, self)
         reporter.report({"penalty": penalty}, self)
+        
 
 class E2E(ASRInterface, torch.nn.Module):
     """E2E module.
@@ -175,12 +176,24 @@ class E2E(ASRInterface, torch.nn.Module):
         initialize(self, args.transformer_init)
 
     def compute_irm_penalty(self, losses, w):
-        # g1 = grad(losses[0::2].mean(), w, create_graph=True)[0]
-        # g2 = grad(losses[1::2].mean(), w, create_graph=True)[0]
         # logging.warning(f'{losses.size()}')
+        if len(losses) == 0:
+            return 0
+        # if len(losses) == 1:
         g = grad(losses.mean(), w, create_graph=True)[0]
-        # logging.warning(f'compute_irm penalty {g1.size()}, {g2.size()} {(g1 * g2).sum()}')
         return (g * g).sum()
+        # else:
+        #     # logging.warning('unbias')
+        #     # logging.warning(f'unbias {losses} even {losses[0::2]} odd {losses[1::2]}')
+        #     g2 = grad(losses[1::2].mean(), w, create_graph=True)[0]
+        #     g1 = grad(losses[0::2].mean(), w, create_graph=True)[0]
+            
+        #     # logging.warning(f'unbias {losses} {g1} {g2}')
+        #     return (g1 * g2).sum()
+        
+        
+        # logging.warning(f'compute_irm penalty {g1.size()}, {g2.size()} {(g1 * g2).sum()}')
+        
 
     def forward(self, xs_pad, ilens, ys_pad, dummy_w=None):
         """E2E forward.
@@ -267,10 +280,11 @@ class E2E(ASRInterface, torch.nn.Module):
             if w is not None and loss_ctc_nonreduce[~invalid_idx].requires_grad:
                 penalty = self.compute_irm_penalty(loss_ctc_nonreduce[~invalid_idx], dummy_w)
                 penalty_data = float(penalty)
+            # logging.warning(f'penalty {penalty}')
         self.penalty = penalty
 
         # if invalid:
-        #     logging.warning(f'ctc loss {loss_ctc}')
+        # logging.warning(f'ctc loss {loss_ctc}')
         # 5. compute cer/wer
         if self.training or self.error_calculator is None or self.decoder is None:
             cer, wer = None, None
@@ -295,8 +309,6 @@ class E2E(ASRInterface, torch.nn.Module):
 
         loss_data = float(self.loss)
 
-
-        logging.warning(f'loss penalty {self.training} {loss_data} {penalty_data}')
         if loss_data < CTC_LOSS_THRESHOLD and not math.isnan(loss_data):
             self.reporter.report(
                 loss_ctc_data, loss_att_data, self.acc, cer_ctc, cer, wer, loss_data, penalty_data

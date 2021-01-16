@@ -15,6 +15,7 @@ import sys
 import re
 from collections import OrderedDict
 from random import shuffle, sample
+from chainer import reporter
 
 from chainer import reporter as reporter_module
 from chainer import report, report_scope
@@ -175,6 +176,8 @@ class CustomUpdater(StandardUpdater):
         device,
         ngpu,
         irm_num_lang,
+        irm_model_regularization,
+        irm_penalty_multiplier,
         grad_noise=False,
         accum_grad=1,
         use_apex=False,
@@ -185,11 +188,15 @@ class CustomUpdater(StandardUpdater):
         self.device = device
         self.ngpu = ngpu
         self.irm_num_lang = irm_num_lang
+        self.irm_model_regularization = irm_model_regularization
+        self.irm_penalty_multiplier = irm_penalty_multiplier
         self.accum_grad = accum_grad
         self.forward_count = 0
         self.grad_noise = grad_noise
         self.iteration = 0
         self.use_apex = use_apex
+        logging.warning(f'irm_model_regularization {self.irm_model_regularization}. irm_penalty_multiplier {self.irm_penalty_multiplier}')
+        
 
     # The core part of the update routine can be customized by overriding.
     def update_core(self):
@@ -205,9 +212,9 @@ class CustomUpdater(StandardUpdater):
             optimizer = self.get_optimizer("main")
             epoch = self.get_iterator('main').epoch
 
-            penalty_multiplier = 0.00001
+
             # Get the next batch (a list of json files)
-            error, penalty = 0, 0
+            error, penalty, model_norm = 0, 0, 0
             # logging.warning(f'iteration: {self.get_iterator("main").epoch} {self.get_iterator("main").current_position}')
             langs = sample(all_langs, self.irm_num_lang)
             # logging.warning(f'langs {langs}')
@@ -230,25 +237,45 @@ class CustomUpdater(StandardUpdater):
 
                 # Compute the loss at this time step and accumulate it
                 if self.ngpu == 0:
-                    loss, penalty = self.model(*x).mean()
+                    lo, pen = self.model(*x).mean()
                 else:
                     # apex does not support torch.nn.DataParallel
-                    loss, penalty = data_parallel(self.model, x, range(self.ngpu))
+                    lo, pen = data_parallel(self.model, x, range(self.ngpu))
                 
-                if loss is None:
+                if lo is None:
                     continue
 
-                loss /= self.accum_grad
-                penalty /= self.accum_grad
+                lo /= self.accum_grad
+                pen /= self.accum_grad
 
-                error += loss.mean()
-                penalty += penalty.mean()
+                # logging.warning(f'self.irm_model_regularization {self.irm_model_regularization} {mod_norm}')
+
+                error += lo.mean()
+                penalty += pen
+            
+                # logging.warning(f'asr irm loss pen{lo.mean()} {pen}')
             
             is_new_epoch = self.get_iterator('main').epoch != epoch
             if is_new_epoch:
-                logging.warning(f'loss {error} {penalty}')
+                logging.warning(f'loss {error} {penalty} {model_norm}')
 
-            loss = error + penalty_multiplier * penalty
+            model_norm, norm_data = None, None
+            # if self.args.irm_model_regularization > 0.:
+            model_norm = 0.
+            with torch.set_grad_enabled(self.irm_model_regularization > 0.):
+                for p in self.model.parameters():
+                    model_norm += torch.norm(p) ** 2
+                model_norm /= self.accum_grad
+                norm_data = float(model_norm)
+            # logging.warning(f'model_norm {model_norm}')
+            reporter.report({"model_norm": norm_data}, self.model.reporter)
+            self.model_norm = model_norm
+
+            # logging.warning(f'{self.irm_penalty_multiplier} {self.irm_model_regularization} {model_norm if self.irm_model_regularization > 0. else 0}')
+            loss = error + self.irm_penalty_multiplier * penalty + self.irm_model_regularization * (
+                model_norm if self.irm_model_regularization > 0. else 0
+            )
+            # logging.warning(f'asr irm loss {loss} {type(loss)}')
 
             if self.use_apex:
                 from apex import amp
@@ -565,14 +592,14 @@ def train(args):
     with open(args.valid_json, "rb") as f:
         valid_json = json.load(f)["utts"]
 
-    ############ just for testing
-    train_items = list(train_json.items())
-    shuffle(train_items)
-    train_json = dict(train_items[:500])
+    ############ just for debugging
+    # train_items = list(train_json.items())
+    # shuffle(train_items)
+    # train_json = dict(train_items[:500])
     
-    valid_items = list(valid_json.items())
-    shuffle(valid_items)
-    valid_json = dict(valid_items[:100])
+    # valid_items = list(valid_json.items())
+    # shuffle(valid_items)
+    # valid_json = dict(valid_items[:100])
     ############ just for testing
 
     use_sortagrad = args.sortagrad == -1 or args.sortagrad > 0
@@ -681,6 +708,8 @@ def train(args):
         device,
         args.ngpu,
         args.irm_num_lang,
+        args.irm_model_regularization,
+        args.irm_penalty_multiplier,
         args.grad_noise,
         args.accum_grad,
         use_apex=use_apex,
@@ -811,6 +840,17 @@ def train(args):
     )
     trainer.extend(
         extensions.PlotReport(
+            [
+                "main/model_norm",
+                "validation/main/model_norm",
+            ]
+            + ([] if args.num_encs == 1 else report_keys_loss_ctc),
+            "epoch",
+            file_name="model_norm.png",
+        )
+    )
+    trainer.extend(
+        extensions.PlotReport(
             ["main/acc", "validation/main/acc"], "epoch", file_name="acc.png"
         )
     )
@@ -912,6 +952,8 @@ def train(args):
         "validation/main/cer_ctc",
         "main/penalty", 
         "validation/main/penalty",
+        "main/model_norm", 
+        "validation/main/model_norm",
         "elapsed_time",
     ] + ([] if args.num_encs == 1 else report_keys_cer_ctc + report_keys_loss_ctc)
     if args.opt == "adadelta":

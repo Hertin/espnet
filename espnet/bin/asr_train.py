@@ -525,6 +525,8 @@ def get_parser(parser=None, required=True):
     parser.add_argument("--experiment", type=str, default="Default", help="")
     parser.add_argument("--dro-num-lang", type=int, default=None, help="")
     parser.add_argument("--irm-num-lang", type=int, default=None, help="")
+    parser.add_argument("--irm-model-regularization", type=float, default=0, help="")
+    parser.add_argument("--irm-penalty-multiplier", type=float, default=0, help="")
     return parser
 
 
