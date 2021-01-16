@@ -1,0 +1,4 @@
+g2ps/
+conf/lang.conf
+../../../tools/activate_python.sh
+../../../tools/setup_cuda_env.sh
