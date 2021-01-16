@@ -38,16 +38,40 @@ lmtag=            # tag for managing LMs
 # decoding parameter
 # recog_model=model.loss.best # set a model to be used for decoding: 'model.acc.best' or 'model.loss.best'
 
-tag="loo_french_transformer_ctc" # tag for managing experiments.
+# tag="multi_transformer_ctc" # tag for managing experiments.
+# train_config=conf/train_transformer_ctc.yaml
+# lm_config=conf/lm.yaml
+# decode_config=conf/decode.yaml
+# babel_recog="103 107 206 307 402 404 505 101 203"
+# gp_recog="Czech French Mandarin Thai Bulgarian German Turkish Portuguese Spanish Polish Croatian"
+# # Generate configs with local/prepare_experiment_configs.py
+# resume=
+# langs_config=
+# recog_model=snapshot.ep.29
+# recog_function="recog_ctconly"
+
+# tag="multilang_transformer_ctc" # tag for managing experiments.
+# train_config=conf/train_transformer_ctc.yaml
+# lm_config=conf/lm.yaml
+# decode_config=conf/decode_multlang.yaml
+# babel_recog="103 107 206 307 402 404 505 101 203"
+# gp_recog="Czech French Mandarin Thai Bulgarian German Turkish Portuguese Spanish Polish Croatian"
+# # Generate configs with local/prepare_experiment_configs.py
+# resume=
+# langs_config=
+# recog_model=snapshot.ep.30
+# recog_function="recog_ctconly_lang"
+
+tag="multi_transformer_ctc_apex" # tag for managing experiments.
 train_config=conf/train_transformer_ctc.yaml
 lm_config=conf/lm.yaml
 decode_config=conf/decode.yaml
-babel_recog="101 203"
-gp_recog="Spanish Polish Croatian"
+babel_recog="103 107 206 307 402 404 505 101 203"
+gp_recog="Czech French Mandarin Thai Bulgarian German Turkish Portuguese Spanish Polish Croatian"
 # Generate configs with local/prepare_experiment_configs.py
 resume=
 langs_config=
-recog_model=model.loss.best
+recog_model=snapshot.ep.29
 recog_function="recog_ctconly"
 
 # Generate configs with local/prepare_experiment_configs.py
