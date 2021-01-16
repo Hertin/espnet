@@ -725,7 +725,7 @@ class E2E(ASRInterface, torch.nn.Module):
         )
         return nbest_hyps
 
-    def calculate_all_attentions(self, langs, xs_pad, ilens, ys_pad):
+    def calculate_all_attentions(self, langs, xs_pad, ilens, ys_pad, langs_f):
         """E2E attention calculation.
 
         :param torch.Tensor xs_pad: batch of padded input sequences (B, Tmax, idim)
@@ -736,7 +736,7 @@ class E2E(ASRInterface, torch.nn.Module):
         """
         self.eval()
         with torch.no_grad():
-            self.forward(langs, xs_pad, ilens, ys_pad, '3p')
+            self.forward(langs, xs_pad, ilens, ys_pad, langs_f, '3p')
         ret = dict()
         for name, m in self.named_modules():
             if (
@@ -751,7 +751,7 @@ class E2E(ASRInterface, torch.nn.Module):
         self.train()
         return ret
 
-    def calculate_all_ctc_probs(self, langs, xs_pad, ilens, ys_pad):
+    def calculate_all_ctc_probs(self,  langs, xs_pad, ilens, ys_pad, langs_f):
         """E2E CTC probability calculation.
 
         :param torch.Tensor xs_pad: batch of padded input sequences (B, Tmax)
@@ -766,7 +766,7 @@ class E2E(ASRInterface, torch.nn.Module):
 
         self.eval()
         with torch.no_grad():
-            self.forward(langs, xs_pad, ilens, ys_pad, '3p')
+            self.forward(langs, xs_pad, ilens, ys_pad, langs_f, '3p')
         for name, m in self.named_modules():
             if 'ctc_h' in name and isinstance(m, CTC) and m.probs is not None:
                 ret = m.probs.cpu().numpy()
