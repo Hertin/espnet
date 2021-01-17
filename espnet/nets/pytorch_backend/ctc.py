@@ -4,7 +4,7 @@ import logging
 import numpy as np
 import torch
 import torch.nn.functional as F
-
+import copy
 from espnet.nets.pytorch_backend.nets_utils import to_device
 
 
@@ -18,7 +18,7 @@ class CTC(torch.nn.Module):
     :param bool reduce: reduce the CTC loss into a scalar
     """
 
-    def __init__(self, odim, eprojs, dropout_rate, ctc_type="warpctc", reduce=True, ctc_lo=None, signature_map=None):
+    def __init__(self, odim, eprojs, dropout_rate, ctc_type="warpctc", reduce=True, ctc_lo=None, signature_map=None,langid2phs=None):
         super().__init__()
         self.dropout_rate = dropout_rate
         self.loss = None
@@ -27,6 +27,8 @@ class CTC(torch.nn.Module):
         else:
             self.ctc_lo = torch.nn.Linear(eprojs, odim)
         self.signature_map = signature_map
+        self.langid2phs = langid2phs
+        self.odim = odim
         # In case of Pytorch >= 1.2.0, CTC will be always builtin
         # self.ctc_type = (
         #     ctc_type
@@ -67,7 +69,7 @@ class CTC(torch.nn.Module):
         else:
             raise NotImplementedError
 
-    def forward(self, hs_pad, hlens, ys_pad, w=None):
+    def forward(self, hs_pad, hlens, ys_pad, w=None, lang_ids = None):
         """CTC forward
 
         :param torch.Tensor hs_pad: batch of padded hidden state sequences (B, Tmax, D)
@@ -90,6 +92,21 @@ class CTC(torch.nn.Module):
         if self.signature_map is not None:
             self.signature_map = self.signature_map.to(hs_pad.device)
             ys_hat = torch.matmul(ys_hat, self.signature_map.unsqueeze(0))
+
+        if lang_ids is not None:
+            if self.langid2phs is not None:
+                min_value = float(np.finfo(torch.tensor(0, dtype=ys_hat.dtype).numpy().dtype).min)
+                for batch_idx in range(len(ys_hat)):
+                    phs_list = [0, self.odim - 1]
+                    for lang_id in lang_ids[batch_idx]:
+                        phs_list.extend(self.langid2phs[int(lang_id)])
+                    phs_list = list(set(phs_list))
+                    # print(lang_ids[batch_idx], phs_list)
+                    mask_list = [id for id in range(self.odim) if id not in phs_list]
+                    ys_hat[batch_idx,:,mask_list] = min_value
+            else:
+                logging.warning("WARNING: language ID to phoneme list not found!")
+
 
         if w is not None:
             ys_hat = ys_hat * w
@@ -131,7 +148,7 @@ class CTC(torch.nn.Module):
 
         return self.loss
 
-    def log_softmax(self, hs_pad):
+    def log_softmax(self, hs_pad, lang_ids = None):
         """log_softmax of frame activations
 
         :param torch.Tensor hs_pad: 3d tensor (B, Tmax, eprojs)
@@ -141,18 +158,30 @@ class CTC(torch.nn.Module):
         # logging.warning(f'CTC [hs_pad] {torch.mean(hs_pad)} {hs_pad} ')
         # logging.error(f"CTC LOSS LOG SOFTMAX")
         # logging.warning(f'CTC [hs_pad] {hs_pad.size()} ')
-        
+
         ys_hat = self.ctc_lo(hs_pad)
-        
+
         if self.signature_map is not None:
             self.signature_map = self.signature_map.to(hs_pad.device)
             logging.warning(f'CTC [signature map] Yes')
             ys_hat = torch.matmul(ys_hat, self.signature_map.unsqueeze(0))
+        if lang_ids is not None:
+            if self.langid2phs is not None:
+                min_value = float(np.finfo(torch.tensor(0, dtype=ys_hat.dtype).numpy().dtype).min)
+                for batch_idx in range(len(ys_hat)):
+                    phs_list = [0, self.odim - 1]
+                    for lang_id in lang_ids[batch_idx]:
+                        phs_list.extend(self.langid2phs[int(lang_id)])
+                    phs_list = list(set(phs_list))
+                    mask_list = [id for id in range(self.odim) if id not in phs_list]
+                    ys_hat[batch_idx,:,mask_list] = min_value
+            else:
+                logging.warning("WARNING: language ID to phoneme list not found!")
         # else:
             # logging.warning(f'CTC [signature map] None')
         return F.log_softmax(ys_hat, dim=2)
-    
-    def softmax(self, hs_pad):
+
+    def softmax(self, hs_pad, lang_ids=None):
         """softmax of frame activations
 
         :param torch.Tensor hs_pad: 3d tensor (B, Tmax, eprojs)
@@ -164,11 +193,23 @@ class CTC(torch.nn.Module):
             self.signature_map = self.signature_map.to(hs_pad.device)
             logging.warning(f'CTC [signature map] Yes')
             ys_hat = torch.matmul(ys_hat, self.signature_map.unsqueeze(0))
+        if lang_ids is not None:
+            if self.langid2phs is not None:
+                min_value = float(np.finfo(torch.tensor(0, dtype=ys_hat.dtype).numpy().dtype).min)
+                for batch_idx in range(len(ys_hat)):
+                    phs_list = [0, self.odim - 1]
+                    for lang_id in lang_ids[batch_idx]:
+                        phs_list.extend(self.langid2phs[int(lang_id)])
+                    phs_list = list(set(phs_list))
+                    mask_list = [id for id in range(self.odim) if id not in phs_list]
+                    ys_hat[batch_idx,:,mask_list] = min_value
+            else:
+                logging.warning("WARNING: language ID to phoneme list not found!")
 
         self.probs = F.softmax(ys_hat, dim=2)
         return self.probs
 
-    def argmax(self, hs_pad):
+    def argmax(self, hs_pad, lang_ids = None):
         """argmax of frame activations
 
         :param torch.Tensor hs_pad: 3d tensor (B, Tmax, eprojs)
@@ -180,6 +221,18 @@ class CTC(torch.nn.Module):
             self.signature_map = self.signature_map.to(hs_pad.device)
             logging.warning(f'CTC [signature map] Yes')
             ys_hat = torch.matmul(ys_hat, self.signature_map.unsqueeze(0))
+        if lang_ids is not None:
+            if self.langid2phs is not None:
+                min_value = float(np.finfo(torch.tensor(0, dtype=ys_hat.dtype).numpy().dtype).min)
+                for batch_idx in range(len(ys_hat)):
+                    phs_list = [0, self.odim - 1]
+                    for lang_id in lang_ids[batch_idx]:
+                        phs_list.extend(self.langid2phs[int(lang_id)])
+                    phs_list = list(set(phs_list))
+                    mask_list = [id for id in range(self.odim) if id not in phs_list]
+                    ys_hat[batch_idx,:,mask_list] = min_value
+            else:
+                logging.warning("WARNING: language ID to phoneme list not found!")
         return torch.argmax(ys_hat, dim=2)
 
 
@@ -290,4 +343,3 @@ def ctc_for(args, odim, reduce=True):
         raise ValueError(
             "Number of encoders needs to be more than one. {}".format(num_encs)
         )
-

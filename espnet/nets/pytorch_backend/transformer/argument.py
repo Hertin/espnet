@@ -171,4 +171,6 @@ def add_arguments_transformer_common(group):
     group.add_argument("--sampling-lf", type=strtobool, default=False, help="Whether to sample from language family only")
     group.add_argument("--lf-dict-dir-model", type=str, default=None, help="Language family dictionary path")
     group.add_argument("--extractor-lf", type=strtobool, default=False, help="Extractor use language family")
+    group.add_argument("--phs-aware", type=strtobool, default=False, help="Phoneme category aware")
+    group.add_argument("--phs-aware-dict", type=str, default=None, help="Phoneme category aware dict path")
     return group

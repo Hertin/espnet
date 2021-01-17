@@ -217,7 +217,7 @@ class E2E(ASRInterface, torch.nn.Module):
         else:            
             # loss_ctc = self.ctc(hs_pad.view(batch_size, -1, self.adim), hs_len, ys_pad)
             loss_ctc_nonreduce = self.ctc(hs_pad.view(batch_size, -1, self.adim), hs_len, ys_pad)
-            invalid_idx = torch.isinf(loss_ctc_nonreduce) | torch.isnan(loss_ctc_nonreduce)
+            invalid_idx = torch.isinf(loss_ctc_nonreduce) | torch.isnan(loss_ctc_nonreduce) | (loss_ctc_nonreduce < 0) | (loss_ctc_nonreduce > CTC_LOSS_THRESHOLD)
             if torch.sum(invalid_idx != 0):
                 logging.warning(f'Invalid ctc loss {invalid} num invalid {torch.sum(invalid_idx != 0)} {loss_ctc_nonreduce[invalid_idx]}')
 

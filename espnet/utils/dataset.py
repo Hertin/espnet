@@ -43,7 +43,7 @@ class TransformDataset(torch.utils.data.Dataset):
         # logging.warning(f"TransformDataset __getitem__ {idx} [1] {self.data[idx][1]}")
         # logging.warning(f"TransformDataset __getitem__ {idx} [lang] {[d[0].split('_')[0] for d in self.data[idx]]}")
         # logging.warning(f'TransformDataset __getitem__ {idx} {xs_pad.size(), ilens.size(), ys_pad.size()}')
-        # raise 
+        # raise
         return self.transform(self.data[idx])
 
 
@@ -76,7 +76,7 @@ class TransformDatasetRandomFlip(torch.utils.data.Dataset):
         # logging.warning(f"TransformDataset __getitem__ {idx} [1] {self.data[idx][1]}")
         # logging.warning(f"TransformDataset __getitem__ {idx} [lang] {[d[0].split('_')[0] for d in self.data[idx]]}")
         # logging.warning(f'TransformDataset __getitem__ {idx} {xs_pad.size(), ilens.size(), ys_pad.size()}')
-        # raise 
+        # raise
         return self.transform(self.data[idx])
 
 
@@ -95,12 +95,13 @@ class TransformDataset(torch.utils.data.Dataset):
         self.data = data
         self.transform = transform
         self.utt, self.lang, self.lang_onehot = utt, lang, lang_onehot
+        self.langf_onehot = False
         if self.lang or self.lang_onehot:
             self.all_lang = set()
             for dt in self.data:
                 self.all_lang.update([self.get_lang(d) for d in dt])
             from collections import Counter
-            
+
             cnt = Counter()
             for dt in self.data:
                 cnt.update([d[0].split('_')[0] for d in dt])
@@ -205,7 +206,7 @@ class TransformDatasetEar(torch.utils.data.Dataset):
             self.all_lang.update([self.get_lang(d) for d in dt])
             # ll = []
             # for d in dt:
-                
+
             #     s = d[0].split('_')[0]
             #     s = re.sub(r'\d+$', '', s.split('-')[0]) if re.search('[a-zA-Z]+', s) else s
             #     ll.append(s)
@@ -215,7 +216,7 @@ class TransformDatasetEar(torch.utils.data.Dataset):
             #     for d in dt
             # ]
         from collections import Counter
-        
+
         cnt = Counter()
         for dt in self.data:
             cnt.update([d[0].split('_')[0] for d in dt])
@@ -246,7 +247,7 @@ class TransformDatasetEar(torch.utils.data.Dataset):
 
         # logging.warning(f"TransformDatasetEar __getitem__ {idx} [lang] len {len(lang)} {lang}")
         # logging.warning(f"TransformDatasetEar __getitem__ {idx} [lang] {[d[0].split('_')[0] for d in self.data[idx]]}")
-        # logging.warning(f'TransformDatasetEar __getitem__ {idx} {xs_pad.size(), ilens.size(), ys_pad.size()}') 
+        # logging.warning(f'TransformDatasetEar __getitem__ {idx} {xs_pad.size(), ilens.size(), ys_pad.size()}')
         return lang, xs_pad, ilens, ys_pad
 
 class TransformDatasetEval(torch.utils.data.Dataset):
@@ -273,7 +274,7 @@ class TransformDatasetEval(torch.utils.data.Dataset):
             self.all_lang.update([self.get_lang(d) for d in dt])
 
         from collections import Counter
-        
+
         cnt = Counter()
         for dt in self.data:
             cnt.update([d[0].split('_')[0] for d in dt])
@@ -304,7 +305,7 @@ class TransformDatasetEval(torch.utils.data.Dataset):
         utts = [d[0] for d in self.data[idx]]
         # logging.warning(f"TransformDatasetEar __getitem__ {idx} [lang] {lang}")
         # logging.warning(f"TransformDatasetEar __getitem__ {idx} [lang] {[d[0].split('_')[0] for d in self.data[idx]]}")
-        # logging.warning(f'TransformDatasetEar __getitem__ {idx} {xs_pad.size(), ilens.size(), ys_pad.size()}') 
+        # logging.warning(f'TransformDatasetEar __getitem__ {idx} {xs_pad.size(), ilens.size(), ys_pad.size()}')
         return utts, xs_pad, ilens, ys_pad
 
 class ChainerDataLoader(object):
