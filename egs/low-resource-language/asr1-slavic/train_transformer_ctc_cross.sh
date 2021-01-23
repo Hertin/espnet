@@ -43,8 +43,8 @@ recog_model= # set a model to be used for decoding: 'model.acc.best' or 'model.l
 
 # exp settings
 
-tag="l13_transformer_ctc_cross_base" # tag for managing experiments.
-train_config=conf/train_transformer_ctconly.yaml
+tag="slavic_transformer_ctc_cross_base_12" # tag for managing experiments.
+train_config=conf/train_transformer_ctconly_e12.yaml
 lm_config=conf/lm.yaml
 decode_config=conf/decode_transformer.yaml
 babel_langs="307"

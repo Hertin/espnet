@@ -422,7 +422,7 @@ def decompressed(path: Path) -> str:
     return f"shorten -x {path} - | sox -t raw -r 16000 -b 16 -e signed-integer - -t wav - |"
 
 
-ANY_WHITESPACE = re.compile(r"\s", re.UNICODE)
+ANY_WHITESPACE = re.compile(r"\s+", re.UNICODE)
 
 
 def remove_special_symbols(utt: str) -> str:

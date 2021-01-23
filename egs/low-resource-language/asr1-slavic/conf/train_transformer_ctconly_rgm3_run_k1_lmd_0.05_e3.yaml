@@ -9,10 +9,9 @@ dunits: 2048
 adim: 256
 aheads: 4
 rgm-lambda: 0.05
-num-langs: 15
+num-langs: 3
 elayers-extractor: 3
-num-family: 10
-
+num-family: 1
 
 # hybrid CTC/attention
 mtlalpha: 1
@@ -48,4 +47,4 @@ transformer-attn-dropout-rate: 0.0
 transformer-length-normalized-loss: false
 transformer-init: pytorch
 experiment: RGM_3_Players
-lf-dict-dir-frontend: /mnt/ssd/espnet/egs/low-resource-language/asr1/lf_dict_frontend.json
+lf-dict-dir-frontend: /mnt/ssd/espnet/egs/low-resource-language/asr1/lf_dict_frontend_slavic.json

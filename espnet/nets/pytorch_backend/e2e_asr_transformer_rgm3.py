@@ -201,6 +201,8 @@ class E2E(ASRInterface, torch.nn.Module):
         if self.phs_aware:
             with open(args.phs_aware_dict, 'rb') as f:
                 self.phs_aware_dict = pickle.load(f)
+        else:
+            self.phs_aware_dict = None
         self.ctc_f = CTC(
             odim, args.adim, args.dropout_rate, ctc_type=args.ctc_type, reduce=False,langid2phs = self.phs_aware_dict
         )
@@ -356,13 +358,16 @@ class E2E(ASRInterface, torch.nn.Module):
 
             if cc == True:
                 print('Step 1 Loss Check (h): ')
-                loss_ctc_nonreduce_h_check = self.ctc_h(hs_pad_h_check.view(batch_size, -1, self.adim), hs_len, ys_pad)
+                loss_ctc_nonreduce_h_check = self.ctc_h(hs_pad_h_check.view(batch_size, -1, self.adim), hs_len, ys_pad,lang_ids = lang_ids)
                 invalid_idx_h_check = torch.isinf(loss_ctc_nonreduce_h_check) | torch.isnan(loss_ctc_nonreduce_h_check) | (loss_ctc_nonreduce_h_check < 0) | (loss_ctc_nonreduce_h_check > CTC_LOSS_THRESHOLD)
                 print(loss_ctc_nonreduce_h_check)
 
         elif step == '2h':
+            lang_ids = None
+            if self.phs_aware:
+                lang_ids = torch.argmax(langs, dim=-1, keepdim = True)
             # filter invalid CTC loss for classifier h
-            loss_ctc_nonreduce_h = self.ctc_h(hs_pad_h.view(batch_size, -1, self.adim), hs_len, ys_pad)
+            loss_ctc_nonreduce_h = self.ctc_h(hs_pad_h.view(batch_size, -1, self.adim), hs_len, ys_pad,lang_ids = lang_ids)
             invalid_idx_h = torch.isinf(loss_ctc_nonreduce_h) | torch.isnan(loss_ctc_nonreduce_h) | (loss_ctc_nonreduce_h < 0) | (loss_ctc_nonreduce_h > CTC_LOSS_THRESHOLD)
             # print('Step 2 Loss')
             # print(xs_pad.size())
@@ -400,7 +405,7 @@ class E2E(ASRInterface, torch.nn.Module):
             # if torch.sum(invalid_idx_real != 0):
             #     print(f'Step 3: Invalid real ctc loss for classifier f {invalid} num invalid {torch.sum(invalid_idx_real != 0)} {loss_ctc_nonreduce_real[invalid_idx_real]}')
 
-            loss_ctc_nonreduce_h = self.ctc_h(hs_pad_h.view(batch_size, -1, self.adim), hs_len, ys_pad)
+            loss_ctc_nonreduce_h = self.ctc_h(hs_pad_h.view(batch_size, -1, self.adim), hs_len, ys_pad, lang_ids = real_lang_ids)
             invalid_idx_h = torch.isinf(loss_ctc_nonreduce_h) | torch.isnan(loss_ctc_nonreduce_h) | (loss_ctc_nonreduce_h < 0) | (loss_ctc_nonreduce_h > CTC_LOSS_THRESHOLD)
             # if torch.sum(invalid_idx_h != 0):
             #     print(f'Step 3: Invalid ctc loss for classifier h {invalid} num invalid {torch.sum(invalid_idx_h != 0)} {loss_ctc_nonreduce_h[invalid_idx_h]}')
@@ -435,7 +440,7 @@ class E2E(ASRInterface, torch.nn.Module):
                 fake_lang_ids = torch.argmax(fake_langs, dim=-1, keepdim = True)
                 lang_ids = torch.cat([real_lang_ids, fake_lang_ids], dim = -1)
 
-            ys_hat_h = self.ctc_h.argmax(hs_pad_h.view(batch_size, -1, self.adim)).data
+            ys_hat_h = self.ctc_h.argmax(hs_pad_h.view(batch_size, -1, self.adim),lang_ids = real_lang_ids).data
             cer_ctc_h = self.error_calculator(ys_hat_h[loss_ctc_nonreduce_h!=0].cpu(), ys_pad.cpu(), is_ctc=True)
             ys_hat_f = self.ctc_f.argmax(hs_pad_f_real.view(batch_size, -1, self.adim), lang_ids = lang_ids).data
             cer_ctc_f = self.error_calculator(ys_hat_f[loss_ctc_nonreduce_real!=0].cpu(), ys_pad.cpu(), is_ctc=True)
@@ -443,10 +448,10 @@ class E2E(ASRInterface, torch.nn.Module):
             cer_ctc_fake = self.error_calculator(ys_hat_fake[loss_ctc_nonreduce_fake!=0].cpu(), ys_pad.cpu(), is_ctc=True)
         # for visualization
         if not self.training:
-            self.ctc_h.softmax(hs_pad_h)
             lang_ids = None
             if self.phs_aware:
                 lang_ids = torch.argmax(langs, dim=-1, keepdim = True)
+            self.ctc_h.softmax(hs_pad_h,lang_ids = lang_ids)
             self.ctc_f.softmax(hs_pad_f_real, lang_ids = lang_ids)
 
         penalty = None

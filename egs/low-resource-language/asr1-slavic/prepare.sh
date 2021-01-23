@@ -65,7 +65,7 @@ else
   babel_recog=""
   gp_langs="Czech Bulgarian Polish"
   gp_dev="Czech Bulgarian Polish"
-  gp_recog="Croatian"
+  gp_recog="Croatian Czech Bulgarian Polish"
   mboshi_train=false
   mboshi_recog=false
   gp_romanized=false

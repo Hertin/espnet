@@ -38,16 +38,18 @@ lmtag=            # tag for managing LMs
 # decoding parameter
 # recog_model=model.loss.best # set a model to be used for decoding: 'model.acc.best' or 'model.loss.best'
 
-tag="l15_transformer_ctc_cross_rgm3_run_k1_lmd_0.001" # tag for managing experiments.
-train_config=conf/train_transformer_ctconly_rgm3_run_k1_lmd_0.001.yaml
+# tag="slavic_transformer_ctc_cross_base" # tag for managing experiments.
+# train_config=conf/conf/train_transformer_ctconly_e6.yaml
+tag="l15_transformer_ctc_cross_rgm3_run_k1_lmd_0.1_e3" # tag for managing experiments.
+train_config=conf/train_transformer_ctconly_rgm3_run_k1_lmd_0.1_e3.yaml
 lm_config=conf/lm.yaml
 decode_config=conf/decode.yaml
-babel_recog="101 203"
-gp_recog="Spanish Polish Croatian"
+babel_recog=""
+gp_recog="Croatian Czech Bulgarian Polish"
 # Generate configs with local/prepare_experiment_configs.py
 resume=
 langs_config=
-recog_model=model.last
+recog_model=model.cer.best
 recog_function="recog_ctconly"
 
 # Generate configs with local/prepare_experiment_configs.py
