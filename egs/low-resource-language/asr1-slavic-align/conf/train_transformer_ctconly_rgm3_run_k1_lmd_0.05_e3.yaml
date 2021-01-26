@@ -1,0 +1,50 @@
+# network architecture
+# encoder related
+elayers: 12
+eunits: 2048
+# decoder related
+dlayers: 1
+dunits: 2048
+# attention related
+adim: 256
+aheads: 4
+rgm-lambda: 0.05
+num-langs: 3
+elayers-extractor: 3
+num-family: 1
+
+# hybrid CTC/attention
+mtlalpha: 1
+ctc-type: warpctc
+# label smoothing
+lsm-weight: 0.1
+report-cer: true
+
+# minibatch related
+batch-size: 32
+maxlen-in: 512  # if input length  > maxlen-in, batchsize is automatically reduced
+maxlen-out: 150 # if output length > maxlen-out, batchsize is automatically reduced
+batch-count: bin
+batch-bins: 800000
+n-iter-processes: 4
+
+# optimization related
+sortagrad: 0 # Feed samples from shortest to longest ; -1: enabled for all epochs, 0: disabled, other: enabled for 'other' epochs
+opt: noam
+accum-grad: 4
+grad-clip: 5
+patience: 0
+epochs: 30
+dropout-rate: 0.0
+
+# transformer specific setting
+backend: pytorch
+model-module: "espnet.nets.pytorch_backend.e2e_asr_transformer_rgm3:E2E"
+transformer-input-layer: conv2d     # encoder architecture type
+transformer-lr: 1
+transformer-warmup-steps: 25000
+transformer-attn-dropout-rate: 0.0
+transformer-length-normalized-loss: false
+transformer-init: pytorch
+experiment: RGM_3_Players
+lf-dict-dir-frontend: /mnt/ssd/espnet/egs/low-resource-language/asr1/lf_dict_frontend_slavic.json

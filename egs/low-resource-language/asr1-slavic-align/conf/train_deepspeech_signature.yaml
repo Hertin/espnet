@@ -1,0 +1,52 @@
+# network architecture
+# encoder related
+# elayers: 12
+# eunits: 2048
+# decoder related
+# dlayers: 6
+# dunits: 2048
+# attention related
+adim: 62
+# aheads: 4
+
+# hybrid CTC/attention
+mtlalpha: 1 # 1 for ctc, 0 for attention, [0,1] for mix
+ctc-weight: 1
+ctc-type: builtin
+
+# label smoothing
+lsm-weight: 0.1
+
+# minibatch related
+batch-size: 64
+maxlen-in: 512  # if input length  > maxlen-in, batchsize is automatically reduced
+maxlen-out: 150 # if output length > maxlen-out, batchsize is automatically reduced
+batch-count: bin
+batch-bins: 1600000
+n-iter-processes: 4
+
+# optimization related
+sortagrad: 0 # Feed samples from shortest to longest ; -1: enabled for all epochs, 0: disabled, other: enabled for 'other' epochs
+opt: adam
+accum-grad: 2
+grad-clip: 5
+patience: 0
+epochs: 30
+dropout-rate: 0.1
+weight-decay: 0.0
+# ita: 0
+
+# deepspeech specific setting
+backend: pytorch
+model-module: "espnet.nets.pytorch_backend.e2e_asr_deepspeech2_signature:E2E"
+# model-module: "espnet.nets.pytorch_backend.e2e_asr_deepspeech2:E2E"
+
+deepspeech2-rnn-hidden-size: 768
+deepspeech2-nb-layers: 2
+deepspeech2-rnn-type: nn.LSTM
+deepspeech2-context: 20
+deepspeech2-bidirectional: true
+deepspeech2-signature-map: "data/signature.npy"
+deepspeech2-init: pytorch
+# transformer-lr: 1.0
+# transformer-warmup-steps: 25000
