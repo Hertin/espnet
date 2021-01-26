@@ -11,7 +11,7 @@ import logging
 import os
 import random
 import sys
-
+import yaml
 import numpy as np
 
 from espnet.utils.cli_utils import strtobool
@@ -29,6 +29,7 @@ def get_parser():
     )
     # general configuration
     parser.add("--config", is_config_file=True, help="Config file path")
+    parser.add("--train-langs", action="append", help="training languages")
     parser.add(
         "--config2",
         is_config_file=True,
@@ -341,6 +342,9 @@ def main(args):
                     if args.recog_function == 'recog_ctconly':
                         from espnet.asr.pytorch_backend.recog import recog_ctconly
                         recog_ctconly(args)
+                    elif args.recog_function == 'recog_ctconly_lang':
+                        from espnet.asr.pytorch_backend.recog import recog_ctconly_lang
+                        recog_ctconly_lang(args)
                     elif args.recog_function == 'recog_v2':
                         from espnet.asr.pytorch_backend.recog import recog_v2
 

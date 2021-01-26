@@ -143,6 +143,12 @@ def get_parser(parser=None, required=True):
         help="Type of CTC implementation to calculate loss.",
     )
     parser.add_argument(
+        "--warpctc-length-average",
+        default=False,
+        type=strtobool,
+        help="If ask warpctc to average length",
+    )
+    parser.add_argument(
         "--mtlalpha",
         default=0.5,
         type=float,
@@ -516,7 +522,11 @@ def get_parser(parser=None, required=True):
     parser.add_argument("--fbank-fmax", type=float, default=None, help="")
 
     parser.add_argument("--num-langs", type=int, default=None, help="")
-    parser.add_argument("--experiment", type=str, default=None, help="")
+    parser.add_argument("--experiment", type=str, default="Default", help="")
+    parser.add_argument("--dro-num-lang", type=int, default=None, help="")
+    parser.add_argument("--irm-num-lang", type=int, default=None, help="")
+    parser.add_argument("--irm-model-regularization", type=float, default=0, help="")
+    parser.add_argument("--irm-penalty-multiplier", type=float, default=0, help="")
     return parser
 
 
@@ -617,7 +627,8 @@ def main(cmd_args):
     logging.info("backend = " + args.backend)
 
     if args.num_spkrs == 1:
-        if args.experiment is None: # default
+        logging.warning(f'Running experiment {args.experiment}')
+        if args.experiment == 'Default': # default
             if args.backend == "chainer":
                 from espnet.asr.chainer_backend.asr import train
 
@@ -629,8 +640,13 @@ def main(cmd_args):
             else:
                 raise ValueError("Only chainer and pytorch are supported.")
         elif args.experiment == 'Multilingual_LangAware':
-            logging.warning(f'Running experiment {args.experiment}')
             from espnet.asr.pytorch_backend.asr_multlang import train
+            train(args)
+        elif args.experiment == 'Crosslingual_IRM':
+            from espnet.asr.pytorch_backend.asr_irm import train
+            train(args)
+        elif args.experiment == 'Crosslingual_DRO':
+            from espnet.asr.pytorch_backend.asr_dro import train
             train(args)
         else:
             raise ValueError("Experiment not Implemented")

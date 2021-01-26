@@ -14,7 +14,8 @@ import os
 import sys
 import re
 from collections import OrderedDict
-from random import shuffle
+from random import shuffle, sample
+from chainer import reporter
 
 from chainer import reporter as reporter_module
 from chainer import report, report_scope
@@ -39,10 +40,12 @@ from espnet.asr.asr_utils import snapshot_object
 from espnet.asr.asr_utils import torch_load
 from espnet.asr.asr_utils import torch_resume
 from espnet.asr.asr_utils import torch_snapshot
+from espnet.asr.pytorch_backend.asr_init import freeze_modules
 from espnet.asr.pytorch_backend.asr_init import load_trained_model
 from espnet.asr.pytorch_backend.asr_init import load_trained_modules
 import espnet.lm.pytorch_backend.extlm as extlm_pytorch
 from espnet.nets.asr_interface import ASRInterface
+from espnet.nets.beam_search_transducer import BeamSearchTransducer
 from espnet.nets.pytorch_backend.e2e_asr import pad_list
 import espnet.nets.pytorch_backend.lm.default as lm_pytorch
 from espnet.nets.pytorch_backend.streaming.segment import SegmentStreamingE2E
@@ -51,7 +54,7 @@ from espnet.transform.spectrogram import IStft
 from espnet.transform.transformation import Transformation
 from espnet.utils.cli_writers import file_writer_helper
 from espnet.utils.dataset import ChainerDataLoader
-from espnet.utils.dataset import TransformDataset, TransformDatasetRandomFlip
+from espnet.utils.dataset import TransformDataset
 from espnet.utils.deterministic_utils import set_deterministic_pytorch
 from espnet.utils.dynamic_import import dynamic_import
 from espnet.utils.io_utils import LoadInputsAndTargets
@@ -127,21 +130,23 @@ class CustomEvaluator(BaseEvaluator):
 
         self.model.eval()
         
-        with torch.no_grad():
-            for batch in it:
-                x = _recursive_to(batch, self.device)
-                observation = {}
-                with reporter_module.report_scope(observation):
-                    # read scp files
-                    # x: original json with loaded features
-                    #    will be converted to chainer variable later
-                    if self.ngpu == 0:
-                        self.model(*x)
-                    else:
-                        # apex does not support torch.nn.DataParallel
-                        data_parallel(self.model, x, range(self.ngpu))
-                        # self.model(*x)
-                summary.add(observation)
+        
+        dummy_w = torch.nn.Parameter(torch.Tensor([1.0])).to(self.device)
+
+        for i, batch in enumerate(it):
+            _x = _recursive_to(batch, self.device)
+            x = _x + tuple([dummy_w])
+            observation = {}
+            with reporter_module.report_scope(observation):
+                # read scp files
+                # x: original json with loaded features
+                #    will be converted to chainer variable later
+
+                # apex does not support torch.nn.DataParallel
+                with torch.set_grad_enabled(i <= 5):
+                    data_parallel(self.model, x, range(self.ngpu))
+                # self.model(*x)
+            summary.add(observation)
         self.model.train()
 
         return summary.compute_mean()
@@ -170,6 +175,9 @@ class CustomUpdater(StandardUpdater):
         optimizer,
         device,
         ngpu,
+        irm_num_lang,
+        irm_model_regularization,
+        irm_penalty_multiplier,
         grad_noise=False,
         accum_grad=1,
         use_apex=False,
@@ -179,101 +187,119 @@ class CustomUpdater(StandardUpdater):
         self.grad_clip_threshold = grad_clip_threshold
         self.device = device
         self.ngpu = ngpu
+        self.irm_num_lang = irm_num_lang
+        self.irm_model_regularization = irm_model_regularization
+        self.irm_penalty_multiplier = irm_penalty_multiplier
         self.accum_grad = accum_grad
         self.forward_count = 0
         self.grad_noise = grad_noise
         self.iteration = 0
         self.use_apex = use_apex
+        logging.warning(f'irm_model_regularization {self.irm_model_regularization}. irm_penalty_multiplier {self.irm_penalty_multiplier}')
+        
 
     # The core part of the update routine can be customized by overriding.
-    def compute_irm_penalty(self, losses, w):
-        g1 = grad(losses[0::2].mean(), w, create_graph=True)[0]
-        g2 = grad(losses[1::2].mean(), w, create_graph=True)[0]
-        # logging.warning(f'compute_irm penalty {g1.size()}, {g2.size()} {(g1 * g2).sum()}')
-        return (g1 * g2).sum()
-
     def update_core(self):
         """Main update routine of the CustomUpdater."""
         # When we pass one iterator and optimizer to StandardUpdater.__init__,
         # they are automatically named 'main'.
         global all_langs
-        dummy_w = torch.nn.Parameter(torch.Tensor([1.0])).to(self.device)
+        # logging.warning(f'epoch {self.get_iterator("main").epoch}')
+        with torch.autograd.set_detect_anomaly(False):
+            dummy_w = torch.nn.Parameter(torch.Tensor([1.0])).to(self.device)
 
-        # train_iter = self.get_iterator("main")
-        optimizer = self.get_optimizer("main")
-        epoch = self.get_iterator('main').epoch
+            # train_iter = self.get_iterator("main")
+            optimizer = self.get_optimizer("main")
+            epoch = self.get_iterator('main').epoch
 
-        penalty_multiplier = epoch ** 1.6
-        # Get the next batch (a list of json files)
-        error, penalty = 0, 0
-        # logging.warning(f'iteration: {self.get_iterator("main").epoch} {self.get_iterator("main").current_position}')
-        for l in all_langs:
-            train_iter = self.get_iterator(l)
-        
-            batch = train_iter.next()
-            batch_size = batch[0].size(0)
-            # logging.warning(f'batch size {batch_size}')
-            # self.iteration += 1 # Increase may result in early report,
-            # which is done in other place automatically.
-            _x = _recursive_to(batch, self.device)
-            x = _x + tuple([dummy_w.expand(batch_size).view(-1, 1, 1)])
 
-            # is_new_epoch |= (train_iter.epoch != epoch)
-            # if is_new_epoch:
-            #     new_epoch = train_iter.epoch
-            #     optimizer.zero_grad()
-            #     for l in all_langs:
-            #         self.get_iterator(l).synchronize(new_epoch)
-            #         return
+            # Get the next batch (a list of json files)
+            error, penalty, model_norm = 0, 0, 0
+            # logging.warning(f'iteration: {self.get_iterator("main").epoch} {self.get_iterator("main").current_position}')
+            langs = sample(all_langs, self.irm_num_lang)
+            # logging.warning(f'langs {langs}')
+            for i, l in enumerate(langs):
+                train_iter = self.get_iterator(l)
+            
+                batch = train_iter.next()
+                batch_size = batch[0].size(0)
+                # logging.warning(f'batch size {batch_size}')
+                # self.iteration += 1 # Increase may result in early report,
+                # which is done in other place automatically.
+                _x = _recursive_to(batch, self.device)
+                # x = _x + tuple([dummy_w.expand(batch_size).view(-1, 1, 1)])
+                x = _x + tuple([dummy_w])
 
-            # When the last minibatch in the current epoch is given,
-            # gradient accumulation is turned off in order to evaluate the model
-            # on the validation set in every epoch.
-            # see details in https://github.com/espnet/espnet/pull/1388
+                # When the last minibatch in the current epoch is given,
+                # gradient accumulation is turned off in order to evaluate the model
+                # on the validation set in every epoch.
+                # see details in https://github.com/espnet/espnet/pull/1388
 
-            # Compute the loss at this time step and accumulate it
-            if self.ngpu == 0:
-                loss, loss_ctc, loss_att = self.model(*x).mean() / self.accum_grad
-            else:
-                # apex does not support torch.nn.DataParallel
-                loss, loss_ctc, loss_att = data_parallel(self.model, x, range(self.ngpu))
+                # Compute the loss at this time step and accumulate it
+                if self.ngpu == 0:
+                    lo, pen = self.model(*x).mean()
+                else:
+                    # apex does not support torch.nn.DataParallel
+                    lo, pen = data_parallel(self.model, x, range(self.ngpu))
+                
+                if lo is None:
+                    continue
 
-                loss /= self.accum_grad
-                loss_ctc /= self.accum_grad
-                loss_att /= self.accum_grad
+                lo /= self.accum_grad
+                pen /= self.accum_grad
 
-            error += loss.mean()
-            penalty += self.compute_irm_penalty(loss_att, dummy_w)
-        
-        # logging.warning(f'penalty {penalty}')
-        is_new_epoch = self.get_iterator('main').epoch != epoch
-        # if is_new_epoch:
-        #     logging.warning('[Converter] is new epoch')
+                # logging.warning(f'self.irm_model_regularization {self.irm_model_regularization} {mod_norm}')
 
-        loss = error + penalty_multiplier * penalty
-        
-        if self.use_apex:
-            from apex import amp
+                error += lo.mean()
+                penalty += pen
+            
+                # logging.warning(f'asr irm loss pen{lo.mean()} {pen}')
+            
+            is_new_epoch = self.get_iterator('main').epoch != epoch
+            if is_new_epoch:
+                logging.warning(f'loss {error} {penalty} {model_norm}')
 
-            # NOTE: for a compatibility with noam optimizer
-            opt = optimizer.optimizer if hasattr(optimizer, "optimizer") else optimizer
-            with amp.scale_loss(loss, opt) as scaled_loss:
-                scaled_loss.backward()
-        else:
-            loss.backward()
-        # gradient noise injection
-        if self.grad_noise:
-            from espnet.asr.asr_utils import add_gradient_noise
+            model_norm, norm_data = None, None
+            # if self.args.irm_model_regularization > 0.:
+            model_norm = 0.
+            with torch.set_grad_enabled(self.irm_model_regularization > 0.):
+                for p in self.model.parameters():
+                    model_norm += torch.norm(p) ** 2
+                model_norm /= self.accum_grad
+                norm_data = float(model_norm)
+            # logging.warning(f'model_norm {model_norm}')
+            reporter.report({"model_norm": norm_data}, self.model.reporter)
+            self.model_norm = model_norm
 
-            add_gradient_noise(
-                self.model, self.iteration, duration=100, eta=1.0, scale_factor=0.55
+            # logging.warning(f'{self.irm_penalty_multiplier} {self.irm_model_regularization} {model_norm if self.irm_model_regularization > 0. else 0}')
+            loss = error + self.irm_penalty_multiplier * penalty + self.irm_model_regularization * (
+                model_norm if self.irm_model_regularization > 0. else 0
             )
+            # logging.warning(f'asr irm loss {loss} {type(loss)}')
 
-        # update parameters
+            if self.use_apex:
+                from apex import amp
+
+                # NOTE: for a compatibility with noam optimizer
+                opt = optimizer.optimizer if hasattr(optimizer, "optimizer") else optimizer
+                with amp.scale_loss(loss, opt) as scaled_loss:
+                    scaled_loss.backward()
+            else:
+                loss.backward()
+            # gradient noise injection
+            if self.grad_noise:
+                from espnet.asr.asr_utils import add_gradient_noise
+
+                add_gradient_noise(
+                    self.model, self.iteration, duration=100, eta=1.0, scale_factor=0.55
+                )
+
         self.forward_count += 1
         if not is_new_epoch and self.forward_count != self.accum_grad:
+            # if not forward_count not reaching the accum_grad
+            # do not update parameters
             return
-
+        # update parameters
         self.forward_count = 0
         # compute the gradient norm to check if it is normal or not
         grad_norm = torch.nn.utils.clip_grad_norm_(
@@ -369,72 +395,6 @@ class CustomConverter(object):
         ).to(device)
 
         return xs_pad, ilens, ys_pad
-class CustomConverterMulEnc(object):
-    """Custom batch converter for Pytorch in multi-encoder case.
-
-    Args:
-        subsampling_factors (list): List of subsampling factors for each encoder.
-        dtype (torch.dtype): Data type to convert.
-
-    """
-
-    def __init__(self, subsamping_factors=[1, 1], dtype=torch.float32):
-        """Initialize the converter."""
-        self.subsamping_factors = subsamping_factors
-        self.ignore_id = -1
-        self.dtype = dtype
-        self.num_encs = len(subsamping_factors)
-
-    def __call__(self, batch, device=torch.device("cpu")):
-        """Transform a batch and send it to a device.
-
-        Args:
-            batch (list): The batch to transform.
-            device (torch.device): The device to send to.
-
-        Returns:
-            tuple( list(torch.Tensor), list(torch.Tensor), torch.Tensor)
-
-        """
-        # batch should be located in list
-        assert len(batch) == 1
-        xs_list = batch[0][: self.num_encs]
-        ys = batch[0][-1]
-
-        # perform subsampling
-        if np.sum(self.subsamping_factors) > self.num_encs:
-            xs_list = [
-                [x[:: self.subsampling_factors[i], :] for x in xs_list[i]]
-                for i in range(self.num_encs)
-            ]
-
-        # get batch of lengths of input sequences
-        ilens_list = [
-            np.array([x.shape[0] for x in xs_list[i]]) for i in range(self.num_encs)
-        ]
-
-        # perform padding and convert to tensor
-        # currently only support real number
-        xs_list_pad = [
-            pad_list([torch.from_numpy(x).float() for x in xs_list[i]], 0).to(
-                device, dtype=self.dtype
-            )
-            for i in range(self.num_encs)
-        ]
-
-        ilens_list = [
-            torch.from_numpy(ilens_list[i]).to(device) for i in range(self.num_encs)
-        ]
-        # NOTE: this is for multi-task learning (e.g., speech translation)
-        ys_pad = pad_list(
-            [
-                torch.from_numpy(np.array(y[0]) if isinstance(y, tuple) else y).long()
-                for y in ys
-            ],
-            self.ignore_id,
-        ).to(device)
-
-        return xs_list_pad, ilens_list, ys_pad
 
 def get_lang(utt):
     s = utt.split('_')[0]
@@ -470,7 +430,16 @@ def train(args):
     logging.info("#output dims: " + str(odim))
 
     # specify attention, CTC, hybrid mode
-    if args.mtlalpha == 1.0:
+    if "transducer" in args.model_module:
+        if (
+            getattr(args, "etype", False) == "transformer"
+            or getattr(args, "dtype", False) == "transformer"
+        ):
+            mtl_mode = "transformer_transducer"
+        else:
+            mtl_mode = "transducer"
+        logging.info("Pure transducer mode")
+    elif args.mtlalpha == 1.0:
         mtl_mode = "ctc"
         logging.info("Pure CTC mode")
     elif args.mtlalpha == 0.0:
@@ -488,6 +457,11 @@ def train(args):
             idim_list[0] if args.num_encs == 1 else idim_list, odim, args
         )
     assert isinstance(model, ASRInterface)
+
+    logging.info(
+        " Total parameter of the model = "
+        + str(sum(p.numel() for p in model.parameters()))
+    )
 
     if args.rnnlm is not None:
         rnnlm_args = get_model_conf(args.rnnlm, args.rnnlm_conf)
@@ -541,18 +515,30 @@ def train(args):
     model = model.to(device=device, dtype=dtype)
     # logging.warning(f'model distmat {model.dist_mat.type()} {model.dist_mat.size()}')
     
+    if args.freeze_mods:
+        model, model_params = freeze_modules(model, args.freeze_mods)
+    else:
+        model_params = model.parameters()
+
     # Setup an optimizer
     if args.opt == "adadelta":
         optimizer = torch.optim.Adadelta(
-            model.parameters(), rho=0.95, eps=args.eps, weight_decay=args.weight_decay
+            model_params, rho=0.95, eps=args.eps, weight_decay=args.weight_decay
         )
     elif args.opt == "adam":
-        optimizer = torch.optim.Adam(model.parameters(), weight_decay=args.weight_decay)
+        optimizer = torch.optim.Adam(model_params, weight_decay=args.weight_decay)
     elif args.opt == "noam":
         from espnet.nets.pytorch_backend.transformer.optimizer import get_std_opt
 
+        # For transformer-transducer, adim declaration is within the block definition.
+        # Thus, we need retrieve the most dominant value (d_hidden) for Noam scheduler.
+        if hasattr(args, "enc_block_arch") or hasattr(args, "dec_block_arch"):
+            adim = model.most_dom_dim
+        else:
+            adim = args.adim
+
         optimizer = get_std_opt(
-            model, args.adim, args.transformer_warmup_steps, args.transformer_lr
+            model_params, adim, args.transformer_warmup_steps, args.transformer_lr
         )
     else:
         raise NotImplementedError("unknown optimizer: " + args.opt)
@@ -567,9 +553,7 @@ def train(args):
                 "See https://github.com/NVIDIA/apex#linux"
             )
             raise e
-        # torch.distributed.init_process_group(
-        #     backend='nccl', world_size=args.ngpu, rank=torch.cuda.current_device()
-        # )
+
         if args.opt == "noam":
             model, optimizer.optimizer = amp.initialize(
                 model, optimizer.optimizer, opt_level=args.train_dtype
@@ -579,7 +563,7 @@ def train(args):
                 model, optimizer, opt_level=args.train_dtype
             )
         use_apex = True
-        # model = DistributedDataParallel(model, )
+
         from espnet.nets.pytorch_backend.ctc import CTC
 
         amp.register_float_function(CTC, "loss_fn")
@@ -608,9 +592,15 @@ def train(args):
     with open(args.valid_json, "rb") as f:
         valid_json = json.load(f)["utts"]
 
+    ############ just for debugging
+    # train_items = list(train_json.items())
+    # shuffle(train_items)
+    # train_json = dict(train_items[:500])
+    
     # valid_items = list(valid_json.items())
     # shuffle(valid_items)
     # valid_json = dict(valid_items[:100])
+    ############ just for testing
 
     use_sortagrad = args.sortagrad == -1 or args.sortagrad > 0
     # make minibatch list (variable length)
@@ -717,6 +707,9 @@ def train(args):
         optimizer,
         device,
         args.ngpu,
+        args.irm_num_lang,
+        args.irm_model_regularization,
+        args.irm_penalty_multiplier,
         args.grad_noise,
         args.accum_grad,
         use_apex=use_apex,
@@ -746,7 +739,19 @@ def train(args):
         )
 
     # Save attention weight each epoch
-    if args.num_save_attention > 0 and args.mtlalpha != 1.0:
+    is_attn_plot = (
+        (
+            "transformer" in args.model_module
+            or "conformer" in args.model_module
+            or mtl_mode in ["att", "mtl"]
+        )
+        or (
+            mtl_mode == "transducer" and getattr(args, "rnnt_mode", False) == "rnnt-att"
+        )
+        or mtl_mode == "transformer_transducer"
+    )
+
+    if args.num_save_attention > 0 and is_attn_plot:
         data = sorted(
             list(valid_json.items())[: args.num_save_attention],
             key=lambda x: int(x[1]["input"][0]["shape"][1]),
@@ -769,6 +774,34 @@ def train(args):
         trainer.extend(att_reporter, trigger=(1, "epoch"))
     else:
         att_reporter = None
+
+    # Save CTC prob at each epoch
+    if mtl_mode in ["ctc", "mtl"] and args.num_save_ctc > 0:
+        # NOTE: sort it by output lengths
+        data = sorted(
+            list(valid_json.items())[: args.num_save_ctc],
+            key=lambda x: int(x[1]["output"][0]["shape"][0]),
+            reverse=True,
+        )
+        if hasattr(model, "module"):
+            ctc_vis_fn = model.module.calculate_all_ctc_probs
+            plot_class = model.module.ctc_plot_class
+        else:
+            ctc_vis_fn = model.calculate_all_ctc_probs
+            plot_class = model.ctc_plot_class
+        ctc_reporter = plot_class(
+            ctc_vis_fn,
+            data,
+            args.outdir + "/ctc_prob",
+            converter=converter,
+            transform=load_cv,
+            device=device,
+            ikey="output",
+            iaxis=1,
+        )
+        trainer.extend(ctc_reporter, trigger=(1, "epoch"))
+    else:
+        ctc_reporter = None
 
     # Make a plot for training and validation values
     if args.num_encs > 1:
@@ -793,6 +826,29 @@ def train(args):
             file_name="loss.png",
         )
     )
+    
+    trainer.extend(
+        extensions.PlotReport(
+            [
+                "main/penalty",
+                "validation/main/penalty",
+            ]
+            + ([] if args.num_encs == 1 else report_keys_loss_ctc),
+            "epoch",
+            file_name="penalty.png",
+        )
+    )
+    trainer.extend(
+        extensions.PlotReport(
+            [
+                "main/model_norm",
+                "validation/main/model_norm",
+            ]
+            + ([] if args.num_encs == 1 else report_keys_loss_ctc),
+            "epoch",
+            file_name="model_norm.png",
+        )
+    )
     trainer.extend(
         extensions.PlotReport(
             ["main/acc", "validation/main/acc"], "epoch", file_name="acc.png"
@@ -812,7 +868,7 @@ def train(args):
         snapshot_object(model, "model.loss.best"),
         trigger=training.triggers.MinValueTrigger("validation/main/loss"),
     )
-    if mtl_mode != "ctc":
+    if mtl_mode not in ["ctc", "transducer", "transformer_transducer"]:
         trainer.extend(
             snapshot_object(model, "model.acc.best"),
             trigger=training.triggers.MaxValueTrigger("validation/main/acc"),
@@ -824,8 +880,9 @@ def train(args):
             torch_snapshot(filename="snapshot.iter.{.updater.iteration}"),
             trigger=(args.save_interval_iters, "iteration"),
         )
-    else:
-        trainer.extend(torch_snapshot(), trigger=(1, "epoch"))
+
+    # save snapshot at every epoch - for model averaging
+    trainer.extend(torch_snapshot(), trigger=(1, "epoch"))
 
     # epsilon decay in the optimizer
     if args.opt == "adadelta":
@@ -863,6 +920,18 @@ def train(args):
                     lambda best_value, current_value: best_value < current_value,
                 ),
             )
+        # NOTE: In some cases, it may take more than one epoch for the model's loss
+        # to escape from a local minimum.
+        # Thus, restore_snapshot extension is not used here.
+        # see details in https://github.com/espnet/espnet/pull/2171
+        elif args.criterion == "loss_eps_decay_only":
+            trainer.extend(
+                adadelta_eps_decay(args.eps_decay),
+                trigger=CompareValueTrigger(
+                    "validation/main/loss",
+                    lambda best_value, current_value: best_value < current_value,
+                ),
+            )
 
     # Write a log of evaluation statistics for each epoch
     trainer.extend(
@@ -881,6 +950,10 @@ def train(args):
         "validation/main/acc",
         "main/cer_ctc",
         "validation/main/cer_ctc",
+        "main/penalty", 
+        "validation/main/penalty",
+        "main/model_norm", 
+        "validation/main/model_norm",
         "elapsed_time",
     ] + ([] if args.num_encs == 1 else report_keys_cer_ctc + report_keys_loss_ctc)
     if args.opt == "adadelta":
@@ -908,12 +981,17 @@ def train(args):
 
     if args.tensorboard_dir is not None and args.tensorboard_dir != "":
         trainer.extend(
-            TensorboardLogger(SummaryWriter(args.tensorboard_dir), att_reporter),
+            TensorboardLogger(
+                SummaryWriter(args.tensorboard_dir),
+                att_reporter=att_reporter,
+                ctc_reporter=ctc_reporter,
+            ),
             trigger=(args.report_interval_iters, "iteration"),
         )
     # Run the training
     trainer.run()
     check_early_stop(trainer, args.epochs)
+
 
 
 def recog(args):
@@ -924,9 +1002,16 @@ def recog(args):
 
     """
     set_deterministic_pytorch(args)
-    model, train_args = load_trained_model(args.model)
+    model, train_args = load_trained_model(args.model, training=False)
     assert isinstance(model, ASRInterface)
     model.recog_args = args
+
+    if args.streaming_mode and "transformer" in train_args.model_module:
+        raise NotImplementedError("streaming mode for transformer is not implemented")
+    logging.info(
+        " Total parameter of the model = "
+        + str(sum(p.numel() for p in model.parameters()))
+    )
 
     # read rnnlm
     if args.rnnlm:
@@ -999,6 +1084,26 @@ def recog(args):
         preprocess_args={"train": False},
     )
 
+    # load transducer beam search
+    if hasattr(model, "rnnt_mode"):
+        if hasattr(model, "dec"):
+            trans_decoder = model.dec
+        else:
+            trans_decoder = model.decoder
+
+        beam_search_transducer = BeamSearchTransducer(
+            decoder=trans_decoder,
+            beam_size=args.beam_size,
+            lm=rnnlm,
+            lm_weight=args.lm_weight,
+            search_type=args.search_type,
+            max_sym_exp=args.max_sym_exp,
+            u_max=args.u_max,
+            nstep=args.nstep,
+            prefix_alpha=args.prefix_alpha,
+            score_norm=args.score_norm,
+        )
+
     if args.batchsize == 0:
         with torch.no_grad():
             for idx, name in enumerate(js.keys(), 1):
@@ -1054,6 +1159,8 @@ def recog(args):
                             for n in range(args.nbest):
                                 nbest_hyps[n]["yseq"].extend(hyps[n]["yseq"])
                                 nbest_hyps[n]["score"] += hyps[n]["score"]
+                elif hasattr(model, "rnnt_mode"):
+                    nbest_hyps = model.recognize(feat, beam_search_transducer)
                 else:
                     nbest_hyps = model.recognize(
                         feat, args, train_args.char_list, rnnlm
@@ -1134,6 +1241,7 @@ def recog(args):
         )
 
 
+
 def enhance(args):
     """Dumping enhanced speech and mask.
 
@@ -1189,7 +1297,7 @@ def enhance(args):
         else args.preprocess_conf
     )
     if preprocess_conf is not None:
-        logging.info("Use preprocessing".format(preprocess_conf))
+        logging.info(f"Use preprocessing: {preprocess_conf}")
         transform = Transformation(preprocess_conf)
     else:
         transform = None
@@ -1351,3 +1459,89 @@ def enhance(args):
             if num_images >= args.num_images and enh_writer is None:
                 logging.info("Breaking the process.")
                 break
+
+
+
+def ctc_align(args):
+    """CTC forced alignments with the given args.
+
+    Args:
+        args (namespace): The program arguments.
+    """
+
+    def add_alignment_to_json(js, alignment, char_list):
+        """Add N-best results to json.
+
+        Args:
+            js (dict[str, Any]): Groundtruth utterance dict.
+            alignment (list[int]): List of alignment.
+            char_list (list[str]): List of characters.
+
+        Returns:
+            dict[str, Any]: N-best results added utterance dict.
+
+        """
+        # copy old json info
+        new_js = dict()
+        new_js["ctc_alignment"] = []
+
+        alignment_tokens = []
+        for idx, a in enumerate(alignment):
+            alignment_tokens.append(char_list[a])
+        alignment_tokens = " ".join(alignment_tokens)
+
+        new_js["ctc_alignment"] = alignment_tokens
+
+        return new_js
+
+    set_deterministic_pytorch(args)
+    model, train_args = load_trained_model(args.model)
+    assert isinstance(model, ASRInterface)
+    model.eval()
+
+    load_inputs_and_targets = LoadInputsAndTargets(
+        mode="asr",
+        load_output=True,
+        sort_in_input_length=False,
+        preprocess_conf=train_args.preprocess_conf
+        if args.preprocess_conf is None
+        else args.preprocess_conf,
+        preprocess_args={"train": False},
+    )
+
+    if args.ngpu > 1:
+        raise NotImplementedError("only single GPU decoding is supported")
+    if args.ngpu == 1:
+        device = "cuda"
+    else:
+        device = "cpu"
+    dtype = getattr(torch, args.dtype)
+    logging.info(f"Decoding device={device}, dtype={dtype}")
+    model.to(device=device, dtype=dtype).eval()
+
+    # read json data
+    with open(args.align_json, "rb") as f:
+        js = json.load(f)["utts"]
+    new_js = {}
+    if args.batchsize == 0:
+        with torch.no_grad():
+            for idx, name in enumerate(js.keys(), 1):
+                logging.info("(%d/%d) aligning " + name, idx, len(js.keys()))
+                batch = [(name, js[name])]
+                feat, label = load_inputs_and_targets(batch)
+                feat = feat[0]
+                label = label[0]
+                enc = model.encode(torch.as_tensor(feat).to(device)).unsqueeze(0)
+                alignment = model.ctc.forced_align(enc, label)
+                new_js[name] = add_alignment_to_json(
+                    js[name], alignment, train_args.char_list
+                )
+    else:
+        raise NotImplementedError("Align_batch is not implemented.")
+
+    with open(args.result_label, "wb") as f:
+        f.write(
+            json.dumps(
+                {"utts": new_js}, indent=4, ensure_ascii=False, sort_keys=True
+            ).encode("utf_8")
+        )

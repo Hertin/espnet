@@ -12,15 +12,22 @@ import logging
 import math
 import os
 import sys
+import re
+from collections import OrderedDict
+from random import shuffle, sample
 
 from chainer import reporter as reporter_module
+from chainer import report, report_scope
 from chainer import training
 from chainer.training import extensions
 from chainer.training.updater import StandardUpdater
 import numpy as np
 from tensorboardX import SummaryWriter
 import torch
-from torch.nn.parallel import data_parallel
+from torch.autograd import grad
+from torch.nn.parallel import data_parallel # DataParallel
+import torch.nn.functional as F
+# from apex.parallel import DistributedDataParallel
 
 from espnet.asr.asr_utils import adadelta_eps_decay
 from espnet.asr.asr_utils import add_results_to_json
@@ -61,6 +68,8 @@ from espnet.utils.training.train_utils import set_early_stop
 import matplotlib
 
 matplotlib.use("Agg")
+
+all_langs = None
 
 if sys.version_info[0] == 2:
     from itertools import izip_longest as zip_longest
@@ -120,6 +129,7 @@ class CustomEvaluator(BaseEvaluator):
         summary = reporter_module.DictSummary()
 
         self.model.eval()
+        
         with torch.no_grad():
             for batch in it:
                 x = _recursive_to(batch, self.device)
@@ -133,7 +143,7 @@ class CustomEvaluator(BaseEvaluator):
                     else:
                         # apex does not support torch.nn.DataParallel
                         data_parallel(self.model, x, range(self.ngpu))
-
+                        # self.model(*x)
                 summary.add(observation)
         self.model.train()
 
@@ -163,6 +173,7 @@ class CustomUpdater(StandardUpdater):
         optimizer,
         device,
         ngpu,
+        dro_num_lang,
         grad_noise=False,
         accum_grad=1,
         use_apex=False,
@@ -177,35 +188,61 @@ class CustomUpdater(StandardUpdater):
         self.grad_noise = grad_noise
         self.iteration = 0
         self.use_apex = use_apex
+        self.dro_num_lang = dro_num_lang
 
     # The core part of the update routine can be customized by overriding.
+
     def update_core(self):
         """Main update routine of the CustomUpdater."""
         # When we pass one iterator and optimizer to StandardUpdater.__init__,
         # they are automatically named 'main'.
-        train_iter = self.get_iterator("main")
+        global all_langs
+        # train_iter = self.get_iterator("main")
         optimizer = self.get_optimizer("main")
-        epoch = train_iter.epoch
+        epoch = self.get_iterator('main').epoch
 
+        
         # Get the next batch (a list of json files)
-        batch = train_iter.next()
-        # self.iteration += 1 # Increase may result in early report,
-        # which is done in other place automatically.
-        x = _recursive_to(batch, self.device)
-        is_new_epoch = train_iter.epoch != epoch
-        # When the last minibatch in the current epoch is given,
-        # gradient accumulation is turned off in order to evaluate the model
-        # on the validation set in every epoch.
-        # see details in https://github.com/espnet/espnet/pull/1388
+        error, penalty = 0, 0
+        # logging.warning(f'iteration: {self.get_iterator("main").epoch} {self.get_iterator("main").current_position}')
+        losses = []
+        langs = sample(all_langs, self.dro_num_lang)
+        for i, l in enumerate(langs):
+            train_iter = self.get_iterator(l)
+        
+            batch = train_iter.next()
+            batch_size = batch[0].size(0)
+            # logging.warning(f'batch size {batch_size}')
+            # self.iteration += 1 # Increase may result in early report,
+            # which is done in other place automatically.
+            x = _recursive_to(batch, self.device)
 
-        # Compute the loss at this time step and accumulate it
-        if self.ngpu == 0:
-            loss = self.model(*x).mean() / self.accum_grad
-        else:
-            # apex does not support torch.nn.DataParallel
-            loss = (
-                data_parallel(self.model, x, range(self.ngpu)).mean() / self.accum_grad
-            )
+            # When the last minibatch in the current epoch is given,
+            # gradient accumulation is turned off in order to evaluate the model
+            # on the validation set in every epoch.
+            # see details in https://github.com/espnet/espnet/pull/1388
+
+            # Compute the loss at this time step and accumulate it
+            if self.ngpu == 0:
+                loss = self.model(*x).mean()
+            else:
+                # apex does not support torch.nn.DataParallel
+                loss = data_parallel(self.model, x, range(self.ngpu))
+            loss /= self.accum_grad
+
+            losses.append(loss)
+        losses = torch.stack(losses)
+        # logging.warning(f'losses {losses}')
+        probs = np.array([l.item() for l in losses])
+        probs = probs - np.min(probs) + 0.1 # remove negative loss
+        # logging.warning(f'prob {probs} {probs/np.sum(probs)}')
+        choice = np.random.choice(list(range(self.dro_num_lang)), p=probs/np.sum(probs), size=1)
+
+        # logging.warning(f'penalty {penalty}')
+        is_new_epoch = self.get_iterator('main').epoch != epoch
+
+        loss = losses[choice]
+        
         if self.use_apex:
             from apex import amp
 
@@ -223,10 +260,13 @@ class CustomUpdater(StandardUpdater):
                 self.model, self.iteration, duration=100, eta=1.0, scale_factor=0.55
             )
 
-        # update parameters
         self.forward_count += 1
         if not is_new_epoch and self.forward_count != self.accum_grad:
+            # if not forward_count not reaching the accum_grad
+            # do not update parameters
             return
+
+        # update parameters
         self.forward_count = 0
         # compute the gradient norm to check if it is normal or not
         grad_norm = torch.nn.utils.clip_grad_norm_(
@@ -275,7 +315,13 @@ class CustomConverter(object):
         """
         # batch should be located in list
         assert len(batch) == 1
+
         xs, ys = batch[0]
+
+        # logging.warning(f"{'*'*10} converter xs {type(xs)} {len(xs)} {[x.shape for x in xs]}")
+        # logging.warning(f"{'*'*10} converter ys {type(ys)} {len(ys)} {[y.shape for y in ys]}")
+
+        # raise "STOP"
 
         # perform subsampling
         if self.subsampling_factor > 1:
@@ -316,7 +362,6 @@ class CustomConverter(object):
         ).to(device)
 
         return xs_pad, ilens, ys_pad
-
 
 class CustomConverterMulEnc(object):
     """Custom batch converter for Pytorch in multi-encoder case.
@@ -385,6 +430,10 @@ class CustomConverterMulEnc(object):
 
         return xs_list_pad, ilens_list, ys_pad
 
+def get_lang(utt):
+    s = utt.split('_')[0]
+    s = re.sub(r'\d+$', '', s.split('-')[0]) if re.search('[a-zA-Z]+', s) else s
+    return s
 
 def train(args):
     """Train with the given args.
@@ -393,6 +442,7 @@ def train(args):
         args (namespace): The program arguments.
 
     """
+    global all_langs
     set_deterministic_pytorch(args)
     if args.num_encs > 1:
         args = format_mulenc_args(args)
@@ -494,8 +544,11 @@ def train(args):
         dtype = getattr(torch, args.train_dtype)
     else:
         dtype = torch.float32
+    model.device = device
+    # logging.warning(f'model distmat {model.dist_mat.type()} {model.dist_mat.size()}')
     model = model.to(device=device, dtype=dtype)
-
+    # logging.warning(f'model distmat {model.dist_mat.type()} {model.dist_mat.size()}')
+    
     if args.freeze_mods:
         model, model_params = freeze_modules(model, args.freeze_mods)
     else:
@@ -534,6 +587,7 @@ def train(args):
                 "See https://github.com/NVIDIA/apex#linux"
             )
             raise e
+
         if args.opt == "noam":
             model, optimizer.optimizer = amp.initialize(
                 model, optimizer.optimizer, opt_level=args.train_dtype
@@ -549,6 +603,8 @@ def train(args):
         amp.register_float_function(CTC, "loss_fn")
         amp.init()
         logging.warning("register ctc as float function")
+
+        
     else:
         use_apex = False
 
@@ -570,24 +626,55 @@ def train(args):
     with open(args.valid_json, "rb") as f:
         valid_json = json.load(f)["utts"]
 
+    # valid_items = list(valid_json.items())
+    # shuffle(valid_items)
+    # valid_json = dict(valid_items[:100])
+
     use_sortagrad = args.sortagrad == -1 or args.sortagrad > 0
     # make minibatch list (variable length)
-    train = make_batchset(
-        train_json,
-        args.batch_size,
-        args.maxlen_in,
-        args.maxlen_out,
-        args.minibatches,
-        min_batch_size=args.ngpu if args.ngpu > 1 else 1,
-        shortest_first=use_sortagrad,
-        count=args.batch_count,
-        batch_bins=args.batch_bins,
-        batch_frames_in=args.batch_frames_in,
-        batch_frames_out=args.batch_frames_out,
-        batch_frames_inout=args.batch_frames_inout,
-        iaxis=0,
-        oaxis=0,
-    )
+    
+    all_langs = set()
+    for k, v in train_json.items():
+        # logging.warning(f'train_json {k} {get_lang(k)} {v}')
+        all_langs.add(get_lang(k))
+
+    all_langs = sorted(list(all_langs))
+    logging.warning(f'all lang {all_langs}')
+    
+    # create train_json for each of the language
+    train_jsons = {}
+    for l in all_langs:
+        train_jsons[l] = {}
+        count = 0
+        for k, v in train_json.items():
+            if get_lang(k) == l:
+                train_jsons[l][k] = v
+                count += 1
+            # if count >= 100:
+            #     break
+
+    logging.warning(f'Training data size: {[(l, len(train_jsons[l])) for l in all_langs]}')
+    logging.warning(f'Valid data size: {len(valid_json)}')
+    trains = {}
+    for l in all_langs:
+        train = make_batchset(
+            train_jsons[l],
+            args.batch_size,
+            args.maxlen_in,
+            args.maxlen_out,
+            args.minibatches,
+            min_batch_size=args.ngpu if args.ngpu > 1 else 1,
+            shortest_first=use_sortagrad,
+            count=args.batch_count,
+            batch_bins=args.batch_bins,
+            batch_frames_in=args.batch_frames_in,
+            batch_frames_out=args.batch_frames_out,
+            batch_frames_inout=args.batch_frames_inout,
+            iaxis=0,
+            oaxis=0,
+        )
+        trains[l] = train
+
     valid = make_batchset(
         valid_json,
         args.batch_size,
@@ -603,7 +690,7 @@ def train(args):
         iaxis=0,
         oaxis=0,
     )
-
+    
     load_tr = LoadInputsAndTargets(
         mode="asr",
         load_output=True,
@@ -620,13 +707,17 @@ def train(args):
     # actual bathsize is included in a list
     # default collate function converts numpy array to pytorch tensor
     # we used an empty collate function instead which returns list
-    train_iter = ChainerDataLoader(
-        dataset=TransformDataset(train, lambda data: converter([load_tr(data)])),
-        batch_size=1,
-        num_workers=args.n_iter_processes,
-        shuffle=not use_sortagrad,
-        collate_fn=lambda x: x[0],
-    )
+    train_iters = {}
+    for l in all_langs:
+        train_iters[l] = ChainerDataLoader(
+            dataset=TransformDataset(trains[l], lambda data: converter([load_tr(data)])),
+            batch_size=1,
+            num_workers=args.n_iter_processes,
+            shuffle=not use_sortagrad,
+            collate_fn=lambda x: x[0],
+        )
+    train_iters['main'] = train_iters[all_langs[0]] # set a main iter
+
     valid_iter = ChainerDataLoader(
         dataset=TransformDataset(valid, lambda data: converter([load_cv(data)])),
         batch_size=1,
@@ -639,10 +730,12 @@ def train(args):
     updater = CustomUpdater(
         model,
         args.grad_clip,
-        {"main": train_iter},
+        #{"main": train_iter},
+        train_iters,
         optimizer,
         device,
         args.ngpu,
+        args.dro_num_lang,
         args.grad_noise,
         args.accum_grad,
         use_apex=use_apex,
@@ -899,6 +992,7 @@ def train(args):
     check_early_stop(trainer, args.epochs)
 
 
+
 def recog(args):
     """Decode with the given args.
 
@@ -1146,6 +1240,7 @@ def recog(args):
         )
 
 
+
 def enhance(args):
     """Dumping enhanced speech and mask.
 
@@ -1363,6 +1458,7 @@ def enhance(args):
             if num_images >= args.num_images and enh_writer is None:
                 logging.info("Breaking the process.")
                 break
+
 
 
 def ctc_align(args):

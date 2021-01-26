@@ -269,7 +269,7 @@ class E2E(ASRInterface, torch.nn.Module):
         """Scorers."""
         return dict(decoder=self.decoder, ctc=CTCPrefixScorer(self.ctc, self.eos))
 
-    def encode(self, x):
+    def encode(self, langs, x):
         """Encode acoustic features.
 
         :param ndarray x: source acoustic feature (T, D)
@@ -278,10 +278,10 @@ class E2E(ASRInterface, torch.nn.Module):
         """
         self.eval()
         x = torch.as_tensor(x).unsqueeze(0)
-        enc_output, _ = self.encoder(x, None)
+        enc_output, _ = self.encoder(langs, x, None)
         return enc_output.squeeze(0)
 
-    def encode_with_length(self, xs_pad, ilens):
+    def encode_with_length(self, langs, xs_pad, ilens):
         """Encode acoustic features.
 
         :param ndarray x: source acoustic feature (T, D)
@@ -291,7 +291,7 @@ class E2E(ASRInterface, torch.nn.Module):
         self.eval()
         xs_pad = xs_pad[:, : max(ilens)]  # for data parallel
         src_mask = make_non_pad_mask(ilens.tolist()).to(xs_pad.device).unsqueeze(-2)
-        hs_pad, hs_mask = self.encoder(xs_pad, src_mask)
+        hs_pad, hs_mask = self.encoder(langs, xs_pad, src_mask)
         self.hs_pad = hs_pad
         # x = torch.as_tensor(x).unsqueeze(0)
         # enc_output, hs_mask = self.encoder(x, None)

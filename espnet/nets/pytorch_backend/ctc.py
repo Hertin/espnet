@@ -18,7 +18,9 @@ class CTC(torch.nn.Module):
     :param bool reduce: reduce the CTC loss into a scalar
     """
 
-    def __init__(self, odim, eprojs, dropout_rate, ctc_type="warpctc", reduce=True, ctc_lo=None, signature_map=None):
+    def __init__(self, odim, eprojs, dropout_rate, 
+        ctc_type="warpctc", reduce=True, ctc_lo=None, signature_map=None, length_average=False
+    ):
         super().__init__()
         self.dropout_rate = dropout_rate
         self.loss = None
@@ -26,6 +28,9 @@ class CTC(torch.nn.Module):
             self.ctc_lo = ctc_lo
         else:
             self.ctc_lo = torch.nn.Linear(eprojs, odim)
+        # self.ll2 = torch.nn.Linear(odim, odim)
+        # self.ll2 = torch.nn.Identity()
+        self.ident = torch.eye(odim, requires_grad=False).view(1, odim, odim)
         self.signature_map = signature_map
         # In case of Pytorch >= 1.2.0, CTC will be always builtin
         # self.ctc_type = (
@@ -33,6 +38,7 @@ class CTC(torch.nn.Module):
         #     if LooseVersion(torch.__version__) < LooseVersion("1.2.0")
         #     else "builtin"
         # )
+        logging.warning(f'warpctc_length_average {length_average}')
         self.ctc_type = ctc_type
         if ctc_type != self.ctc_type:
             logging.warning(f"CTC was set to {self.ctc_type} due to PyTorch version.")
@@ -42,7 +48,7 @@ class CTC(torch.nn.Module):
         elif self.ctc_type == "warpctc":
             import warpctc_pytorch as warp_ctc
 
-            self.ctc_loss = warp_ctc.CTCLoss(size_average=True, reduce=reduce)
+            self.ctc_loss = warp_ctc.CTCLoss(size_average=not length_average, length_average=length_average, reduce=reduce)
         else:
             raise ValueError(
                 'ctc_type must be "builtin" or "warpctc": {}'.format(self.ctc_type)
@@ -79,20 +85,28 @@ class CTC(torch.nn.Module):
         """
         # logging.warning(f"CTC [forward ys_pad] {ys_pad.size()}")
         # TODO(kan-bayashi): need to make more smart way
+        
         ys = [y[y != self.ignore_id] for y in ys_pad]  # parse padded ys
 
         self.loss = None
         hlens = torch.from_numpy(np.fromiter(hlens, dtype=np.int32))
         olens = torch.from_numpy(np.fromiter((x.size(0) for x in ys), dtype=np.int32))
+        
+        ys_hat = self.ctc_lo(F.dropout(hs_pad, p=self.dropout_rate, inplace=False))
 
-        # zero padding for hs
-        ys_hat = self.ctc_lo(F.dropout(hs_pad, p=self.dropout_rate))
         if self.signature_map is not None:
             self.signature_map = self.signature_map.to(hs_pad.device)
             ys_hat = torch.matmul(ys_hat, self.signature_map.unsqueeze(0))
 
+        # logging.warning(f'yshatbef {ys_hat.size()}')
+        # logging.warning(f'yshat {ys_hat}')
+
         if w is not None:
+            # dummy w for irm
             ys_hat = ys_hat * w
+            # multiply with an identity matrix 
+            ys_hat = ys_hat @ self.ident.to(ys_hat.device) # TODO: a potential bug of warpctc?
+
         # zero padding for ys
         ys_true = torch.cat(ys).cpu().int()  # batch x olen
 
