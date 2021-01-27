@@ -60,6 +60,12 @@ parser.add_argument(
     type=float,
     help="min duration",
 )
+parser.add_argument(
+    "--subsample-factor",
+    default=3,
+    type=int,
+    help="subsample a fraction of the speakers for train and dev",
+)
 
 args = parser.parse_args()
 
@@ -158,9 +164,11 @@ for gp_lang in gp_langs + gp_dev + gp_recog:
                 if '<' not in phone and float(dur) > args.min_duration:
                     seg_uttid = uttid + '_' + str(line_idx)
                     spkid = uttid.split("_")[0]
-                    segment_lines.append(" ".join([seg_uttid, uttid, start_time, end_time]) + '\n')
-                    text_lines.append(" ".join([seg_uttid, phone]) + '\n')
-                    utt2spk_lines.append(" ".join([seg_uttid, spkid]) + '\n')
+                    if (int(spkid[2:]) % args.subsample_factor == 0) or 'eval' in gp_lang:
+                        segment_lines.append(" ".join([seg_uttid, uttid, start_time, end_time]) + '\n')
+                        text_lines.append(" ".join([seg_uttid, phone]) + '\n')
+                        utt2spk_lines.append(" ".join([seg_uttid, spkid]) + '\n')
+               
 
     f = codecs.open(wavscp_dir).readlines()
     for line in f:

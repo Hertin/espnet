@@ -113,6 +113,7 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
       --gp-dev "Czech Bulgarian Polish" \
       --gp-recog "Croatian Czech Bulgarian Polish" \
       --min-duration 0.03 \
+      --subsample-factor 3\
 
   train_dirs=""
   dev_dirs=""
