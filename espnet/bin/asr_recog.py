@@ -349,6 +349,9 @@ def main(args):
                         from espnet.asr.pytorch_backend.recog import recog_v2
 
                         recog_v2(args)
+                    elif args.recog_function == 'recog_seg':
+                        from espnet.asr.pytorch_backend.recog import recog_seg
+                        recog_seg(args)
                     else:
                         raise NotImplementedError('Recognition function is not found.')
                 else:

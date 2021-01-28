@@ -431,3 +431,132 @@ def recog_ctconly_lang(args):
                 {"utts": new_js}, indent=4, ensure_ascii=False, sort_keys=True
             ).encode("utf_8")
         )
+
+
+def recog_seg(args):
+    """Decode with custom models that implements ScorerInterface.
+
+    Notes:
+        The previous backend espnet.asr.pytorch_backend.asr.recog
+        only supports E2E and RNNLM
+
+    Args:
+        args (namespace): The program arguments.
+        See py:func:`espnet.bin.asr_recog.get_parser` for details
+
+    """
+
+    logging.warning(f'RECOGSEG')
+    logging.warning("experimental API for custom LMs is selected by --api v2")
+    if args.batchsize > 1:
+        raise NotImplementedError("multi-utt batch decoding is not implemented")
+    if args.streaming_mode is not None:
+        raise NotImplementedError("streaming mode is not implemented")
+    if args.word_rnnlm:
+        raise NotImplementedError("word LM is not implemented")
+
+    set_deterministic_pytorch(args)
+    model, train_args = load_trained_model(args.model)
+
+    assert isinstance(model, ASRInterface)
+    model.eval()
+
+    load_inputs_and_targets = LoadInputsAndTargets(
+        mode="asr",
+        load_output=False,
+        sort_in_input_length=False,
+        preprocess_conf=train_args.preprocess_conf
+        if args.preprocess_conf is None
+        else args.preprocess_conf,
+        preprocess_args={"train": False},
+    )
+
+    if args.ngpu == 1:
+        device = "cuda"
+    else:
+        device = "cpu"
+    dtype = getattr(torch, args.dtype)
+    logging.info(f"Decoding device={device}, dtype={dtype}")
+    model.to(device=device, dtype=dtype).eval()
+
+    # logging.warning(f'Recog deep [model.args] {model.args}')
+
+    with open(args.recog_json, "rb") as f:
+        recog_json = json.load(f)["utts"]
+
+    use_sortagrad = model.args.sortagrad == -1 or model.args.sortagrad > 0
+
+    converter = CustomConverter(subsampling_factor=model.subsample[0], dtype=dtype)
+
+    # make minibatch list (variable length)
+    recog = make_batchset(
+        recog_json,
+        16, # model.args.batch_size,
+        model.args.maxlen_in,
+        model.args.maxlen_out,
+        model.args.minibatches,
+        min_batch_size=model.args.ngpu if model.args.ngpu > 1 else 1,
+        shortest_first=use_sortagrad,
+        count=model.args.batch_count,
+        batch_bins=400000, #model.args.batch_bins,
+        batch_frames_in=model.args.batch_frames_in,
+        batch_frames_out=model.args.batch_frames_out,
+        batch_frames_inout=model.args.batch_frames_inout,
+        iaxis=0,
+        oaxis=0,
+    )
+    load_rc = LoadInputsAndTargets(
+        mode="asr",
+        load_output=True,
+        preprocess_conf=model.args.preprocess_conf,
+        preprocess_args={"train": False},  # Switch the mode of preprocessing
+    )
+
+    recog_iter = ChainerDataLoader(
+        dataset=TransformDataset(
+            recog, lambda data: converter([load_rc(data)]), utt=True
+        ),
+        batch_size=1,
+        num_workers=model.args.n_iter_processes,
+        shuffle=not use_sortagrad,
+        collate_fn=lambda x: x[0],
+    )
+
+    logging.info(f'Character list: {model.args.char_list}')
+
+    decoder = CTCBeamDecoder(
+        labels=model.args.char_list, beam_width=args.beam_size, log_probs_input=True
+    )
+
+    with open(args.recog_json, "rb") as f:
+        js = json.load(f)["utts"]
+    new_js = {}
+
+    for batch in recog_iter:
+        names, x = batch[0], batch[1:]
+        # logging.warning(f"Recog deep [names] {names}")
+        x = _recursive_to(x, device)
+
+        xs_pad, ilens, ys_pad = x
+        logits = model.encode(xs_pad, ilens)
+        # logging.warning(f"Recog logit {logits.size()}")
+        # torch.argmax(logit.view())
+        predicts = torch.argmax(logits, dim=1)
+        # logging.warning(f"Recog logit {logits.size()} {predicts.size()}")
+        # logging.warning(f"Recog logit {predicts[:10]}")
+        # logging.warning(f"Recog logit {ys_pad[:10]}")
+        for pred, trn, name, logit in zip(predicts, ys_pad, names, logits):
+            best_hyp = pred.view(-1)
+            # logging.warning(f'{torch.nn.functional.pad(best_hyp, (1,0))}, {model.args.char_list[pred]}')
+            new_js[name] = add_results_to_json(
+                js[name], [{"yseq": torch.nn.functional.pad(best_hyp, (1,0)), "score": float(logit[best_hyp])}], model.args.char_list
+            )
+
+            # logging.warning(f'{new_js[name]}')
+
+    with open(args.result_label, "wb") as f:
+        f.write(
+            json.dumps(
+                {"utts": new_js}, indent=4, ensure_ascii=False, sort_keys=True
+            ).encode("utf_8")
+        )

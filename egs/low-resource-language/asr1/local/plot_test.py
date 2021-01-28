@@ -3,6 +3,7 @@
 
 import os
 import argparse
+import numpy as np
 import matplotlib.pyplot as plt
 
 def get_parser():
@@ -29,7 +30,10 @@ if __name__ == "__main__":
                         break
 
     data = sorted(data, key=lambda x: x[0])
+    
     eps, pters = zip(*data)
+    minid = np.argmin(pters)
+    print(f'min cer occurs at ep {eps[minid]} cer {pters[minid]}')
 
     plt.figure(dpi=100)
     plt.plot(eps, pters)
