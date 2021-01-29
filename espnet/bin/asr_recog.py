@@ -11,7 +11,7 @@ import logging
 import os
 import random
 import sys
-
+import yaml
 import numpy as np
 
 from espnet.utils.cli_utils import strtobool
@@ -29,6 +29,7 @@ def get_parser():
     )
     # general configuration
     parser.add("--config", is_config_file=True, help="Config file path")
+    parser.add("--train-langs", action="append", help="training languages")
     parser.add(
         "--config2",
         is_config_file=True,
@@ -88,6 +89,12 @@ def get_parser():
         type=str,
         required=True,
         help="Filename of result label data (json)",
+    )
+    parser.add_argument(
+        "--embedding-save-dir",
+        type=str,
+        default=None,
+        help="Filename to save the neural embeddings"
     )
     # model (parameter) related
     parser.add_argument(
@@ -326,7 +333,7 @@ def main(args):
         )
         sys.exit(1)
 
-    
+
     # recog
     logging.info("backend = " + args.backend)
     if args.num_spkrs == 1:
@@ -341,10 +348,16 @@ def main(args):
                     if args.recog_function == 'recog_ctconly':
                         from espnet.asr.pytorch_backend.recog import recog_ctconly
                         recog_ctconly(args)
+                    elif args.recog_function == 'recog_ctconly_lang':
+                        from espnet.asr.pytorch_backend.recog import recog_ctconly_lang
+                        recog_ctconly_lang(args)
                     elif args.recog_function == 'recog_v2':
                         from espnet.asr.pytorch_backend.recog import recog_v2
 
                         recog_v2(args)
+                    elif args.recog_function == 'recog_seg':
+                        from espnet.asr.pytorch_backend.recog import recog_seg
+                        recog_seg(args)
                     else:
                         raise NotImplementedError('Recognition function is not found.')
                 else:

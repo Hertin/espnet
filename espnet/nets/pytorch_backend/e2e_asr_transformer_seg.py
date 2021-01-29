@@ -241,17 +241,27 @@ class E2E(ASRInterface, torch.nn.Module):
         """Scorers."""
         return dict(decoder=self.decoder, ctc=CTCPrefixScorer(self.ctc, self.eos))
 
-    def encode(self, x):
+    def encode(self, xs_pad, ilens):
         """Encode acoustic features.
-
         :param ndarray x: source acoustic feature (T, D)
         :return: encoder outputs
         :rtype: torch.Tensor
         """
         self.eval()
-        x = torch.as_tensor(x).unsqueeze(0)
-        enc_output, _ = self.encoder(x, None)
-        return enc_output.squeeze(0)
+        xs_pad = xs_pad[:, : max(ilens)]  # for data parallel
+        src_mask = make_non_pad_mask(ilens.tolist()).to(xs_pad.device).unsqueeze(-2)
+        hs_pad, hs_mask = self.encoder(xs_pad, src_mask)
+        hs_stack = []
+        for h_pad, h_mask in zip(hs_pad, hs_mask):
+            # logging.warning(f'h_pad, h_mask {h_pad.size()}, {h_mask.size()}, {hs_mask.view(batch_size, -1).sum(1)}')
+            # logging.warning(f'{h_pad[h_mask.view(-1)].size()}, {h_pad[h_mask.view(-1)].mean(dim=0).size()}')
+            hs_stack.append(h_pad[h_mask.view(-1)].mean(dim=0))
+        hs_stack = torch.stack(hs_stack)
+        # logging.warning(f'hs_stack {hs_stack.size()}')
+        logit = self.connected(hs_stack)
+        return logit.detach(), hs_stack.detach()
+
+
 
     def encode_with_length(self, xs_pad, ilens):
         """Encode acoustic features.
