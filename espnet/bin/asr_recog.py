@@ -96,6 +96,12 @@ def get_parser():
         default=None,
         help="Filename to save the neural embeddings"
     )
+    parser.add_argument(
+        "--phs-aware-dict",
+        type=str,
+        default=None,
+        help="Within Language Phones Dictionary Directory"
+    )
     # model (parameter) related
     parser.add_argument(
         "--model", type=str, required=True, help="Model file parameters to read"

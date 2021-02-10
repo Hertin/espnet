@@ -5,6 +5,7 @@ import logging
 import pickle
 
 import torch
+import numpy
 
 from espnet.asr.asr_utils import add_results_to_json
 from espnet.asr.asr_utils import get_model_conf
@@ -532,6 +533,11 @@ def recog_seg(args):
     if args.embedding_save_dir is not None:
         embedding_js = {}
 
+    phs_aware_dict = None
+    if args.phs_aware_dict is not None:
+        with open(args.phs_aware_dict, 'rb') as f:
+            phs_aware_dict = pickle.load(f)
+
     with open(args.recog_json, "rb") as f:
         js = json.load(f)["utts"]
     new_js = {}
@@ -543,8 +549,15 @@ def recog_seg(args):
 
         xs_pad, ilens, ys_pad = x
         logits, embeddings = model.encode(xs_pad, ilens)
+
+        min_value = float(numpy.finfo(torch.tensor(0, dtype=logits.dtype).numpy().dtype).min)
+        if phs_aware_dict is not None:
+            for batch_idx in range(len(logits)):
+                mask_list = [id for id in range(logits.size(1)) if id not in phs_aware_dict]
+                logits[batch_idx,mask_list] = min_value
         # logging.warning(f"Recog logit {logits.size()}")
         # torch.argmax(logit.view())
+
         predicts = torch.argmax(logits, dim=1)
         probs = torch.softmax(logits, dim=1)
         # logging.warning(f"Recog logit {logits.size()} {predicts.size()}")
