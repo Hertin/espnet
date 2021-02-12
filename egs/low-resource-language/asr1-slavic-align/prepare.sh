@@ -65,7 +65,7 @@ else
   babel_recog=""
   gp_langs="Czech Bulgarian Polish"
   gp_dev="Czech Bulgarian Polish"
-  gp_recog="Croatian Czech Bulgarian Polish"
+  gp_recog="Croatian Czech Bulgarian Polish French German"
   mboshi_train=false
   mboshi_recog=false
   gp_romanized=false
@@ -106,12 +106,13 @@ if [ ${stage} -le 0 ] && [ ${stop_stage} -ge 0 ]; then
   python3 local/process_fa.py \
       --phones_txt /mnt/ssd/kaldi/egs/discophone/v1_tc/data/lang_combined/phones.txt \
       --kaldi-egs-dir /mnt/ssd/kaldi/egs/discophone/v1_tc \
-      --espnet-data-dir $PWD/../asr1-slavic/data \
+      --espnet-data-dir $PWD/../asr1/data \
       --espnet-resave-dir $PWD/data \
       --langs "Croatian Czech Bulgarian Polish" \
       --gp-langs "Czech Bulgarian Polish" \
       --gp-dev "Czech Bulgarian Polish" \
       --gp-recog "Croatian Czech Bulgarian Polish" \
+      --extra-recog "French German" \
       --min-duration 0.03 \
       --subsample-factor 3\
 
