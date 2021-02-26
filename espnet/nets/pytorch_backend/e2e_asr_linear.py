@@ -9,6 +9,9 @@ import math
 
 import numpy
 import torch
+from torch.autograd import grad
+from chainer import reporter
+import json
 
 from espnet.nets.asr_interface import ASRInterface
 from espnet.nets.ctc_prefix_score import CTCPrefixScore
@@ -35,7 +38,7 @@ from espnet.nets.pytorch_backend.transformer.dynamic_conv2d import DynamicConvol
 from espnet.nets.pytorch_backend.transformer.encoder import Encoder
 from espnet.nets.pytorch_backend.transformer.initializer import initialize
 from espnet.nets.pytorch_backend.transformer.label_smoothing_loss import (
-    LabelSmoothingLoss,  # noqa: H301
+    LabelSmoothingLoss, LabelSmoothingLossNoreduce  # noqa: H301
 )
 from espnet.nets.pytorch_backend.transformer.mask import subsequent_mask
 from espnet.nets.pytorch_backend.transformer.mask import target_mask
@@ -43,6 +46,25 @@ from espnet.nets.pytorch_backend.transformer.plot import PlotAttentionReport
 from espnet.nets.scorers.ctc import CTCPrefixScorer
 from espnet.utils.fill_missing_args import fill_missing_args
 
+import chainer
+import fairseq
+
+
+class Reporter(chainer.Chain):
+    """A chainer reporter wrapper."""
+
+    def report(self, loss_ctc, loss_att, acc, cer_ctc, cer, wer, mtl_loss, penalty=None):
+        """Report at every step."""
+        reporter.report({"loss_ctc": loss_ctc}, self)
+        reporter.report({"loss_att": loss_att}, self)
+        reporter.report({"acc": acc}, self)
+        reporter.report({"cer_ctc": cer_ctc}, self)
+        reporter.report({"cer": cer}, self)
+        reporter.report({"wer": wer}, self)
+        logging.info("mtl loss:" + str(mtl_loss))
+        reporter.report({"loss": mtl_loss}, self)
+        reporter.report({"penalty": penalty}, self)
+        
 
 class E2E(ASRInterface, torch.nn.Module):
     """E2E module.
@@ -82,46 +104,10 @@ class E2E(ASRInterface, torch.nn.Module):
         
         if args.transformer_attn_dropout_rate is None:
             args.transformer_attn_dropout_rate = args.dropout_rate
-        self.encoder = Encoder(
-            idim=idim,
-            selfattention_layer_type=args.transformer_encoder_selfattn_layer_type,
-            attention_dim=args.adim,
-            attention_heads=args.aheads,
-            conv_wshare=args.wshare,
-            conv_kernel_length=args.ldconv_encoder_kernel_length,
-            conv_usebias=args.ldconv_usebias,
-            linear_units=args.eunits,
-            num_blocks=args.elayers,
-            input_layer=args.transformer_input_layer,
-            dropout_rate=args.dropout_rate,
-            positional_dropout_rate=args.dropout_rate,
-            attention_dropout_rate=args.transformer_attn_dropout_rate,
-        )
-        if args.mtlalpha < 1:
-            self.decoder = Decoder(
-                odim=odim,
-                selfattention_layer_type=args.transformer_decoder_selfattn_layer_type,
-                attention_dim=args.adim,
-                attention_heads=args.aheads,
-                conv_wshare=args.wshare,
-                conv_kernel_length=args.ldconv_decoder_kernel_length,
-                conv_usebias=args.ldconv_usebias,
-                linear_units=args.dunits,
-                num_blocks=args.dlayers,
-                dropout_rate=args.dropout_rate,
-                positional_dropout_rate=args.dropout_rate,
-                self_attention_dropout_rate=args.transformer_attn_dropout_rate,
-                src_attention_dropout_rate=args.transformer_attn_dropout_rate,
-            )
-            self.criterion = LabelSmoothingLoss(
-                odim,
-                ignore_id,
-                args.lsm_weight,
-                args.transformer_length_normalized_loss,
-            )
-        else:
-            self.decoder = None
-            self.criterion = None
+
+        self.decoder = None
+        self.criterion = None
+        
         self.blank = 0
         self.sos = odim - 1
         self.eos = odim - 1
@@ -129,15 +115,14 @@ class E2E(ASRInterface, torch.nn.Module):
         self.ignore_id = ignore_id
         self.subsample = get_subsample(args, mode="asr", arch="transformer")
         self.reporter = Reporter()
-
+        self.mtlalpha = 1
         self.reset_parameters(args)
         self.adim = args.adim  # used for CTC (equal to d_model)
-        self.mtlalpha = args.mtlalpha
+
         if args.mtlalpha > 0.0:
             self.ctc = CTC(
                 odim, args.adim, args.dropout_rate, 
-                ctc_type=args.ctc_type, reduce=False,
-                length_average=args.warpctc_length_average
+                ctc_type=args.ctc_type, reduce=False
             )
         else:
             self.ctc = None
@@ -153,13 +138,24 @@ class E2E(ASRInterface, torch.nn.Module):
         else:
             self.error_calculator = None
         self.rnnlm = None
+        # for name, m in self.named_modules():
+        #     logging.warning(f'calculate_all_ctc_probs {name} {name == "ctc"}')
 
     def reset_parameters(self, args):
         """Initialize parameters."""
         # initialize parameters
         initialize(self, args.transformer_init)
 
-    def forward(self, xs_pad, ilens, ys_pad):
+    def compute_irm_penalty(self, losses, w):
+        # logging.warning(f'{losses.size()}')
+        if len(losses) == 0:
+            return 0
+        
+        # if len(losses) == 1:
+        g = grad(losses.mean(), w, create_graph=True)[0]
+        return (g * g).sum()
+
+    def forward(self, xs_pad, ilens, ys_pad, dummy_w=None, lang_labels=None):
         """E2E forward.
 
         :param torch.Tensor xs_pad: batch of padded source sequences (B, Tmax, idim)
@@ -172,73 +168,40 @@ class E2E(ASRInterface, torch.nn.Module):
         :return: accuracy in attention decoder
         :rtype: float
         """
-        # logging.warning(f'{xs_pad.size()}, {ilens}')
+        # self.
+        # logging.warning(f'data size {xs_pad.size()}')
         batch_size = xs_pad.size(0)
-        ys = [y[y != self.ignore_id] for y in ys_pad]
-        olens = torch.from_numpy(numpy.fromiter((x.size(0) for x in ys), dtype=numpy.int32))
+        # w = dummy_w.expand(batch_size).view(-1, 1, 1) if dummy_w is not None else None
 
-        # 1. forward encoder
-        xs_pad = xs_pad[:, : max(ilens)]  # for data parallel
-        src_mask = make_non_pad_mask(ilens.tolist()).to(xs_pad.device).unsqueeze(-2)
-        hs_pad, hs_mask = self.encoder(xs_pad, src_mask)
+        # ys = [y[y != self.ignore_id] for y in ys_pad]
+        # olens = torch.from_numpy(numpy.fromiter((x.size(0) for x in ys), dtype=numpy.int32))
 
         # remove utterances that are shorter than target
-        hs_len = hs_mask.view(batch_size, -1).sum(1)
-        valid_indices = hs_len.cpu().int() > olens
+        # hs_len = hs_mask.view(batch_size, -1).sum(1)
+        # valid_indices = hs_len.cpu().int() > olens
         # hs_pad, hs_mask, hs_len, ys_pad = hs_pad[valid_indices], hs_mask[valid_indices], hs_len[valid_indices], ys_pad[valid_indices]
-        invalid = False
-        if torch.sum(valid_indices) < batch_size:
-            # logging.warning(f'Remove {batch_size - torch.sum(valid_indices)} invalid utterances')
-            invalid = True
-        # batch_size = hs_pad.size(0) # update new batch_size
 
-        self.hs_pad = hs_pad
-
-        # 2. forward decoder
-        if self.decoder is not None:
-            ys_in_pad, ys_out_pad = add_sos_eos(
-                ys_pad, self.sos, self.eos, self.ignore_id
-            )
-            ys_mask = target_mask(ys_in_pad, self.ignore_id)
-            pred_pad, pred_mask = self.decoder(ys_in_pad, ys_mask, hs_pad, hs_mask)
-            self.pred_pad = pred_pad
-
-            # 3. compute attention loss
-            loss_att = self.criterion(pred_pad, ys_out_pad)
-            self.acc = th_accuracy(
-                pred_pad.view(-1, self.odim), ys_out_pad, ignore_label=self.ignore_id
-            )
-        else:
-            loss_att = None
-            self.acc = None
-
-        # TODO(karita) show predicted text
-        # TODO(karita) calculate these stats
-        cer_ctc = None
-        if self.mtlalpha == 0.0:
-            loss_ctc = None
-        else:            
             # loss_ctc = self.ctc(hs_pad.view(batch_size, -1, self.adim), hs_len, ys_pad)
-            loss_ctc_nonreduce = self.ctc(hs_pad.view(batch_size, -1, self.adim), hs_len, ys_pad)
-            invalid_idx = torch.isinf(loss_ctc_nonreduce) | torch.isnan(loss_ctc_nonreduce)
-            if torch.sum(invalid_idx != 0):
-                logging.warning(f'Invalid ctc loss {invalid} num invalid {torch.sum(invalid_idx != 0)} {loss_ctc_nonreduce[invalid_idx]}')
+        
+        hs_pad, hs_len = xs_pad, ilens
 
-            loss_ctc_nonreduce[invalid_idx] = 0
-            # loss_ctc_nonreduce[torch.isnan(loss_ctc_nonreduce)] = 0
-            loss_ctc = loss_ctc_nonreduce[~invalid_idx].mean() if any(~invalid_idx) else torch.FloatTensor([0]).to(loss_ctc_nonreduce.device)
+        loss_ctc_nonreduce = self.ctc(hs_pad, hs_len, ys_pad)
+        invalid_idx = torch.isinf(loss_ctc_nonreduce) | torch.isnan(loss_ctc_nonreduce)
+        if torch.sum(invalid_idx != 0):
+            logging.warning(f'Invalid ctc loss {invalid} num invalid {torch.sum(invalid_idx != 0)} {loss_ctc_nonreduce[invalid_idx]}')
 
-            
+        loss_ctc_nonreduce[invalid_idx] = 0
+        # loss_ctc_nonreduce[torch.isnan(loss_ctc_nonreduce)] = 0
+        loss_ctc = loss_ctc_nonreduce[~invalid_idx].mean() if any(~invalid_idx) else None
 
-            if not self.training and self.error_calculator is not None:
-                ys_hat = self.ctc.argmax(hs_pad.view(batch_size, -1, self.adim)).data
-                cer_ctc = self.error_calculator(ys_hat.cpu(), ys_pad.cpu(), is_ctc=True)
-            # for visualization
-            if not self.training:
-                self.ctc.softmax(hs_pad)
+        cer_ctc = None
+        if not self.training and self.error_calculator is not None:
+            ys_hat = self.ctc.argmax(hs_pad.view(batch_size, -1, self.adim)).data
+            cer_ctc = self.error_calculator(ys_hat.cpu(), ys_pad.cpu(), is_ctc=True)
+        # for visualization
+        if not self.training:
+            self.ctc.softmax(hs_pad)
 
-        # if invalid:
-        #     logging.warning(f'ctc loss {loss_ctc}')
         # 5. compute cer/wer
         if self.training or self.error_calculator is None or self.decoder is None:
             cer, wer = None, None
@@ -247,28 +210,19 @@ class E2E(ASRInterface, torch.nn.Module):
             cer, wer = self.error_calculator(ys_hat.cpu(), ys_pad.cpu())
 
         # copied from e2e_asr
-        alpha = self.mtlalpha
-        if alpha == 0:
-            self.loss = loss_att
-            loss_att_data = float(loss_att)
-            loss_ctc_data = None
-        elif alpha == 1:
-            self.loss = loss_ctc
-            loss_att_data = None
-            loss_ctc_data = float(loss_ctc)
-        else:
-            self.loss = alpha * loss_ctc + (1 - alpha) * loss_att
-            loss_att_data = float(loss_att)
-            loss_ctc_data = float(loss_ctc)
+        self.loss = loss_ctc
+        loss_att_data = None
+        loss_ctc_data = float(loss_ctc)
 
         loss_data = float(self.loss)
+
+        self.acc = None
         if loss_data < CTC_LOSS_THRESHOLD and not math.isnan(loss_data):
             self.reporter.report(
-                loss_ctc_data, loss_att_data, self.acc, cer_ctc, cer, wer, loss_data
+                loss_ctc_data, loss_att_data, self.acc, cer_ctc, None, None, loss_data, None
             )
         else:
             logging.warning("loss (=%f) is not correct", loss_data)
-        # logging.warning(f'{self.loss}')
         return self.loss
 
     def scorers(self):
@@ -569,7 +523,9 @@ class E2E(ASRInterface, torch.nn.Module):
         with torch.no_grad():
             self.forward(xs_pad, ilens, ys_pad)
         for name, m in self.named_modules():
-            if isinstance(m, CTC) and m.probs is not None:
+            # logging.warning(f'calculate_all_ctc_probs {name}')
+            if isinstance(m, CTC) and name == 'ctc' and m.probs is not None:
                 ret = m.probs.cpu().numpy()
+                
         self.train()
         return ret

@@ -527,6 +527,16 @@ def get_parser(parser=None, required=True):
     parser.add_argument("--irm-num-lang", type=int, default=None, help="")
     parser.add_argument("--irm-model-regularization", type=float, default=0, help="")
     parser.add_argument("--irm-penalty-multiplier", type=float, default=0, help="")
+    parser.add_argument("--irm-lang2ph", type=str, default=None, help="")
+    
+    parser.add_argument("--irm-phone-aware", type=strtobool, default=False, help="")
+    parser.add_argument("--dro-hard-choice", type=strtobool, default=False, help="")
+    parser.add_argument("--dro-model-regularization", type=float, default=0, help="")
+
+    parser.add_argument("--lang2ph", type=str, default=None, help="")
+    parser.add_argument("--phone-aware", type=strtobool, default=False, help="")
+    parser.add_argument("--wav2vec-feature", type=strtobool, default=False, help="")
+    
     return parser
 
 
@@ -642,11 +652,18 @@ def main(cmd_args):
         elif args.experiment == 'Multilingual_LangAware':
             from espnet.asr.pytorch_backend.asr_multlang import train
             train(args)
-        elif args.experiment == 'Crosslingual_IRM':
+        elif args.experiment == 'IRM':
             from espnet.asr.pytorch_backend.asr_irm import train
             train(args)
-        elif args.experiment == 'Crosslingual_DRO':
+        elif args.experiment == 'IRM_PHAWARE':
+            from espnet.asr.pytorch_backend.asr_irm_phaware import train
+            train(args)
+        elif args.experiment == 'DRO':
+            logging.warning(f'DRO hard choice{args.dro_hard_choice}')
             from espnet.asr.pytorch_backend.asr_dro import train
+            train(args)
+        elif args.experiment == 'DefaultSeg':
+            from espnet.asr.pytorch_backend.asr import train
             train(args)
         else:
             raise ValueError("Experiment not Implemented")

@@ -13,6 +13,7 @@ import math
 import os
 import sys
 
+from random import shuffle
 from chainer import reporter as reporter_module
 from chainer import training
 from chainer.training import extensions
@@ -163,6 +164,7 @@ class CustomUpdater(StandardUpdater):
         optimizer,
         device,
         ngpu,
+        phone_aware,
         grad_noise=False,
         accum_grad=1,
         use_apex=False,
@@ -177,6 +179,7 @@ class CustomUpdater(StandardUpdater):
         self.grad_noise = grad_noise
         self.iteration = 0
         self.use_apex = use_apex
+        self.phone_aware = phone_aware
 
     # The core part of the update routine can be customized by overriding.
     def update_core(self):
@@ -189,9 +192,19 @@ class CustomUpdater(StandardUpdater):
 
         # Get the next batch (a list of json files)
         batch = train_iter.next()
+
+        if self.phone_aware:
+            lang_labels, _batch = batch[0], batch[1:]
+            _x = _recursive_to(_batch, self.device)
+            x = _x + tuple([lang_labels])
+        else:
+            # x = _x + tuple([dummy_w.expand(batch_size).view(-1, 1, 1)])
+            _x = _recursive_to(batch, self.device)
+            x = _x
+
         # self.iteration += 1 # Increase may result in early report,
         # which is done in other place automatically.
-        x = _recursive_to(batch, self.device)
+        # x = _recursive_to(batch, self.device)
         is_new_epoch = train_iter.epoch != epoch
         # When the last minibatch in the current epoch is given,
         # gradient accumulation is turned off in order to evaluate the model
@@ -206,6 +219,8 @@ class CustomUpdater(StandardUpdater):
             loss = (
                 data_parallel(self.model, x, range(self.ngpu)).mean() / self.accum_grad
             )
+        if loss == 0:
+            return
         if self.use_apex:
             from apex import amp
 
@@ -404,6 +419,18 @@ def train(args):
     # get input and output dimension info
     with open(args.valid_json, "rb") as f:
         valid_json = json.load(f)["utts"]
+
+    if args.wav2vec_feature:
+        feat_folder = 'w2vfeat_npy'
+        for uttid, v in valid_json.items():
+            npy_file = f'{feat_folder}/{uttid}.npy'
+            assert 'shape' in v['input'][0]
+            assert 'feat' in v['input'][0]
+            v['input'][0]['feat'] = npy_file
+            v['input'][0]['filetype'] = 'npy'
+            v['input'][0]['shape'] = np.load(npy_file, mmap_mode='r').shape
+
+
     utts = list(valid_json.keys())
     idim_list = [
         int(valid_json[utts[0]]["input"][i]["shape"][-1]) for i in range(args.num_encs)
@@ -567,8 +594,37 @@ def train(args):
     # read json data
     with open(args.train_json, "rb") as f:
         train_json = json.load(f)["utts"]
+    
+    
     with open(args.valid_json, "rb") as f:
         valid_json = json.load(f)["utts"]
+
+    if args.wav2vec_feature:
+        feat_folder = 'w2vfeat_npy'
+        for uttid, v in train_json.items():
+            npy_file = f'{feat_folder}/{uttid}.npy'
+            assert 'shape' in v['input'][0]
+            assert 'feat' in v['input'][0]
+            v['input'][0]['feat'] = npy_file
+            v['input'][0]['filetype'] = 'npy'
+            v['input'][0]['shape'] = np.load(npy_file, mmap_mode='r').shape
+
+        for uttid, v in valid_json.items():
+            npy_file = f'{feat_folder}/{uttid}.npy'
+            assert 'shape' in v['input'][0]
+            assert 'feat' in v['input'][0]
+            v['input'][0]['feat'] = npy_file
+            v['input'][0]['filetype'] = 'npy'
+            v['input'][0]['shape'] = np.load(npy_file, mmap_mode='r').shape
+
+
+    # train_items = list(train_json.items())
+    # shuffle(train_items)
+    # train_json = dict(train_items[:100])
+    
+    # valid_items = list(valid_json.items())
+    # shuffle(valid_items)
+    # valid_json = dict(valid_items[:100])
 
     use_sortagrad = args.sortagrad == -1 or args.sortagrad > 0
     # make minibatch list (variable length)
@@ -621,7 +677,7 @@ def train(args):
     # default collate function converts numpy array to pytorch tensor
     # we used an empty collate function instead which returns list
     train_iter = ChainerDataLoader(
-        dataset=TransformDataset(train, lambda data: converter([load_tr(data)])),
+        dataset=TransformDataset(train, lambda data: converter([load_tr(data)]), lang_label=args.phone_aware),
         batch_size=1,
         num_workers=args.n_iter_processes,
         shuffle=not use_sortagrad,
@@ -643,6 +699,7 @@ def train(args):
         optimizer,
         device,
         args.ngpu,
+        args.phone_aware,
         args.grad_noise,
         args.accum_grad,
         use_apex=use_apex,
