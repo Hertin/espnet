@@ -428,7 +428,12 @@ def train(args):
             assert 'feat' in v['input'][0]
             v['input'][0]['feat'] = npy_file
             v['input'][0]['filetype'] = 'npy'
-            v['input'][0]['shape'] = np.load(npy_file, mmap_mode='r').shape
+            shape = np.load(npy_file, mmap_mode='r').shape[0]
+            if type(shape) is int:
+                shape =(shape, 1)
+            elif len(shape) == 1:
+                shape = (shape[0], 1)
+            v['input'][0]['shape'] = shape
 
 
     utts = list(valid_json.keys())
