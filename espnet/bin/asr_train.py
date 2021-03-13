@@ -536,6 +536,9 @@ def get_parser(parser=None, required=True):
     parser.add_argument("--lang2ph", type=str, default=None, help="")
     parser.add_argument("--phone-aware", type=strtobool, default=False, help="")
     parser.add_argument("--wav2vec-feature", type=strtobool, default=False, help="")
+    parser.add_argument("--wav2vec-feat-folder", type=str, default=None, help="")
+    parser.add_argument("--wav2vec-path", type=str, default=None, help="")
+    parser.add_argument("--wav2vec-idim", type=int, default=None, help="")
     
     return parser
 
