@@ -421,7 +421,7 @@ def train(args):
         valid_json = json.load(f)["utts"]
 
     if args.wav2vec_feature:
-        feat_folder = 'w2vfeat_npy'
+        feat_folder = args.wav2vec_feat_folder
         for uttid, v in valid_json.items():
             npy_file = f'{feat_folder}/{uttid}.npy'
             assert 'shape' in v['input'][0]
