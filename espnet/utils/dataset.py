@@ -89,12 +89,16 @@ class TransformDataset(torch.utils.data.Dataset):
 
     """
 
-    def __init__(self, data, transform, utt=False, lang=False, lang_onehot=False, speech_type=False,  num_langs=None, all_lang=None):
+    def __init__(
+        self, data, transform, 
+        utt=False, 
+        lang_label=False, lang=False, lang_onehot=False, speech_type=False,  num_langs=None, all_lang=None):
         """Init function."""
         super(TransformDataset).__init__()
         self.data = data
         self.transform = transform
         self.utt, self.lang, self.lang_onehot = utt, lang, lang_onehot
+        self.lang_label = lang_label
         self.speech_type = speech_type
         if all_lang is not None: # passing all the languages manually
             self.num_langs = len(all_lang)
@@ -103,7 +107,7 @@ class TransformDataset(torch.utils.data.Dataset):
             self.int2lang = {i: l for l, i in self.lang2int.items()}
             logging.warning(f'TransformDataset [all_lang] {self.all_lang}')
             logging.warning(f'TransformDataset [lang2int] {self.lang2int}')
-        elif self.lang or self.lang_onehot:
+        elif self.lang or self.lang_onehot or self.lang_label:
             self.all_lang = set()
             for dt in self.data:
                 self.all_lang.update([self.get_lang(d) for d in dt])
@@ -117,8 +121,8 @@ class TransformDataset(torch.utils.data.Dataset):
             self.num_langs = num_langs
             self.lang2int = {l: i for i, l in enumerate(sorted(self.all_lang))}
             self.int2lang = {i: l for l, i in self.lang2int.items()}
-            logging.warning(f'TransformDatasetEar [all_lang] {self.all_lang}')
-            logging.warning(f'TransformDatasetEar [lang2int] {self.lang2int}')
+            logging.warning(f'TransformDataset [all_lang] {self.all_lang}')
+            logging.warning(f'TransformDataset [lang2int] {self.lang2int}')
         # logging.warning(f'TransformDataset {data[0]}')
         # logging.warning(f'TransformDataset {self.transform}')
         if self.speech_type:
@@ -143,6 +147,9 @@ class TransformDataset(torch.utils.data.Dataset):
     def custom_transform(self, data):
         items = []
         xs_pad, ilens, ys_pad = self.transform(data)
+        if self.lang_label:
+            lang_labels = [self.get_lang(d) for d in data]
+            items.append(lang_labels)
         if self.utt:
             utts = [d[0] for d in data]
             items.append(utts)
