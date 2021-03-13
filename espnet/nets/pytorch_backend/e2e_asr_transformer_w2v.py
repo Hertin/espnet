@@ -135,6 +135,10 @@ class E2E(ASRInterface, torch.nn.Module):
         wav2vec, self.wav2vec_cfg = fairseq.checkpoint_utils.load_model_ensemble([args.wav2vec_path])
         self.wav2vec = wav2vec[0]
 
+        for parameter in self.wav2vec.feature_extractor.parameters():
+            # logging.warning(f'parameter of feature extractor are fixed {parameter.name}')
+            parameter.requires_grad = False
+
         self.reset_parameters(args)
         self.adim = args.adim  # used for CTC (equal to d_model)
         self.mtlalpha = args.mtlalpha
