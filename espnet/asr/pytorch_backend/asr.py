@@ -202,6 +202,10 @@ class CustomUpdater(StandardUpdater):
             _x = _recursive_to(batch, self.device)
             x = _x
 
+        # if np.prod(list(x[0].size())) >= 300000:
+        #     logging.warning(f'batch {x[0].size()} {np.prod(list(x[0].size())) } too large, skip')
+        #     return
+        
         # self.iteration += 1 # Increase may result in early report,
         # which is done in other place automatically.
         # x = _recursive_to(batch, self.device)
@@ -212,24 +216,33 @@ class CustomUpdater(StandardUpdater):
         # see details in https://github.com/espnet/espnet/pull/1388
 
         # Compute the loss at this time step and accumulate it
-        if self.ngpu == 0:
-            loss = self.model(*x).mean() / self.accum_grad
-        else:
-            # apex does not support torch.nn.DataParallel
-            loss = (
-                data_parallel(self.model, x, range(self.ngpu)).mean() / self.accum_grad
-            )
-        if loss == 0:
-            return
-        if self.use_apex:
-            from apex import amp
+        try:
+            if self.ngpu == 0:
+                loss = self.model(*x).mean() / self.accum_grad
+            else:
+                # apex does not support torch.nn.DataParallel
+                loss = (
+                    data_parallel(self.model, x, range(self.ngpu)).mean() / self.accum_grad
+                )
+        
 
-            # NOTE: for a compatibility with noam optimizer
-            opt = optimizer.optimizer if hasattr(optimizer, "optimizer") else optimizer
-            with amp.scale_loss(loss, opt) as scaled_loss:
-                scaled_loss.backward()
-        else:
-            loss.backward()
+            if loss == 0:
+                return
+            if self.use_apex:
+                from apex import amp
+
+                # NOTE: for a compatibility with noam optimizer
+                opt = optimizer.optimizer if hasattr(optimizer, "optimizer") else optimizer
+                with amp.scale_loss(loss, opt) as scaled_loss:
+                    scaled_loss.backward()
+            else:
+                loss.backward()
+
+        except Exception as e:
+            msg = str(e).split('\n')[-1]
+            logging.warning(f'{msg} {x[0].size()}')
+            return 
+
         # gradient noise injection
         if self.grad_noise:
             from espnet.asr.asr_utils import add_gradient_noise
@@ -659,6 +672,7 @@ def train(args):
         iaxis=0,
         oaxis=0,
     )
+    
     valid = make_batchset(
         valid_json,
         args.batch_size,
