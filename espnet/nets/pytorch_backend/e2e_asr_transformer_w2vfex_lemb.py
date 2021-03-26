@@ -2,7 +2,7 @@
 #  Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
 
 """Transformer speech recognition model (pytorch)."""
-
+import os
 from argparse import Namespace
 import logging
 import math
