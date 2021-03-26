@@ -189,28 +189,14 @@ class E2E(ASRInterface, torch.nn.Module):
         if args.transformer_attn_dropout_rate is None:
             args.transformer_attn_dropout_rate = args.dropout_rate
         
-        # wav2vec, self.wav2vec_cfg = fairseq.checkpoint_utils.load_model_ensemble([args.wav2vec_path])
-        # self.wav2vec = wav2vec[0]
-
-        if not args.fine_tune:
-            for parameter in self.wav2vec.feature_extractor.parameters():
-                # logging.warning(f'parameter of feature extractor are fixed {parameter.name}')
-                parameter.requires_grad = False
-            
         wav2vec, wav2vec_cfg = fairseq.checkpoint_utils.load_model_ensemble([args.wav2vec_path])
         
         wav2vec = wav2vec[0]
         self.wav2vec_cfg = deepcopy(wav2vec.cfg)
-        # feature_enc_layers = eval(self.wav2vec_cfg.conv_feature_layers)
-        # self.embed = feature_enc_layers[-1][0]
-        # self.layer_norm = LayerNorm(self.embed)
-
-        # self.encoder = W2VEncoder(self.wav2vec, self.idim, args.adim, args)
-
         self.feature_extractor = deepcopy(wav2vec.feature_extractor)
-
-        if not args.fine_tune:
-            for parameter in self.wav2vec.feature_extractor.parameters():
+        if args.wav2vec_fix_extractor:
+            logging.warning(f'fix feature extractor')
+            for parameter in self.feature_extractor.parameters():
                 # logging.warning(f'parameter of feature extractor are fixed {parameter.name}')
                 parameter.requires_grad = False
 
