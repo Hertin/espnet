@@ -51,6 +51,8 @@ from espnet.utils.fill_missing_args import fill_missing_args
 
 from espnet.nets.pytorch_backend.graph_convolutional_nets.lang_gcn import LangGCN
 
+from espnet.utils.cli_utils import strtobool
+
 class W2VEncoder(torch.nn.Module):
     def __init__(self, wav2vec, idim, adim, args):
         torch.nn.Module.__init__(self)
@@ -226,7 +228,7 @@ class E2E(ASRInterface, torch.nn.Module):
             type=strtobool,
             help="wav2vec-fix-extractor",
         )
-        
+
         return parser
 
     @property
