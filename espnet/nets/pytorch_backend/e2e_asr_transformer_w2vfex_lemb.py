@@ -2,7 +2,7 @@
 #  Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
 
 """Transformer speech recognition model (pytorch)."""
-import os
+
 from argparse import Namespace
 import logging
 import math
@@ -99,10 +99,17 @@ class LangEmb(nn.Module):
         # 1. g2v embedding
         if os.path.exists(f'{args.lgcn_g2v_path}.npy'):
             logging.warning('load g2v npy directly')
-            self.n2v_embedding = np.load(f'{args.lgcn_g2v_path}.npy')
+            g = nx.read_gpickle(args.lgcn_graph_path)
+            node2idx = {l: i for i, l in enumerate(g.nodes)}
+            logging.warning(f'node2idx  {node2idx}')
+            n2v_embedding = np.load(f'{args.lgcn_g2v_path}.npy')
+            lang_indices = [node2idx[self.lang2glotto[l]] for l in self.all_langs]
+            self.n2v_embedding[lang_indices]
         else:
             self.g2v = Node2Vec.load(args.lgcn_g2v_path)
             self.n2v_embedding = np.array([self.g2v.predict(l) for l in self.g.nodes])
+            self.g2v = Node2Vec.load(args.lgcn_g2v_path)
+            self.n2v_embedding = np.array([self.g2v.predict(self.lang2glotto[l]) for l in self.all_langs])
         
         # 2. one hot for phoneme used
         

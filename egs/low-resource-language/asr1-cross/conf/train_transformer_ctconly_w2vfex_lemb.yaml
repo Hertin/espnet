@@ -55,6 +55,7 @@ lgcn-n2v-dim: 256
 lgcn-hidden-dim: 256,256
 lgcn-output-dim: 128
 lgcn-num-layer: 2
+lgcn-graph-path: "langs/l20.gpk"
 lgcn-g2v-path: "langs/l20_lang2vec.zip"
 #lgcn-lang2lid-path: "phones/slavic_lang2id.json"
 glotto-all-phonemes: "phones/glotto_all_phonemes.json"
