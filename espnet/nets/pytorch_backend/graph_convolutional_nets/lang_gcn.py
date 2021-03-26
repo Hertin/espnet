@@ -126,8 +126,12 @@ class LangGCN(nn.Module):
 
     # language initial embedding
     # 1. node2vec embedding
-    self.g2v = Node2Vec.load(args.lgcn_g2v_path)
-    self.n2v_embedding = np.array([self.g2v.predict(l) for l in self.g.nodes])
+    if os.path.exists(f'{args.lgcn_g2v_path}.npy'):
+      logging.warning('load g2v npy directly')
+      self.n2v_embedding = np.load(f'{args.lgcn_g2v_path}.npy')
+    else:
+      self.g2v = Node2Vec.load(args.lgcn_g2v_path)
+      self.n2v_embedding = np.array([self.g2v.predict(l) for l in self.g.nodes])
     
     # 2. one hot for phoneme used
     if args.use_glottoph:
