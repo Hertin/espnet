@@ -2,7 +2,7 @@
 #  Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
 
 """Transformer speech recognition model (pytorch)."""
-
+import os
 from argparse import Namespace
 import logging
 import math
@@ -97,8 +97,12 @@ class LangEmb(nn.Module):
         device = torch.device("cuda" if args.ngpu > 0 else "cpu")
 
         # 1. g2v embedding
-        self.g2v = Node2Vec.load(args.lgcn_g2v_path)
-        self.n2v_embedding = np.array([self.g2v.predict(self.lang2glotto[l]) for l in self.all_langs])
+        if os.path.exists(f'{args.lgcn_g2v_path}.npy'):
+            logging.warning('load g2v npy directly')
+            self.n2v_embedding = np.load(f'{args.lgcn_g2v_path}.npy')
+        else:
+            self.g2v = Node2Vec.load(args.lgcn_g2v_path)
+            self.n2v_embedding = np.array([self.g2v.predict(l) for l in self.g.nodes])
         
         # 2. one hot for phoneme used
         
