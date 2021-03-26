@@ -14,22 +14,6 @@ from tqdm import tqdm
 from joblib import Parallel, delayed
 import multiprocessing
 
-
-split = 'train'
-data_dir = 'data'
-wav_scp = f'{data_dir}/{split}/wav.scp'
-audio_folder = 'w2vaudio_wav'
-feat_folder = 'w2vaudio_npy'
-seen_utt = set()
-def line_count(filename):
-    return int(subprocess.check_output(['wc', '-l', filename]).split()[0])
-nline = line_count(wav_scp)
-
-lines = []
-with open(wav_scp, 'r') as f:
-    for l in tqdm(f, total=nline):
-        lines.append(l)
-
 def process(i, l):
     if i % 100 == 0:
         print(i, 'th line')
@@ -51,9 +35,47 @@ def process(i, l):
             else:
                 assert False
 
-num_cores = multiprocessing.cpu_count() - 2
-print('num_cores', num_cores)
+for split  in ['train', 'dev']:
+    print(split)
+    data_dir = 'data'
+    wav_scp = f'{data_dir}/{split}/wav.scp'
+    audio_folder = 'w2vaudio_wav'
+    feat_folder = 'w2vaudio_npy'
+    seen_utt = set()
+    def line_count(filename):
+        return int(subprocess.check_output(['wc', '-l', filename]).split()[0])
+    nline = line_count(wav_scp)
 
-results = Parallel(n_jobs=num_cores)(delayed(process)(i, l) for i, l in enumerate(lines))
+    lines = []
+    with open(wav_scp, 'r') as f:
+        for l in tqdm(f, total=nline):
+            lines.append(l)
+
+
+    num_cores = multiprocessing.cpu_count() - 2
+    print('num_cores', num_cores)
+
+    results = Parallel(n_jobs=num_cores)(delayed(process)(i, l) for i, l in enumerate(lines))
+
+    segment_file = f'{data_dir}/{split}/segments'
+    nline = line_count(segment_file)
+    sr = 16000
+    # seen_utt = set()
+    with open(segment_file, 'r') as f:
+        for l in tqdm(f, total=nline):
+            segid, audioid, start, end = l.split(' ')
+            start, end = float(start), float(end)
+            audio_path = f'{audio_folder}/{audioid}.wav'
+            feat_path = f'{feat_folder}/{segid}.npy'
+            if not os.path.isfile(feat_path):
+                feats, curr_sample_rate = librosa.load(audio_path, sr=sr, offset=start, duration=end-start)
+                assert curr_sample_rate == sr
+                if len(feats.shape) == 2:
+                    feats = feats.mean(-1)
+                    assert len(feats) != 2
+                np.save(feat_path, feats)
+
+            assert segid not in seen_utt
+            seen_utt.add(segid)
 
 

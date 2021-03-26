@@ -84,3 +84,33 @@ for eval_folder in eval_folders:
 
             assert segid not in seen_utt
             seen_utt.add(segid)
+ 
+ def convert_json_data(input_json_path):
+    
+    output_json_path = f'{input_json_path}.npy'
+    if os.path.isfile(output_json_path):
+        print(f'{output_json_path} already exists, skip')
+        return
+    with open(input_json_path, 'r') as fin:
+        js = json.load(fin)["utts"]
+        for uttid, v in tqdm(js.items(), total=len(js)):
+            npy_file = f'{feat_folder}/{uttid}.npy'
+            assert 'shape' in v['input'][0]
+            assert 'feat' in v['input'][0]
+            v['input'][0]['feat'] = npy_file
+            v['input'][0]['filetype'] = 'npy'
+            shape = np.load(npy_file, mmap_mode='r').shape[0]
+            if type(shape) is int:
+                shape =(shape, 1)
+            elif len(shape) == 1:
+                shape = (shape[0], 1)
+            v['input'][0]['shape'] = shape
+        print(f'saving modified npy json {output_json_path}')
+        with open(output_json_path, 'w') as fout:
+            json.dump({'utts': js}, fout, indent=2)
+    
+eval_folders = [f for f in os.listdir('data') if 'eval' in f]
+feat_folder = 'w2vaudio_npy'
+for eval_folder in eval_folders:
+    input_json_path = f'dump/{eval_folder}/deltafalse/data.json'
+    convert_json_data(input_json_path)
