@@ -93,7 +93,7 @@ class CustomEvaluator(BaseEvaluator):
 
     """
 
-    def __init__(self, model, iterator, target, device, ngpu=None):
+    def __init__(self, model, iterator, target, device, ngpu=None, phone_aware=False):
         super(CustomEvaluator, self).__init__(iterator, target)
         self.model = model
         self.device = device
@@ -103,6 +103,7 @@ class CustomEvaluator(BaseEvaluator):
             self.ngpu = 0
         else:
             self.ngpu = 1
+        self.phone_aware = phone_aware
 
     # The core part of the update routine can be customized by overriding
     def evaluate(self):
@@ -123,7 +124,14 @@ class CustomEvaluator(BaseEvaluator):
         self.model.eval()
         with torch.no_grad():
             for batch in it:
-                x = _recursive_to(batch, self.device)
+                if self.phone_aware:
+                    lang_labels, _batch = batch[0], batch[1:]
+                    _x = _recursive_to(_batch, self.device)
+                    x = _x + tuple([lang_labels])
+                else:
+                    # x = _x + tuple([dummy_w.expand(batch_size).view(-1, 1, 1)])
+                    x = _recursive_to(batch, self.device)
+                # x = _recursive_to(batch, self.device)
                 observation = {}
                 with reporter_module.report_scope(observation):
                     # read scp files
@@ -202,9 +210,9 @@ class CustomUpdater(StandardUpdater):
             _x = _recursive_to(batch, self.device)
             x = _x
 
-        # if np.prod(list(x[0].size())) >= 300000:
-        #     logging.warning(f'batch {x[0].size()} {np.prod(list(x[0].size())) } too large, skip')
-        #     return
+        if np.prod(list(x[0].size())) >= 800000:
+            logging.warning(f'batch {x[0].size()} {np.prod(list(x[0].size())) } too large, skip')
+            return
         
         # self.iteration += 1 # Increase may result in early report,
         # which is done in other place automatically.
@@ -241,6 +249,7 @@ class CustomUpdater(StandardUpdater):
         except Exception as e:
             msg = str(e).split('\n')[-1]
             logging.warning(f'{msg} {x[0].size()}')
+            # raise e
             return 
 
         # gradient noise injection
@@ -413,6 +422,42 @@ class CustomConverterMulEnc(object):
 
         return xs_list_pad, ilens_list, ys_pad
 
+# read json data
+def read_json_data(args, json_path):
+    if not args.wav2vec_feature:
+        # use fbank
+        logging.warning(f'Use fbank features {json_path}')
+        with open(json_path, "rb") as f:
+            js = json.load(f)["utts"]
+    else:
+        # use wav2vec
+        if os.path.isfile(f'{json_path}.npy'):
+            # already modified js
+            logging.warning(f'Use modified npy json  {json_path}.npy')
+            with open(f'{json_path}.npy', "r") as f:
+                js = json.load(f)["utts"]
+        else:
+            # need to modify js
+            logging.warning(f'modifying npy json {json_path}')
+            with open(json_path, "rb") as f:
+                js = json.load(f)["utts"]
+            feat_folder = args.wav2vec_feat_folder
+            for uttid, v in js.items():
+                npy_file = f'{feat_folder}/{uttid}.npy'
+                assert 'shape' in v['input'][0]
+                assert 'feat' in v['input'][0]
+                v['input'][0]['feat'] = npy_file
+                v['input'][0]['filetype'] = 'npy'
+                shape = np.load(npy_file, mmap_mode='r').shape[0]
+                if type(shape) is int:
+                    shape =(shape, 1)
+                elif len(shape) == 1:
+                    shape = (shape[0], 1)
+                v['input'][0]['shape'] = shape
+            logging.warning(f'saving modified npy json {json_path}')
+            with open(f'{json_path}.npy', "w") as f:
+                json.dump({'utts': js}, f, indent=2)
+    return js
 
 def train(args):
     """Train with the given args.
@@ -430,23 +475,7 @@ def train(args):
         logging.warning("cuda is not available")
 
     # get input and output dimension info
-    with open(args.valid_json, "rb") as f:
-        valid_json = json.load(f)["utts"]
-
-    if args.wav2vec_feature:
-        feat_folder = args.wav2vec_feat_folder
-        for uttid, v in valid_json.items():
-            npy_file = f'{feat_folder}/{uttid}.npy'
-            assert 'shape' in v['input'][0]
-            assert 'feat' in v['input'][0]
-            v['input'][0]['feat'] = npy_file
-            v['input'][0]['filetype'] = 'npy'
-            shape = np.load(npy_file, mmap_mode='r').shape[0]
-            if type(shape) is int:
-                shape =(shape, 1)
-            elif len(shape) == 1:
-                shape = (shape[0], 1)
-            v['input'][0]['shape'] = shape
+    valid_json = read_json_data(args, args.valid_json)
 
 
     utts = list(valid_json.keys())
@@ -535,6 +564,7 @@ def train(args):
 
     # set torch device
     device = torch.device("cuda" if args.ngpu > 0 else "cpu")
+    
     if args.train_dtype in ("float16", "float32", "float64"):
         dtype = getattr(torch, args.train_dtype)
     else:
@@ -563,6 +593,7 @@ def train(args):
         else:
             adim = args.adim
 
+        logging.warning(f'optimizer learning rate {args.transformer_lr}')
         optimizer = get_std_opt(
             model_params, adim, args.transformer_warmup_steps, args.transformer_lr
         )
@@ -610,49 +641,16 @@ def train(args):
         )
 
     # read json data
-    with open(args.train_json, "rb") as f:
-        train_json = json.load(f)["utts"]
-    
-    
-    with open(args.valid_json, "rb") as f:
-        valid_json = json.load(f)["utts"]
-
-    if args.wav2vec_feature:
-        feat_folder = args.wav2vec_feat_folder
-        for uttid, v in train_json.items():
-            npy_file = f'{feat_folder}/{uttid}.npy'
-            assert 'shape' in v['input'][0]
-            assert 'feat' in v['input'][0]
-            v['input'][0]['feat'] = npy_file
-            v['input'][0]['filetype'] = 'npy'
-            shape = np.load(npy_file, mmap_mode='r').shape[0]
-            if type(shape) is int:
-                shape =(shape, 1)
-            elif len(shape) == 1:
-                shape = (shape[0], 1)
-            v['input'][0]['shape'] = shape
-
-        for uttid, v in valid_json.items():
-            npy_file = f'{feat_folder}/{uttid}.npy'
-            assert 'shape' in v['input'][0]
-            assert 'feat' in v['input'][0]
-            v['input'][0]['feat'] = npy_file
-            v['input'][0]['filetype'] = 'npy'
-            shape = np.load(npy_file, mmap_mode='r').shape[0]
-            if type(shape) is int:
-                shape =(shape, 1)
-            elif len(shape) == 1:
-                shape = (shape[0], 1)
-            v['input'][0]['shape'] = shape
-
+    train_json = read_json_data(args, args.train_json)
+    valid_json = read_json_data(args, args.valid_json)
 
     # train_items = list(train_json.items())
     # shuffle(train_items)
-    # train_json = dict(train_items[:100])
+    # train_json = dict(train_items[:20])
     
     # valid_items = list(valid_json.items())
     # shuffle(valid_items)
-    # valid_json = dict(valid_items[:100])
+    # valid_json = dict(valid_items[:20])
 
     use_sortagrad = args.sortagrad == -1 or args.sortagrad > 0
     # make minibatch list (variable length)
@@ -705,15 +703,23 @@ def train(args):
     # actual bathsize is included in a list
     # default collate function converts numpy array to pytorch tensor
     # we used an empty collate function instead which returns list
+    dataset_tr = TransformDataset(
+        train, lambda data: converter([load_tr(data)]), lang_label=args.phone_aware
+    ) 
+    
+    dataset_cv = TransformDataset(
+        valid, lambda data: converter([load_cv(data)]), lang_label=args.phone_aware
+    )
+
     train_iter = ChainerDataLoader(
-        dataset=TransformDataset(train, lambda data: converter([load_tr(data)]), lang_label=args.phone_aware),
+        dataset=dataset_tr,
         batch_size=1,
         num_workers=args.n_iter_processes,
         shuffle=not use_sortagrad,
         collate_fn=lambda x: x[0],
     )
     valid_iter = ChainerDataLoader(
-        dataset=TransformDataset(valid, lambda data: converter([load_cv(data)])),
+        dataset=dataset_cv,
         batch_size=1,
         shuffle=False,
         collate_fn=lambda x: x[0],
@@ -743,18 +749,26 @@ def train(args):
 
     # Resume from a snapshot
     if args.resume:
-        logging.info("resumed from %s" % args.resume)
-        torch_resume(args.resume, trainer)
+        if args.fine_tune:
+            logging.info("fine tune from %s" % args.resume)
+            snapshot_dict = torch.load(args.resume, map_location=lambda storage, loc: storage)
+            if hasattr(trainer.updater.model, "module"):
+                trainer.updater.model.module.load_state_dict(snapshot_dict["model"])
+            else:
+                trainer.updater.model.load_state_dict(snapshot_dict["model"])
+        else:
+            logging.info("resumed from %s" % args.resume)
+            torch_resume(args.resume, trainer)
 
     # Evaluate the model with the test dataset for each epoch
     if args.save_interval_iters > 0:
         trainer.extend(
-            CustomEvaluator(model, {"main": valid_iter}, reporter, device, args.ngpu),
+            CustomEvaluator(model, {"main": valid_iter}, reporter, device, args.ngpu, phone_aware=args.phone_aware),
             trigger=(args.save_interval_iters, "iteration"),
         )
     else:
         trainer.extend(
-            CustomEvaluator(model, {"main": valid_iter}, reporter, device, args.ngpu)
+            CustomEvaluator(model, {"main": valid_iter}, reporter, device, args.ngpu, phone_aware=args.phone_aware)
         )
 
     # Save attention weight each epoch
@@ -769,6 +783,13 @@ def train(args):
         )
         or mtl_mode == "transformer_transducer"
     )
+
+    def dummpy_converter(x, device):
+        if args.phone_aware:
+            # x = [lang_labels, xs_pad, ilens, ys_pad]
+            return _recursive_to(x[0][1:], device) + tuple([x[0][0]])
+        else:
+            return _recursive_to(x[0], device)
 
     if args.num_save_attention > 0 and is_attn_plot:
         data = sorted(
@@ -786,8 +807,8 @@ def train(args):
             att_vis_fn,
             data,
             args.outdir + "/att_ws",
-            converter=converter,
-            transform=load_cv,
+            converter=dummpy_converter, # dummpy converter
+            transform=dataset_tr.custom_transform, # use dataset's transform
             device=device,
         )
         trainer.extend(att_reporter, trigger=(1, "epoch"))
@@ -812,8 +833,8 @@ def train(args):
             ctc_vis_fn,
             data,
             args.outdir + "/ctc_prob",
-            converter=converter,
-            transform=load_cv,
+            converter=dummpy_converter, # dummpy converter
+            transform=dataset_tr.custom_transform, # use dataset's transform
             device=device,
             ikey="output",
             iaxis=1,

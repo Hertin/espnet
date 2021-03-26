@@ -296,6 +296,8 @@ class Encoder(torch.nn.Module):
             (Conv2dSubsampling, Conv2dSubsampling6, Conv2dSubsampling8, VGG2L),
         ):
             xs, masks = self.embed(xs, masks)
+        # elif self.no_emb:
+        #     pass # do  nothing as feature extration is already done
         else:
             xs = self.embed(xs)
         xs, masks = self.encoders(xs, masks)
@@ -377,7 +379,7 @@ class EncoderLang(torch.nn.Module):
         positionwise_layer_type="linear",
         positionwise_conv_kernel_size=1,
         padding_idx=-1,
-        num_langs=0
+        langemb_dim=0
     ):
         from espnet.nets.pytorch_backend.transformer.repeat import repeat_lang as repeat
         from espnet.nets.pytorch_backend.transformer.encoder_layer import EncoderLayerLang as EncoderLayer
@@ -385,7 +387,7 @@ class EncoderLang(torch.nn.Module):
         """Construct an Encoder object."""
         super(EncoderLang, self).__init__()
         self._register_load_state_dict_pre_hook(_pre_hook)
-        self.num_langs = num_langs
+        self.langemb_dim = langemb_dim
 
         if input_layer == "linear":
             self.embed = torch.nn.Sequential(
@@ -443,7 +445,7 @@ class EncoderLang(torch.nn.Module):
                     attention_dim,
                     MultiHeadedAttention(
                         attention_heads, attention_dim, attention_dropout_rate, 
-                        n_input_feat=attention_dim+num_langs
+                        n_input_feat=attention_dim+langemb_dim
                     ),
                     positionwise_layer(*positionwise_layer_args),
                     dropout_rate,

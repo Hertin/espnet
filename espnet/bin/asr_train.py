@@ -540,6 +540,7 @@ def get_parser(parser=None, required=True):
     parser.add_argument("--wav2vec-path", type=str, default=None, help="")
     parser.add_argument("--wav2vec-idim", type=int, default=None, help="")
     
+    parser.add_argument("--fine-tune", type=strtobool, default=False, help="")
     return parser
 
 
