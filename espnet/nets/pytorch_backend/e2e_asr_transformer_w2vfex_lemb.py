@@ -104,11 +104,12 @@ class LangEmb(nn.Module):
             logging.warning('load g2v npy directly')
             g = nx.read_gpickle(args.lgcn_graph_path)
             node2idx = {l: i for i, l in enumerate(g.nodes)}
-            logging.warning(f'node2idx  {node2idx}')
+            
             n2v_embedding = np.load(f'{args.lgcn_g2v_path}.npy')
             lang_indices = [node2idx[self.lang2glotto[l]] for l in self.all_langs]
+            logging.warning(f'lang_indices  {lang_indices}')
             self.n2v_embedding = n2v_embedding[lang_indices]
-            logging.warning(f'n2v_embedding  {self.n2v_embedding.size()}')
+            logging.warning(f'n2v_embedding  {self.n2v_embedding.shape}')
         else:
             self.g2v = Node2Vec.load(args.lgcn_g2v_path)
             self.n2v_embedding = np.array([self.g2v.predict(l) for l in self.g.nodes])
