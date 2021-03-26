@@ -220,6 +220,13 @@ class E2E(ASRInterface, torch.nn.Module):
             help="lgcn-output-dim",
         )
 
+        group.add_argument(
+            "--wav2vec-fix-extractor",
+            default=True,
+            type=strtobool,
+            help="wav2vec-fix-extractor",
+        )
+        
         return parser
 
     @property
