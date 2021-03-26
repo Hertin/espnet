@@ -11,6 +11,7 @@ from copy import deepcopy
 import numpy
 import numpy as np
 from nodevectors import Node2Vec
+import networkx as nx
 import torch
 from torch import nn
 import torch.nn.functional as F
