@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import json
-from ipywidgets import interact
 import matplotlib.pyplot as plt
 import torch
 import pickle as pk
@@ -22,7 +21,7 @@ lang_labels = [
     '203', '101', 'N', '404', '402', '307', '206', '107', '103'
 ]
 lembs = {}
-for snapshot in os.list(args.exp_dir):
+for snapshot in os.listdir(args.exp_dir):
     if not snapshot.startswith('snapshot.ep.'):
         continue
     ep = int(snapshot.replace('snapshot.ep.', ''))
@@ -41,4 +40,4 @@ for snapshot in os.list(args.exp_dir):
         lembs[ep] = lemb
     del model
 with open(f'{args.exp_dir}/language_emb.pk', 'wb') as f: 
-    pk.dump([embs, lang_labels], f)
+    pk.dump([lembs, lang_labels], f)
