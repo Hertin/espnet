@@ -27,7 +27,7 @@ N=0            # number of minibatches to be used (mainly for debugging). "0" us
 verbose=0      # verbose option
 resume=        # Resume the training from snapshot
 
-exp=wav2vecfexlgcn
+exp=wav2vecfexlembglottoonly
 plot_merged=false # plot cer with merged data in recog_set
 # feature configuration
 do_delta=false
@@ -241,7 +241,7 @@ lang2ph="phones/lang2ph.json"
 elif [ $exp == wav2vecfex ]; then
 echo W2VFEX
 # multilingual phoneme recognition without language label
-tag="wav2vecfex_new" # tag for managing experiments.
+tag="wav2vecfex_x" # tag for managing experiments.
 train_config=conf/train_transformer_ctconly_w2vfex.yaml
 lm_config=conf/lm.yaml
 decode_config=conf/decode.yaml
@@ -287,6 +287,40 @@ mask_phoneme=true
 lang2ph="phones/lang2ph.json"
 lang_label=true
 wav2vec_feature=true
+elif [ $exp == wav2vecfexlembphonly ]; then
+echo W2VFEXLEMBPHONLY
+# multilingual phoneme recognition without language label
+tag="wav2vecfexlembphonly" # tag for managing experiments.
+train_config=conf/train_transformer_ctconly_w2vfex_lembphonly.yaml
+lm_config=conf/lm.yaml
+decode_config=conf/decode.yaml
+# Generate configs with local/prepare_experiment_configs.py
+resume=
+langs_config=
+experiment="Default"
+recog_function="recog_ctconly"
+mask_phoneme=true
+lang2ph="phones/lang2ph.json"
+lang_label=true
+wav2vec_feature=true
+elif [ $exp == wav2vecfexlembglottoonly ]; then
+echo W2VFEXLEMBGLOTTOONLY
+ngpu=1
+# multilingual phoneme recognition without language label
+tag="wav2vecfexlembglottoonly" # tag for managing experiments.
+train_config=conf/train_transformer_ctconly_w2vfex_lemb_glottoonly.yaml
+lm_config=conf/lm.yaml
+decode_config=conf/decode.yaml
+# Generate configs with local/prepare_experiment_configs.py
+resume=
+langs_config=
+experiment="Default"
+recog_function="recog_ctconly"
+mask_phoneme=true
+lang2ph="phones/lang2ph.json"
+lang_label=true
+wav2vec_feature=true
+
 
 fi
 
@@ -436,10 +470,10 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
 
     recog_set=""
     for l in ${babel_recog} ${gp_recog}; do
-    recog_set="eval_${l} ${recog_set}"
+    recog_set="${recog_set} eval_${l}"
     done
 
-    recog_size=1000
+    recog_size=200
 
 
     echo "stage 5: Plotting"
@@ -455,7 +489,7 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
     if ${use_lm}; then
     extra_opts="--rnnlm ${lmexpdir}/rnnlm.model.best ${extra_opts}"
     fi
-    mask_phoneme=false
+    mask_phoneme=true
     if ${mask_phoneme}; then
         for rtask in ${recog_set}; do
             ngpu=1
@@ -465,8 +499,18 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
             echo "Saving in ${expdir}/${plot_dir}"
             
             feat_recog_dir=${dumpdir}/${rtask}/delta${do_delta}
-            recog_json="${feat_recog_dir}/data.json"
-            concatjson.py ${recog_json} > ${expdir}/${plot_dir}/data.merged.json
+            if [ -f "${feat_recog_dir}/data.json.npy" ]; then
+        	    echo "Use ${feat_recog_dir}/data.json.npy"
+                recog_json="${feat_recog_dir}/data.json.npy"
+            	concatjson.py ${recog_json} > ${expdir}/${plot_dir}/data.merged.json.npy
+            else
+            	recog_json="${feat_recog_dir}/data.json"
+            	concatjson.py ${recog_json} > ${expdir}/${plot_dir}/data.merged.json
+            fi
+            
+            
+            #recog_json="${feat_recog_dir}/data.json"
+            #concatjson.py ${recog_json} > ${expdir}/${plot_dir}/data.merged.json
             echo "expdir ${expdir}"
             for recog_model in $(ls "${expdir}/results" | grep "snapshot\.ep\."); do
             (
@@ -488,6 +532,8 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
                         --embedding-save-dir ${expdir}/${plot_dir}/${recog_model}/embedding.JOB.json \
                         --recog-size ${recog_size} \
                         --lang2ph ${lang2ph} \
+                        --lang-label true \
+                        --mask-phoneme true \
                         ${extra_opts}
                     score_sclite.sh --wer true --nlsyms ${nlsyms} ${expdir}/${plot_dir}/${recog_model} ${dict}
                 fi
@@ -788,7 +834,7 @@ if [ ${stage} -le 8 ] && [ ${stop_stage} -ge 8 ]; then
         echo  "${rtask} fake_lang_label ${fake_lang_label}"
         ngpu=1
         pids=() # initialize pids
-        plot_dir=plot_${rtask}_${fake_lang_label}_$(basename ${decode_config%.*})
+        plot_dir=plot_mask_${rtask}_${fake_lang_label}_$(basename ${decode_config%.*})
         mkdir -p ${expdir}/${plot_dir}
         echo "Saving in ${expdir}/${plot_dir}"
         
@@ -823,8 +869,9 @@ if [ ${stage} -le 8 ] && [ ${stop_stage} -ge 8 ]; then
                     --recog-function ${recog_function} \
                     --embedding-save-dir ${expdir}/${plot_dir}/${recog_model}/embedding.JOB.json \
                     --recog-size ${recog_size} \
-                    --mask-phoneme false \
+                    --mask-phoneme true \
                     --lang-label ${lang_label} \
+                    --lang2ph ${lang2ph} \
                     --fake-lang-label ${fake_lang_label}
                     ${extra_opts}
                 score_sclite.sh --wer true --nlsyms ${nlsyms} ${expdir}/${plot_dir}/${recog_model} ${dict}
