@@ -83,7 +83,18 @@ class LangEmb(nn.Module):
         
         self.all_langs = sorted([l for l in self.lang2ph.keys()])
         logging.warning(f'LangEmb All langs {self.all_langs}')
-        self.input_dim = args.lgcn_n2v_dim + len(self.glotto_all_phonemes)
+
+        if args.lang_emb_type == 'all':
+            logging.warning('Use all features')
+            self.input_dim = args.lgcn_n2v_dim + len(self.glotto_all_phonemes)
+        elif args.lang_emb_type =='phoible':
+            logging.warning('Use phoible features')
+            self.input_dim = len(self.glotto_all_phonemes)
+        elif args.lang_emb_type =='glotto':
+            logging.warning('Use glotto features')
+            self.input_dim = args.lgcn_n2v_dim
+        else:
+            raise ValueError(f'lang_emb_type {args.lang_emb_type} not implemented')
         self.hidden_dim = args.lgcn_hidden_dim
         self.output_dim = args.lgcn_output_dim
         self.num_layer = args.lgcn_num_layer
@@ -124,9 +135,16 @@ class LangEmb(nn.Module):
                 self.ph_embedding[self.all_langs.index(lang), self.glotto_all_phonemes.index(ph)] = 1
 
         # 3. concate embeddings
-        embedding = np.concatenate([self.n2v_embedding, self.ph_embedding], axis=1)
+        if args.lang_emb_type == 'all':
+            embedding = np.concatenate([self.n2v_embedding, self.ph_embedding], axis=1)
+        elif args.lang_emb_type == 'phoible':
+            embedding = self.ph_embedding
+        elif args.lang_emb_type == 'glotto':
+            embedding = self.n2v_embedding
+        
         self.embedding = Parameter(torch.from_numpy(embedding.astype(float)), requires_grad=False)
-    
+        logging.warning(f'lang embedding size {self.embedding.size()}')
+
     def forward(self, langs):
         lang_ids = [self.all_langs.index(lang) for lang in langs]
         state = self.embedding[lang_ids]
@@ -230,6 +248,13 @@ class E2E(ASRInterface, torch.nn.Module):
             default=True,
             type=strtobool,
             help="wav2vec-fix-extractor",
+        )
+
+        group.add_argument(
+            "--lang-emb-type",
+            default='all',
+            type=str,
+            help="lang2glotto",
         )
 
         return parser
@@ -398,7 +423,9 @@ class E2E(ASRInterface, torch.nn.Module):
         # audio_pad_mask
         # hs_pad, hs_mask 
         # logging.warning(f'audio_pad size {audio_pad.size()}')
-        # logging.warning(f'lang labels {lang_labels}')
+        # logging.warning(f'lang labels {lang_labels} {lang_label_indices}')
+        # lang_labels = np.array(lang_labels)[lang_label_indices.cpu().numpy()]
+
         langembs = self.lemb(lang_labels)
 
         # logging.warning(f'{ lang_labels} lgcn out size {langembs.size()} {langembs.type()}')
