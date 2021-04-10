@@ -309,6 +309,18 @@ def get_parser():
         default=None,
         help="Filename of language to phoneme dictionary"
     )
+    parser.add_argument(
+        "--lang-model",
+        type=str,
+        default=None, nargs="?",
+        help="Filename of language to phoneme dictionary"
+    )
+    parser.add_argument(
+        "--lang-model-weight",
+        type=float,
+        default=0, nargs="?",
+        help="Filename of language to phoneme dictionary"
+    )
 
     return parser
 

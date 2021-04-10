@@ -110,7 +110,7 @@ class BeamSearch(torch.nn.Module):
             and len(self.part_scorers) > 0
         )
 
-    def init_hyp(self, x: torch.Tensor) -> List[Hypothesis]:
+    def init_hyp(self, x: torch.Tensor,  **kwargs) -> List[Hypothesis]:
         """Get an initial hypothesis data.
 
         Args:
@@ -123,7 +123,7 @@ class BeamSearch(torch.nn.Module):
         init_states = dict()
         init_scores = dict()
         for k, d in self.scorers.items():
-            init_states[k] = d.init_state(x)
+            init_states[k] = d.init_state(x, **kwargs)
             init_scores[k] = 0.0
         return [
             Hypothesis(
@@ -334,7 +334,7 @@ class BeamSearch(torch.nn.Module):
         return best_hyps
 
     def forward(
-        self, x: torch.Tensor, maxlenratio: float = 0.0, minlenratio: float = 0.0
+        self, x: torch.Tensor, maxlenratio: float = 0.0, minlenratio: float = 0.0,  **kwargs
     ) -> List[Hypothesis]:
         """Perform beam search.
 
@@ -360,7 +360,7 @@ class BeamSearch(torch.nn.Module):
         logging.info("min output length: " + str(minlen))
 
         # main loop of prefix search
-        running_hyps = self.init_hyp(x)
+        running_hyps = self.init_hyp(x, **kwargs)
         ended_hyps = []
         for i in range(maxlen):
             logging.debug("position " + str(i))

@@ -24,7 +24,7 @@ class CTCPrefixScorer(BatchPartialScorerInterface):
         self.eos = eos
         self.impl = None
 
-    def init_state(self, x: torch.Tensor):
+    def init_state(self, x: torch.Tensor, **kwargs):
         """Get an initial state for decoding.
 
         Args:
@@ -33,7 +33,14 @@ class CTCPrefixScorer(BatchPartialScorerInterface):
         Returns: initial state
 
         """
-        logp = self.ctc.log_softmax(x.unsqueeze(0)).detach().squeeze(0).cpu().numpy()
+        if kwargs.get('mask_phoneme'):
+            lang_labels = kwargs.get('lang_labels_for_masking')
+            logging.warning(f'init_state {lang_labels}')
+            log_probs = self.ctc.log_softmax(x.unsqueeze(0), lang_labels=lang_labels)
+        else:
+            log_probs = self.ctc.log_softmax(x.unsqueeze(0), lang_labels=None)
+        # logp = self.ctc.log_softmax(x.unsqueeze(0)).detach().squeeze(0).cpu().numpy()
+        logp = log_probs.squeeze(0).cpu().numpy()
         # TODO(karita): use CTCPrefixScoreTH
         self.impl = CTCPrefixScore(logp, 0, self.eos, np)
         return 0, self.impl.initial_state()

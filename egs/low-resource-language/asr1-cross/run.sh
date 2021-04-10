@@ -241,7 +241,7 @@ lang2ph="phones/lang2ph.json"
 elif [ $exp == wav2vecfex ]; then
 echo W2VFEX
 # multilingual phoneme recognition without language label
-tag="wav2vecfex_x" # tag for managing experiments.
+tag="wav2vecfex" # tag for managing experiments.
 train_config=conf/train_transformer_ctconly_w2vfex.yaml
 lm_config=conf/lm.yaml
 decode_config=conf/decode.yaml
@@ -800,8 +800,10 @@ if [ ${stage} -le 8 ] && [ ${stop_stage} -ge 8 ]; then
     lang2label[eval_Turkish]=TU
     lang2label[eval_Portuguese]=PO
     
-    babel_recog="101 203 103 107 206 307 402 404 505"
-    gp_recog="Spanish Polish Croatian Czech French Mandarin Thai Bulgarian German Turkish Portuguese"
+    #babel_recog="Spanish Polish Croatian 101 203 103 107 206 307 402 404 505"
+    #gp_recog="Czech French Mandarin Thai Bulgarian German Turkish Portuguese"
+    babel_recog="Spanish Polish Croatian 101 203 "
+    gp_recog=""
     # Generate configs with local/prepare_experiment_configs.py
     resume=
     langs_config=
@@ -809,7 +811,7 @@ if [ ${stage} -le 8 ] && [ ${stop_stage} -ge 8 ]; then
 
     recog_set=""
     for l in ${babel_recog} ${gp_recog}; do
-    recog_set="eval_${l} ${recog_set}"
+    recog_set="${recog_set} eval_${l}"
     done
 
     recog_size=200
@@ -834,7 +836,7 @@ if [ ${stage} -le 8 ] && [ ${stop_stage} -ge 8 ]; then
         echo  "${rtask} fake_lang_label ${fake_lang_label}"
         ngpu=1
         pids=() # initialize pids
-        plot_dir=plot_mask_${rtask}_${fake_lang_label}_$(basename ${decode_config%.*})
+        plot_dir=plot_${rtask}_${fake_lang_label}_$(basename ${decode_config%.*})
         mkdir -p ${expdir}/${plot_dir}
         echo "Saving in ${expdir}/${plot_dir}"
         
@@ -850,7 +852,147 @@ if [ ${stage} -le 8 ] && [ ${stop_stage} -ge 8 ]; then
         fi
 
         echo "expdir ${expdir}"
-        for recog_model in $(ls "${expdir}/results" | grep "snapshot\.ep\."); do
+        for recog_model in $(ls "${expdir}/results" | grep "snapshot\.ep\.30"); do
+        (
+            echo "Evaluating $recog_model"
+            if [ -f "${expdir}/${plot_dir}/${recog_model}/result.txt" ]; then
+                echo "Skip because ${expdir}/${plot_dir}/${recog_model}/result.txt exists"
+                
+            else
+                mkdir -p ${expdir}/${plot_dir}/${recog_model}
+                ${decode_cmd} JOB=1:${nj} ${expdir}/${plot_dir}/${recog_model}/log/decode.JOB.log \
+                    asr_recog.py \
+                    --config ${decode_config} \
+                    --ngpu ${ngpu} \
+                    --backend ${backend} \
+                    --recog-json ${expdir}/${plot_dir}/data.merged.json \
+                    --result-label ${expdir}/${plot_dir}/${recog_model}/data.JOB.json \
+                    --model ${expdir}/results/${recog_model}  \
+                    --recog-function ${recog_function} \
+                    --embedding-save-dir ${expdir}/${plot_dir}/${recog_model}/embedding.JOB.json \
+                    --recog-size ${recog_size} \
+                    --mask-phoneme false \
+                    --lang-label ${lang_label} \
+                    --lang2ph ${lang2ph} \
+                    --fake-lang-label ${fake_lang_label}
+                    ${extra_opts}
+                score_sclite.sh --wer true --nlsyms ${nlsyms} ${expdir}/${plot_dir}/${recog_model} ${dict}
+            fi
+        ) &
+        pids+=($!) # store background pids
+        wait $!
+
+        done
+        i=0; for pid in "${pids[@]}"; do wait ${pid} || ((++i)); done
+        [ ${i} -gt 0 ] && echo "$0: ${i} background jobs are failed." && false
+        echo "Finished Computing CER for ${rtask} ${fake_lang_label}"
+    done
+fi
+
+if [ ${stage} -le 9 ] && [ ${stop_stage} -ge 9 ]; then
+    declare -A lang2label
+
+    lang2label["eval_101"]="101"
+    lang2label["eval_203"]="203"
+    lang2label["eval_103"]="103"
+    lang2label["eval_107"]="107"
+    lang2label["eval_206"]="206"
+    lang2label["eval_307"]="307"
+    lang2label["eval_402"]="402"
+    lang2label["eval_404"]="404"
+    lang2label["eval_505"]="N"
+    lang2label["eval_Spanish"]=SP
+    lang2label["eval_Polish"]=PL
+    lang2label["eval_Croatian"]=CR
+    lang2label["eval_Czech"]=CZ
+    lang2label[eval_French]=FR
+    lang2label[eval_Mandarin]=CH
+    lang2label[eval_Thai]=TH
+    lang2label[eval_Bulgarian]=BG
+    lang2label[eval_German]=GE
+    lang2label[eval_Turkish]=TU
+    lang2label[eval_Portuguese]=PO
+
+    lang_model_weight=0
+
+    #babel_recog="Spanish Polish Croatian 101 203 103 107 206 307 402 404 505"
+    #gp_recog="Czech French Mandarin Thai Bulgarian German Turkish Portuguese"
+    babel_recog="101 203"
+    gp_recog="Spanish Polish Croatian"
+    # Generate configs with local/prepare_experiment_configs.py
+    resume=
+    langs_config=
+    recog_function="recog_v2"
+    
+    
+    recog_size=200
+
+
+    echo "stage 9: Plotting with Language Model and mask"
+    if [ $recog_function == recog_v2 ]; then
+        nj=1
+        ngpu=0
+    else
+        nj=1
+        ngpu=1
+    fi
+
+    
+
+    train_set=""
+    recog_set=""
+    for l in ${babel_recog}; do
+        train_set="${train_set} data/${l}/data/train_${l}"
+        recog_set="${recog_set} eval_${l}"
+    done
+    for l in ${gp_recog}; do
+        train_set="${train_set} data/GlobalPhone/gp_${l}_train"
+        recog_set="${recog_set} eval_${l}"
+    done
+    
+    recog_set=($(echo "$recog_set" | tr ' ' '\n')) # convert string to array
+    train_set=($(echo "$train_set" | tr ' ' '\n'))
+    echo $train_set
+    
+    #./local/train_kenlm.sh --babel-recog ${babel_recog} --gp-recog ${gp_recog}
+
+    for i in "${!train_set[@]}"; do
+        trset="${train_set[i]}"
+        rtask="${recog_set[i]}"
+        echo $i ${recog_set[i]} ${trset}
+        lang="${lang2label[${rtask}]}"
+        lang_model_path=exp/lang_model/"${lang}".arpa
+        lmexpdir=exp/rnnlm/${lang}
+        extra_opts=""
+        use_lm=true
+        if ${use_lm}; then
+            extra_opts="--rnnlm ${lmexpdir}/rnnlm.model.best ${extra_opts}"
+        fi
+        mkdir -p exp/lang_model
+        echo "Converting ${lang}: ${trset}/text > ${lang_model_path} ${recog_set[i]}"
+
+        fake_lang_label="${lang2label[$rtask]}"
+        echo "${rtask} fake_lang_label ${fake_lang_label}"
+        
+        ngpu=1
+        pids=() # initialize pids
+        plot_dir=plot_lm_mask_${rtask}_${fake_lang_label}_$(basename ${decode_config%.*})
+        mkdir -p ${expdir}/${plot_dir}
+        echo "Saving in ${expdir}/${plot_dir}"
+        
+        feat_recog_dir=${dumpdir}/${rtask}/delta${do_delta}
+
+    	if [ -f "${feat_recog_dir}/data.json.npy" ]; then
+    	    echo "Use ${feat_recog_dir}/data.json.npy"
+            recog_json="${feat_recog_dir}/data.json.npy"
+        	concatjson.py ${recog_json} > ${expdir}/${plot_dir}/data.merged.json.npy
+        else
+        	recog_json="${feat_recog_dir}/data.json"
+        	concatjson.py ${recog_json} > ${expdir}/${plot_dir}/data.merged.json
+        fi
+
+        echo "expdir ${expdir}"
+        for recog_model in $(ls "${expdir}/results" | grep "snapshot\.ep\.30"); do
         (
             echo "Evaluating $recog_model"
             if [ -f "${expdir}/${plot_dir}/${recog_model}/result.txt" ]; then
@@ -872,7 +1014,9 @@ if [ ${stage} -le 8 ] && [ ${stop_stage} -ge 8 ]; then
                     --mask-phoneme true \
                     --lang-label ${lang_label} \
                     --lang2ph ${lang2ph} \
-                    --fake-lang-label ${fake_lang_label}
+                    --lang-model \
+                    --lang-model-weight \
+                    --fake-lang-label ${fake_lang_label} \
                     ${extra_opts}
                 score_sclite.sh --wer true --nlsyms ${nlsyms} ${expdir}/${plot_dir}/${recog_model} ${dict}
             fi
@@ -886,3 +1030,4 @@ if [ ${stage} -le 8 ] && [ ${stop_stage} -ge 8 ]; then
         echo "Finished Computing CER for ${rtask} ${fake_lang_label}"
     done
 fi
+

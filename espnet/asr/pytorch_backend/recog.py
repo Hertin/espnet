@@ -50,6 +50,24 @@ def recog_v2(args):
 
     set_deterministic_pytorch(args)
     model, train_args = load_trained_model(args.model)
+
+    # add lang2ph to the model
+    if args.mask_phoneme:
+        logging.warning(f'mask phoneme and create lang2ph for model')
+        assert args.lang2ph is not None
+        with open(args.lang2ph, 'r') as f:
+            model.lang2ph = json.load(f)
+
+        model.lang2phid = {}
+        for lang, phones in model.lang2ph.items(): 
+            phoneset = set(phones + ['<blank>', '<unk>', '<space>', '<eos>'])
+            phoneset = phoneset.intersection(model.args.char_list)
+            model.lang2phid[lang] = list(map(model.args.char_list.index, phoneset))
+            # model.lang2phid[lang] = list(map(model.args.char_list.index, phones+['<blank>', '<unk>', '<space>', '<eos>']))
+        
+        model.ctc.lang2phid = model.lang2phid
+    logging.warning(f'model lang2phid {model.lang2phid}')
+
     assert isinstance(model, ASRInterface)
     model.eval()
 
@@ -62,6 +80,7 @@ def recog_v2(args):
         else args.preprocess_conf,
         preprocess_args={"train": False},
     )
+    logging.warning(f'args.rnnlm: {args.rnnlm}')
 
     if args.rnnlm:
         lm_args = get_model_conf(args.rnnlm, args.rnnlm_conf)
@@ -86,6 +105,7 @@ def recog_v2(args):
         ngram = None
 
     scorers = model.scorers()
+    
     scorers["lm"] = lm
     scorers["ngram"] = ngram
     scorers["length_bonus"] = LengthBonus(len(train_args.char_list))
@@ -133,26 +153,46 @@ def recog_v2(args):
     model.to(device=device, dtype=dtype).eval()
     beam_search.to(device=device, dtype=dtype).eval()
 
+    js = read_json_data(model.args, args.recog_json)
     # read json data
-    with open(args.recog_json, "rb") as f:
-        js = json.load(f)["utts"]
+    # with open(args.recog_json, "rb") as f:
+    #     js = json.load(f)["utts"]
 
     random.seed(args.seed)
     items = list(js.items())
     random.shuffle(items)
-    js = OrderedDict(items[:2])
+    js = OrderedDict(items[:args.recog_size])
     logging.warning(f'data json len {len(js)}')
+
+    import re
+    def get_lang(name):
+        s = name.split('_')[0]
+        s = re.sub(r'\d+$', '', s.split('-')[0]) if re.search('[a-zA-Z]+', s) else s
+        return s
 
     new_js = {}
     with torch.no_grad():
         for idx, name in enumerate(js.keys(), 1):
             logging.info("(%d/%d) decoding " + name, idx, len(js.keys()))
+
+            lang_labels = None
+            lang_labels_for_masking = None
+            if args.lang_label:
+                lang_label = get_lang(name)
+                if args.mask_phoneme:
+                    lang_labels_for_masking = [lang_label] # true lang labels
+                if args.fake_lang_label:
+                    lang_labels = [args.fake_lang_label]
+
             batch = [(name, js[name])]
             feat = load_inputs_and_targets(batch)[0][0]
-            enc = model.encode(torch.as_tensor(feat).to(device=device, dtype=dtype))
+            enc = model.encode(torch.as_tensor(feat).to(device=device, dtype=dtype),  lang_labels=lang_labels)
+
             nbest_hyps = beam_search(
-                x=enc, maxlenratio=args.maxlenratio, minlenratio=args.minlenratio
+                x=enc, maxlenratio=args.maxlenratio, minlenratio=args.minlenratio, 
+                mask_phoneme=args.mask_phoneme, lang_labels_for_masking=lang_labels_for_masking
             )
+
             nbest_hyps = [
                 h.asdict() for h in nbest_hyps[: min(len(nbest_hyps), args.nbest)]
             ]
@@ -342,9 +382,10 @@ def recog_ctconly(args):
     )
 
     logging.info(f'Character list: {model.args.char_list}')
-
+    logging.warning(f'lang model and weight: {args.lang_model} {args.lang_model_weight}')
     decoder = CTCBeamDecoder(
-        labels=model.args.char_list, beam_width=args.beam_size, log_probs_input=True
+        labels=model.args.char_list, beam_width=args.beam_size, log_probs_input=True,
+        model_path=args.lang_model, alpha=args.lang_model_weight
     )
 
     # with open(args.recog_json, "rb") as f:
@@ -392,7 +433,7 @@ def recog_ctconly(args):
             #     raise
 
             # logging.warning(f'Recog Deep [logprobs] {logprobs.size()}')
-            out, scores, offsets, seq_lens = decoder.decode(logprobs, seq_lens)
+            out, scores, offsets, seq_lens = decoder.decode(logprobs, seq_lens, )
             for hyp, trn, length, name, score in zip(out, ys_pad, seq_lens, names, scores): # iterate batch
                 # logging.warning(f'{score}')
                 best_hyp = hyp[0,:length[0]]
