@@ -14,7 +14,7 @@ import torch
 from espnet.nets.e2e_asr_common import end_detect
 from espnet.nets.scorer_interface import PartialScorerInterface
 from espnet.nets.scorer_interface import ScorerInterface
-
+from espnet.nets.scorers.ctc import CTCPrefixScorer
 
 class Hypothesis(NamedTuple):
     """Hypothesis data type."""
@@ -123,7 +123,11 @@ class BeamSearch(torch.nn.Module):
         init_states = dict()
         init_scores = dict()
         for k, d in self.scorers.items():
-            init_states[k] = d.init_state(x, **kwargs)
+            logging.warning(f'beam search scorer{k}')
+            if isinstance(d, CTCPrefixScorer):
+                init_states[k] = d.init_state(x, **kwargs)
+            else:
+                init_states[k] = d.init_state(x)
             init_scores[k] = 0.0
         return [
             Hypothesis(
