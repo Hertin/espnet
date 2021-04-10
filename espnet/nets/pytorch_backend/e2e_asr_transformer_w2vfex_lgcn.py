@@ -444,7 +444,7 @@ class E2E(ASRInterface, torch.nn.Module):
         """Scorers."""
         return dict(decoder=self.decoder, ctc=CTCPrefixScorer(self.ctc, self.eos))
 
-    def encode(self, x):
+    def encode(self, audio_pad, **kwargs):
         """Encode acoustic features.
 
         :param ndarray x: source acoustic feature (T, D)
