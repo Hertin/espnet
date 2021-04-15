@@ -69,7 +69,7 @@ with torch.no_grad():
     
 X = np.array(xs)
 Y = to_int(ys)
-print(shape.X, Y.shape)
+print(X.shape, Y.shape)
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
