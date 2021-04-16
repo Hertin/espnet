@@ -1,7 +1,8 @@
+
 import os
 import numpy as np
 import json
-from ipywidgets import interact
+#from ipywidgets import interact
 import matplotlib.pyplot as plt
 import torch
 import random
@@ -10,11 +11,11 @@ from tqdm import tqdm
 from espnet.asr.pytorch_backend.asr import load_trained_model
 
 import matplotlib
-matplotlib.use('TkAgg')
+#matplotlib.use('TkAgg')
 
 
 i = 30
-model, train_args = load_trained_model(f'exp/train_pytorch_wav2vecfex/results/snapshot.ep.{i}')
+model, train_args = load_trained_model(f'exp/train_pytorch_wav2vecfexlgcn/results/snapshot.ep.{i}')
 device = torch.device('cuda')
 model = model.float()
 model = model.to(device)
@@ -50,12 +51,12 @@ frame_ratio = 0.1
 
 xs = []
 ys = []
-random.seed(1)
+random.seed(2)
 with torch.no_grad():
     for k, v in tqdm(random.sample(js.items(), n_sample)):
         lang = get_lang(k)
-        x = torch.FloatTensor(np.load(v['input'][0]['feat'])).unsqueeze(0).to(device)
-        features = model.feature_extractor(x).transpose(1, 2)
+        x = torch.FloatTensor(np.load(v['input'][0]['feat'])).to(device)
+        features = model.encode(x, lang_labels=['N'])
         
         features = features.squeeze(0).detach().cpu().numpy()
         T, d = features.shape
@@ -73,7 +74,7 @@ print(X.shape, Y.shape)
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score
 
 
 X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=1)
@@ -81,6 +82,13 @@ X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_
 clf = LinearSVC(random_state=0).fit(X_train, y_train)
 y_pred = clf.predict(X_test)
 
-acc = accuracy_score(y_test, y_pred)
-print(acc)
+from pprint import pprint
+uniq = sorted(list(np.unique(ys)))
 
+acc = accuracy_score(y_test, y_pred)
+f1_macro = f1_score(y_test, y_pred, average='macro')
+f1_micro = f1_score(y_test, y_pred, average='micro')
+f1 = f1_score(y_test, y_pred, average=None)
+
+print('acc', acc, 'f1_macro', f1_macro, 'f1_micro', f1_micro)
+pprint(list(zip(uniq, f1)))
