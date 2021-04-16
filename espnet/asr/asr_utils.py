@@ -595,11 +595,21 @@ def _torch_snapshot_object(trainer, target, filename, savefun):
             model_state_dict = trainer.updater.model.module.state_dict()
         else:
             model_state_dict = trainer.updater.model.state_dict()
-    snapshot_dict = {
-        "trainer": s.target,
-        "model": model_state_dict,
-        "optimizer": trainer.updater.get_optimizer("main").state_dict(),
-    }
+
+    all_optimizers = trainer.updater.get_all_optimizers()
+    if "main" in all_optimizers:
+        snapshot_dict = {
+            "trainer": s.target,
+            "model": model_state_dict,
+            "optimizer": trainer.updater.get_optimizer("main").state_dict(),
+        }
+    else:
+        logging.warning(f'saving multiple optimizers')
+        snapshot_dict = {
+            "trainer": s.target,
+            "model": model_state_dict,
+            "optimizer": {n: opt.state_dict() for n, opt in all_optimizers.items()},
+        }
 
     # save snapshot dictionary
     fn = filename.format(trainer)
@@ -774,8 +784,12 @@ def torch_resume(snapshot_path, trainer):
             trainer.updater.model.load_state_dict(snapshot_dict["model"])
 
     # retore optimizer states
-    trainer.updater.get_optimizer("main").load_state_dict(snapshot_dict["optimizer"])
-
+    if type(snapshot_dict["optimizer"]) is not dict:
+        trainer.updater.get_optimizer("main").load_state_dict(snapshot_dict["optimizer"])
+    else:
+        logging.warning(f'loading multiple optimizers')
+        for n, opt in snapshot_dict["optimizer"].items():
+            trainer.updater.get_optimizer(n).load_state_dict(snapshot_dict["optimizer"][n])
     # delete opened snapshot
     del snapshot_dict
 

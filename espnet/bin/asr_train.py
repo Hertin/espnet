@@ -669,6 +669,9 @@ def main(cmd_args):
         elif args.experiment == 'DefaultSeg':
             from espnet.asr.pytorch_backend.asr import train
             train(args)
+        elif args.experiment == 'Adversarial':
+            from espnet.asr.pytorch_backend.asr_adv import train
+            train(args)
         else:
             raise ValueError("Experiment not Implemented")
     else:
