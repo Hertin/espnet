@@ -287,6 +287,38 @@ mask_phoneme=true
 lang2ph="phones/lang2ph.json"
 lang_label=true
 wav2vec_feature=true
+elif [ $exp == wav2vecfexlemblinear ]; then
+echo W2VFEXLEMBLINEAR
+# multilingual phoneme recognition without language label
+tag="wav2vecfexlemblinear" # tag for managing experiments.
+train_config=conf/train_transformer_ctconly_w2vfex_lemb_linear.yaml
+lm_config=conf/lm.yaml
+decode_config=conf/decode.yaml
+# Generate configs with local/prepare_experiment_configs.py
+resume=
+langs_config=
+experiment="Default"
+recog_function="recog_ctconly"
+mask_phoneme=true
+lang2ph="phones/lang2ph.json"
+lang_label=true
+wav2vec_feature=true
+elif [ $exp == wav2vecfexlembadv ]; then
+echo W2VFEXLEMBADV
+# multilingual phoneme recognition without language label
+tag="wav2vecfexlembadv" # tag for managing experiments.
+train_config=conf/train_transformer_ctconly_w2vfex_lemb_adversarial.yaml
+lm_config=conf/lm.yaml
+decode_config=conf/decode.yaml
+# Generate configs with local/prepare_experiment_configs.py
+resume=
+langs_config=
+experiment="Adversarial"
+recog_function="recog_ctconly"
+mask_phoneme=true
+lang2ph="phones/lang2ph.json"
+lang_label=true
+wav2vec_feature=true
 elif [ $exp == wav2vecfexlembphonly ]; then
 echo W2VFEXLEMBPHONLY
 # multilingual phoneme recognition without language label
@@ -976,7 +1008,7 @@ if [ ${stage} -le 9 ] && [ ${stop_stage} -ge 9 ]; then
         
         ngpu=1
         pids=() # initialize pids
-        plot_dir=plot_lm_mask_${rtask}_${fake_lang_label}_$(basename ${decode_config%.*})
+        plot_dir=plot_lm5_mask_${rtask}_${fake_lang_label}_$(basename ${decode_config%.*})
         mkdir -p ${expdir}/${plot_dir}
         echo "Saving in ${expdir}/${plot_dir}"
         
@@ -1017,6 +1049,7 @@ if [ ${stage} -le 9 ] && [ ${stop_stage} -ge 9 ]; then
                     --lang-model \
                     --lang-model-weight \
                     --fake-lang-label ${fake_lang_label} \
+                    --lm-weight 5 \
                     ${extra_opts}
                 score_sclite.sh --wer true --nlsyms ${nlsyms} ${expdir}/${plot_dir}/${recog_model} ${dict}
             fi
