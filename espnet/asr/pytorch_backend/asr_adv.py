@@ -288,7 +288,7 @@ class CustomUpdater(StandardUpdater):
             self.forward_count = 0
             optimizerG.zero_grad()
             optimizerD.zero_grad()
-            raise e
+            # raise e
             return 
 
     def update(self):
