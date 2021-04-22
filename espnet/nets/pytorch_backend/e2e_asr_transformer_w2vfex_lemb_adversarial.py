@@ -609,6 +609,8 @@ class E2E(ASRInterface, torch.nn.Module):
         audio_pad = torch.as_tensor(audio_pad).unsqueeze(0)
         features = self.feature_extractor(audio_pad)
         features = features.transpose(1, 2)
+        features = self.feature_mapping(features)
+
         if kwargs.get('lang_agnostic', False):
             _, emb_size = langembs.size()
             hs_pad, hs_mask = self.encoder(torch.zeros(langembs.size()).to(langembs.device), features, None)
@@ -631,6 +633,7 @@ class E2E(ASRInterface, torch.nn.Module):
 
         features = self.feature_extractor(audio_pad)
         features = features.transpose(1, 2)
+        features = self.feature_mapping(features)
 
         output_lengths = self._get_feat_extract_output_lengths(audio_lens)
         # logging.warning(f'features output_lengths {output_lengths}')
