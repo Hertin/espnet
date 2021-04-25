@@ -596,7 +596,7 @@ class E2E(ASRInterface, torch.nn.Module):
             loss_att_data = float(loss_att)
             loss_ctc_data = float(loss_ctc)
 
-        logging.warning(f'ppl loss: {self.ppl_loss}  {float(self.ppl_loss)}, {self.vq_pplloss_weight}')
+        # logging.warning(f'ppl loss: {self.ppl_loss}  {float(self.ppl_loss)}, {self.vq_pplloss_weight}')
         self.loss += self.ppl_loss * self.vq_pplloss_weight
         loss_data = float(self.loss)
         if loss_data < CTC_LOSS_THRESHOLD and not math.isnan(loss_data):
