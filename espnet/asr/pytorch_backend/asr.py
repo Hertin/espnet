@@ -879,6 +879,16 @@ def train(args):
             file_name="cer.png",
         )
     )
+    trainer.extend(
+        extensions.PlotReport(
+            [
+                "main/ppl_loss",
+                "validation/main/ppl_loss",
+            ],
+            "epoch",
+            file_name="ppl_loss.png",
+        )
+    )
 
     # Save best models
     trainer.extend(

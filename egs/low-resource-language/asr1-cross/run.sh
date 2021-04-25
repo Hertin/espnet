@@ -287,6 +287,22 @@ mask_phoneme=true
 lang2ph="phones/lang2ph.json"
 lang_label=true
 wav2vec_feature=true
+elif [ $exp == wav2vecfexlembvq ]; then
+echo W2VFEXLEMBVQ
+# multilingual phoneme recognition without language label
+tag="wav2vecfexlembvq" # tag for managing experiments.
+train_config=conf/train_transformer_ctconly_w2vfex_lemb_vq.yaml
+lm_config=conf/lm.yaml
+decode_config=conf/decode.yaml
+# Generate configs with local/prepare_experiment_configs.py
+resume=
+langs_config=
+experiment="Default"
+recog_function="recog_ctconly"
+mask_phoneme=true
+lang2ph="phones/lang2ph.json"
+lang_label=true
+wav2vec_feature=true
 elif [ $exp == wav2vecfexlemblinear ]; then
 echo W2VFEXLEMBLINEAR
 # multilingual phoneme recognition without language label
@@ -832,10 +848,10 @@ if [ ${stage} -le 8 ] && [ ${stop_stage} -ge 8 ]; then
     lang2label[eval_Turkish]=TU
     lang2label[eval_Portuguese]=PO
     
-    #babel_recog="Spanish Polish Croatian 101 203 103 107 206 307 402 404 505"
-    #gp_recog="Czech French Mandarin Thai Bulgarian German Turkish Portuguese"
-    babel_recog="Spanish Polish Croatian 101 203 "
-    gp_recog=""
+    babel_recog="Spanish Polish Croatian 101 203 103 107 206 307 402 404 505"
+    gp_recog="Czech French Mandarin Thai Bulgarian German Turkish Portuguese"
+    # babel_recog="505 101 203 "
+    # gp_recog="Spanish Polish Croatian "
     # Generate configs with local/prepare_experiment_configs.py
     resume=
     langs_config=
@@ -868,7 +884,7 @@ if [ ${stage} -le 8 ] && [ ${stop_stage} -ge 8 ]; then
         echo  "${rtask} fake_lang_label ${fake_lang_label}"
         ngpu=1
         pids=() # initialize pids
-        plot_dir=plot_${rtask}_${fake_lang_label}_$(basename ${decode_config%.*})
+        plot_dir=plot_mask_${rtask}_${fake_lang_label}_$(basename ${decode_config%.*})
         mkdir -p ${expdir}/${plot_dir}
         echo "Saving in ${expdir}/${plot_dir}"
         
@@ -903,7 +919,7 @@ if [ ${stage} -le 8 ] && [ ${stop_stage} -ge 8 ]; then
                     --recog-function ${recog_function} \
                     --embedding-save-dir ${expdir}/${plot_dir}/${recog_model}/embedding.JOB.json \
                     --recog-size ${recog_size} \
-                    --mask-phoneme false \
+                    --mask-phoneme true \
                     --lang-label ${lang_label} \
                     --lang2ph ${lang2ph} \
                     --fake-lang-label ${fake_lang_label}
