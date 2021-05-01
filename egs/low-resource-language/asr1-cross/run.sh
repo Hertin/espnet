@@ -287,6 +287,38 @@ mask_phoneme=true
 lang2ph="phones/lang2ph.json"
 lang_label=true
 wav2vec_feature=true
+elif [ $exp == wav2vecfexlembft ]; then
+echo W2VFEXLEMBFT
+# multilingual phoneme recognition without language label
+tag="wav2vecfexlembft" # tag for managing experiments.
+train_config=conf/train_transformer_ctconly_w2vfex_lemb_ft.yaml
+lm_config=conf/lm.yaml
+decode_config=conf/decode.yaml
+# Generate configs with local/prepare_experiment_configs.py
+resume=
+langs_config=
+experiment="Default"
+recog_function="recog_ctconly"
+mask_phoneme=true
+lang2ph="phones/lang2ph.json"
+lang_label=true
+wav2vec_feature=true
+elif [ $exp == wav2vecfexlembvqkm ]; then
+echo W2VFEXLEMBVQKM
+# multilingual phoneme recognition without language label
+tag="wav2vecfexlembvqkm" # tag for managing experiments.
+train_config=conf/train_transformer_ctconly_w2vfex_lemb_vqkm.yaml
+lm_config=conf/lm.yaml
+decode_config=conf/decode.yaml
+# Generate configs with local/prepare_experiment_configs.py
+resume=
+langs_config=
+experiment="Default"
+recog_function="recog_ctconly"
+mask_phoneme=true
+lang2ph="phones/lang2ph.json"
+lang_label=true
+wav2vec_feature=true
 elif [ $exp == wav2vecfexlembvq ]; then
 echo W2VFEXLEMBVQ
 # multilingual phoneme recognition without language label
