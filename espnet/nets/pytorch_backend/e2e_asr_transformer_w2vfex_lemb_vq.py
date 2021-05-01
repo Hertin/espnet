@@ -53,7 +53,7 @@ from espnet.utils.fill_missing_args import fill_missing_args
 from espnet.nets.pytorch_backend.graph_convolutional_nets.lang_gcn import LangGCN
 
 from espnet.utils.cli_utils import strtobool
-from fairseq.modules import GumbelVectorQuantizer
+from fairseq.modules import GumbelVectorQuantizer, KmeansVectorQuantizer
 
 import chainer
 from chainer import reporter
@@ -314,6 +314,20 @@ class E2E(ASRInterface, torch.nn.Module):
             help="vq latent-dimension",
         )
 
+        group.add_argument(
+            "--vq-quantizer",
+            default='gumbel',
+            type=str,
+            help="vector quantizer",
+        )
+
+        group.add_argument(
+            "--vq-kmean-gamma",
+            default=0.25,
+            type=float,
+            help="kmean gamma",
+        )
+
         return parser
 
     @property
@@ -350,15 +364,29 @@ class E2E(ASRInterface, torch.nn.Module):
                 # logging.warning(f'parameter of feature extractor are fixed {parameter.name}')
                 parameter.requires_grad = False
 
-        self.quantizer = GumbelVectorQuantizer(
-            dim=self.idim,
-            num_vars=args.vq_latent_vars,
-            temp=args.vq_latent_temp,
-            groups=args.vq_latent_groups,
-            combine_groups=False,
-            vq_dim=args.vq_dim,
-            time_first=True,
-        )
+        if args.vq_quantizer == 'gumbel':
+            self.quantizer = GumbelVectorQuantizer(
+                dim=self.idim,
+                num_vars=args.vq_latent_vars,
+                temp=args.vq_latent_temp,
+                groups=args.vq_latent_groups,
+                combine_groups=False,
+                vq_dim=args.vq_dim,
+                time_first=True,
+            )
+        elif args.vq_quantizer == 'kmean':
+            logging.warning('Using kmean Quantizer')
+            self.quantizer = KmeansVectorQuantizer(
+                dim=self.idim,
+                num_vars=args.vq_latent_vars,
+                groups=args.vq_latent_groups,
+                combine_groups=False,
+                vq_dim=args.vq_dim,
+                time_first=True,
+                gamma=args.vq_kmean_gamma
+            )
+        else:
+            raise ValueError(f'Quantizer {args.quantizer} Not implemented')
         self.vq_pplloss_weight = args.vq_pplloss_weight
 
         del wav2vec
@@ -502,9 +530,12 @@ class E2E(ASRInterface, torch.nn.Module):
         features = features.transpose(1, 2)
         net_output = self.quantizer(features)
         features = net_output['x']
-        self.ppl_loss = (
-            net_output["num_vars"] - net_output["prob_perplexity"]
-        ) / net_output["num_vars"]
+        if self.args.vq_quantizer == 'gumbel':
+            self.ppl_loss = (
+                net_output["num_vars"] - net_output["prob_perplexity"]
+            ) / net_output["num_vars"]
+        else:
+            self.ppl_loss = net_output["kmeans_loss"]
         # features = self.layer_norm(features)
         # logging.warning(f'features size {features.size()}')
         output_lengths = self._get_feat_extract_output_lengths(audio_lens)
