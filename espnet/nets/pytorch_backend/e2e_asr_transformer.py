@@ -135,9 +135,7 @@ class E2E(ASRInterface, torch.nn.Module):
         self.mtlalpha = args.mtlalpha
         if args.mtlalpha > 0.0:
             self.ctc = CTC(
-                odim, args.adim, args.dropout_rate, 
-                ctc_type=args.ctc_type, reduce=False,
-                length_average=args.warpctc_length_average
+                odim, args.adim, args.dropout_rate, ctc_type=args.ctc_type, reduce=True
             )
         else:
             self.ctc = None
@@ -172,26 +170,10 @@ class E2E(ASRInterface, torch.nn.Module):
         :return: accuracy in attention decoder
         :rtype: float
         """
-        # logging.warning(f'{xs_pad.size()}, {ilens}')
-        batch_size = xs_pad.size(0)
-        ys = [y[y != self.ignore_id] for y in ys_pad]
-        olens = torch.from_numpy(numpy.fromiter((x.size(0) for x in ys), dtype=numpy.int32))
-
         # 1. forward encoder
         xs_pad = xs_pad[:, : max(ilens)]  # for data parallel
         src_mask = make_non_pad_mask(ilens.tolist()).to(xs_pad.device).unsqueeze(-2)
         hs_pad, hs_mask = self.encoder(xs_pad, src_mask)
-
-        # remove utterances that are shorter than target
-        hs_len = hs_mask.view(batch_size, -1).sum(1)
-        valid_indices = hs_len.cpu().int() > olens
-        # hs_pad, hs_mask, hs_len, ys_pad = hs_pad[valid_indices], hs_mask[valid_indices], hs_len[valid_indices], ys_pad[valid_indices]
-        invalid = False
-        if torch.sum(valid_indices) < batch_size:
-            # logging.warning(f'Remove {batch_size - torch.sum(valid_indices)} invalid utterances')
-            invalid = True
-        # batch_size = hs_pad.size(0) # update new batch_size
-
         self.hs_pad = hs_pad
 
         # 2. forward decoder
@@ -217,19 +199,10 @@ class E2E(ASRInterface, torch.nn.Module):
         cer_ctc = None
         if self.mtlalpha == 0.0:
             loss_ctc = None
-        else:            
-            # loss_ctc = self.ctc(hs_pad.view(batch_size, -1, self.adim), hs_len, ys_pad)
-            loss_ctc_nonreduce = self.ctc(hs_pad.view(batch_size, -1, self.adim), hs_len, ys_pad)
-            invalid_idx = torch.isinf(loss_ctc_nonreduce) | torch.isnan(loss_ctc_nonreduce)
-            if torch.sum(invalid_idx != 0):
-                logging.warning(f'Invalid ctc loss {invalid} num invalid {torch.sum(invalid_idx != 0)} {loss_ctc_nonreduce[invalid_idx]}')
-
-            loss_ctc_nonreduce[invalid_idx] = 0
-            # loss_ctc_nonreduce[torch.isnan(loss_ctc_nonreduce)] = 0
-            loss_ctc = loss_ctc_nonreduce[~invalid_idx].mean() if any(~invalid_idx) else torch.FloatTensor([0]).to(loss_ctc_nonreduce.device)
-
-            
-
+        else:
+            batch_size = xs_pad.size(0)
+            hs_len = hs_mask.view(batch_size, -1).sum(1)
+            loss_ctc = self.ctc(hs_pad.view(batch_size, -1, self.adim), hs_len, ys_pad)
             if not self.training and self.error_calculator is not None:
                 ys_hat = self.ctc.argmax(hs_pad.view(batch_size, -1, self.adim)).data
                 cer_ctc = self.error_calculator(ys_hat.cpu(), ys_pad.cpu(), is_ctc=True)
@@ -237,8 +210,6 @@ class E2E(ASRInterface, torch.nn.Module):
             if not self.training:
                 self.ctc.softmax(hs_pad)
 
-        # if invalid:
-        #     logging.warning(f'ctc loss {loss_ctc}')
         # 5. compute cer/wer
         if self.training or self.error_calculator is None or self.decoder is None:
             cer, wer = None, None
@@ -268,7 +239,6 @@ class E2E(ASRInterface, torch.nn.Module):
             )
         else:
             logging.warning("loss (=%f) is not correct", loss_data)
-        # logging.warning(f'{self.loss}')
         return self.loss
 
     def scorers(self):
@@ -573,3 +543,4 @@ class E2E(ASRInterface, torch.nn.Module):
                 ret = m.probs.cpu().numpy()
         self.train()
         return ret
+

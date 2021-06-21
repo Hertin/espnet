@@ -62,17 +62,19 @@ lmtag=            # tag for managing LMs
 # recog_model=snapshot.ep.30
 # recog_function="recog_ctconly_lang"
 
-tag="multi_transformer_ctc_apex" # tag for managing experiments.
-train_config=conf/train_transformer_ctc.yaml
+tag="l13_transformer_ctc_cross_base" # tag for managing experiments.
+train_config=conf/train_transformer_ctconly.yaml
 lm_config=conf/lm.yaml
 decode_config=conf/decode.yaml
-babel_recog="103 107 206 307 402 404 505 101 203"
-gp_recog="Czech French Mandarin Thai Bulgarian German Turkish Portuguese Spanish Polish Croatian"
+# babel_recog="101 203"
+# gp_recog="Spanish Polish Croatian"
+babel_recog="103 107 206 307 402 404 505"
+gp_recog="Czech French Mandarin Thai Bulgarian German Turkish Portuguese"
 # Generate configs with local/prepare_experiment_configs.py
 resume=
 langs_config=
-recog_model=snapshot.ep.29
-recog_function="recog_ctconly"
+recog_model=snapshot.ep.30
+recog_function="recog_ctconly_mask"
 
 # Generate configs with local/prepare_experiment_configs.py
 langs_config=
@@ -164,10 +166,12 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
             --result-label ${expdir}/${decode_dir}/data.JOB.json \
             --model ${expdir}/results/${recog_model}  \
             --recog-function ${recog_function} \
+            --recog-lang ${rtask} \
+            --lang2ph /mnt/ssd/espnet/lang2ph.json \
             ${extra_opts}
 
         score_sclite.sh --wer true --nlsyms ${nlsyms} ${expdir}/${decode_dir} ${dict}
-       
+
     ) &
     pids+=($!) # store background pids
     wait $!
@@ -176,4 +180,3 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
     [ ${i} -gt 0 ] && echo "$0: ${i} background jobs are failed." && false
     echo "Finished"
 fi
-

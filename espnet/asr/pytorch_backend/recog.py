@@ -23,6 +23,7 @@ from espnet.utils.dataset import TransformDataset
 from espnet.utils.training.batchfy import make_batchset
 from espnet.asr.pytorch_backend.asr import CustomConverter, _recursive_to
 from ctcdecode import CTCBeamDecoder
+import numpy
 
 def recog_v2(args):
     """Decode with custom models that implements ScorerInterface.
@@ -164,6 +165,156 @@ def recog_v2(args):
                 {"utts": new_js}, indent=4, ensure_ascii=False, sort_keys=True
             ).encode("utf_8")
         )
+
+def recog_ctconly_mask(args):
+    """Decode with custom models that implements ScorerInterface.
+
+    Notes:
+        The previous backend espnet.asr.pytorch_backend.asr.recog
+        only supports E2E and RNNLM
+
+    Args:
+        args (namespace): The program arguments.
+        See py:func:`espnet.bin.asr_recog.get_parser` for details
+
+    """
+
+    logging.warning(f'RECOGCTCONLY')
+    logging.warning("experimental API for custom LMs is selected by --api v2")
+    if args.batchsize > 1:
+        raise NotImplementedError("multi-utt batch decoding is not implemented")
+    if args.streaming_mode is not None:
+        raise NotImplementedError("streaming mode is not implemented")
+    if args.word_rnnlm:
+        raise NotImplementedError("word LM is not implemented")
+
+    set_deterministic_pytorch(args)
+    model, train_args = load_trained_model(args.model)
+
+    assert isinstance(model, ASRInterface)
+    model.eval()
+
+    load_inputs_and_targets = LoadInputsAndTargets(
+        mode="asr",
+        load_output=False,
+        sort_in_input_length=False,
+        preprocess_conf=train_args.preprocess_conf
+        if args.preprocess_conf is None
+        else args.preprocess_conf,
+        preprocess_args={"train": False},
+    )
+
+    if args.ngpu == 1:
+        device = "cuda"
+    else:
+        device = "cpu"
+    dtype = getattr(torch, args.dtype)
+    logging.info(f"Decoding device={device}, dtype={dtype}")
+    model.to(device=device, dtype=dtype).eval()
+
+    # logging.warning(f'Recog deep [model.args] {model.args}')
+
+    with open(args.recog_json, "rb") as f:
+        recog_json = json.load(f)["utts"]
+
+    use_sortagrad = model.args.sortagrad == -1 or model.args.sortagrad > 0
+
+    converter = CustomConverter(subsampling_factor=model.subsample[0], dtype=dtype)
+
+    # make minibatch list (variable length)
+    recog = make_batchset(
+        recog_json,
+        16, # model.args.batch_size,
+        model.args.maxlen_in,
+        model.args.maxlen_out,
+        model.args.minibatches,
+        min_batch_size=model.args.ngpu if model.args.ngpu > 1 else 1,
+        shortest_first=use_sortagrad,
+        count=model.args.batch_count,
+        batch_bins=400000, #model.args.batch_bins,
+        batch_frames_in=model.args.batch_frames_in,
+        batch_frames_out=model.args.batch_frames_out,
+        batch_frames_inout=model.args.batch_frames_inout,
+        iaxis=0,
+        oaxis=0,
+    )
+    load_rc = LoadInputsAndTargets(
+        mode="asr",
+        load_output=True,
+        preprocess_conf=model.args.preprocess_conf,
+        preprocess_args={"train": False},  # Switch the mode of preprocessing
+    )
+
+    recog_iter = ChainerDataLoader(
+        dataset=TransformDataset(
+            recog, lambda data: converter([load_rc(data)]), utt=True
+        ),
+        batch_size=1,
+        num_workers=model.args.n_iter_processes,
+        shuffle=not use_sortagrad,
+        collate_fn=lambda x: x[0],
+    )
+
+    logging.info(f'Character list: {model.args.char_list}')
+
+    decoder = CTCBeamDecoder(
+        labels=model.args.char_list, beam_width=args.beam_size, log_probs_input=True
+    )
+    with open(args.lang2ph, 'r') as f:
+        model.lang2ph = json.load(f)
+
+    model.lang2phid = {}
+    for lang, phones in model.lang2ph.items():
+        phoneset = set(phones + ['<blank>', '<unk>', '<space>', '<eos>'])
+        phoneset = phoneset.intersection(model.args.char_list)
+        model.lang2phid[lang] = list(map(model.args.char_list.index, phoneset))
+
+
+
+    with open(args.recog_json, "rb") as f:
+        js = json.load(f)["utts"]
+    new_js = {}
+    print(args.recog_lang)
+
+
+    for batch in recog_iter:
+        names, x = batch[0], batch[1:]
+        # logging.warning(f"Recog deep [names] {names}")
+        x = _recursive_to(x, device)
+
+        xs_pad, ilens, ys_pad = x
+        logprobs, seq_lens = model.encode_with_length(xs_pad, ilens)
+        last_dim = logprobs.size(-1)
+        min_value = float(
+            numpy.finfo(torch.tensor(0, dtype=logprobs.dtype).numpy().dtype).min
+        )
+        masked_dim = [k for k in range(last_dim) if k not in model.lang2phid[args.recog_lang]]
+        print(masked_dim)
+        logprobs[:,: ,masked_dim] = min_value
+
+        # logging.warning(f'Recog Deep [logprobs] {logprobs.size()}')
+        out, scores, offsets, seq_lens = decoder.decode(logprobs, seq_lens)
+        for hyp, trn, length, name, score in zip(out, ys_pad, seq_lens, names, scores): # iterate batch
+            # logging.warning(f'{score}')
+            best_hyp = hyp[0,:length[0]]
+
+            new_js[name] = add_results_to_json(
+                js[name], [{"yseq": best_hyp, "score": float(score[0])}], model.args.char_list
+            )
+
+
+            # logging.warning(f'Recog deep [new_js] {new_js}')
+            # break
+
+        # raise
+    with open(args.result_label, "wb") as f:
+        f.write(
+            json.dumps(
+                {"utts": new_js}, indent=4, ensure_ascii=False, sort_keys=True
+            ).encode("utf_8")
+        )
+
+
 
 
 
@@ -386,7 +537,7 @@ def recog_ctconly_lang(args):
         shuffle=not use_sortagrad,
         collate_fn=lambda x: x[0],
     )
-    
+
 
     logging.info(f'Character list: {model.args.char_list}')
 
@@ -400,7 +551,7 @@ def recog_ctconly_lang(args):
 
     for batch in recog_iter:
         names, x = batch[0], batch[1:]
-        
+
         # logging.warning(f"Recog deep [names] {names}")
         x = _recursive_to(x, device)
 

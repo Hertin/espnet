@@ -268,6 +268,12 @@ def get_parser():
     parser.add_argument(
         "--recog-function", type=str, default="recog", help="Recognition function"
     )
+    parser.add_argument(
+        "--recog-lang", type=str, default=None, help="RECOG LANG"
+    )
+    parser.add_argument(
+        "--lang2ph", type=str, default=None, help="LANG2PH"
+    )
     return parser
 
 
@@ -327,7 +333,7 @@ def main(args):
         )
         sys.exit(1)
 
-    
+
     # recog
     logging.info("backend = " + args.backend)
     if args.num_spkrs == 1:
@@ -342,6 +348,9 @@ def main(args):
                     if args.recog_function == 'recog_ctconly':
                         from espnet.asr.pytorch_backend.recog import recog_ctconly
                         recog_ctconly(args)
+                    elif args.recog_function == 'recog_ctconly_mask':
+                        from espnet.asr.pytorch_backend.recog import recog_ctconly_mask
+                        recog_ctconly_mask(args)
                     elif args.recog_function == 'recog_ctconly_lang':
                         from espnet.asr.pytorch_backend.recog import recog_ctconly_lang
                         recog_ctconly_lang(args)

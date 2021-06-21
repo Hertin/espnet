@@ -190,7 +190,7 @@ elif [ $exp == wav2vec ]; then
 echo W2VTRANS
 # multilingual phoneme recognition without language label
 tag="wav2vec" # tag for managing experiments.
-train_config=conf/train_transformer_ctconly_w2v.yaml
+train_config=conf/train_transformer_ctconly_w2venc.yaml
 lm_config=conf/lm.yaml
 decode_config=conf/decode.yaml
 # Generate configs with local/prepare_experiment_configs.py
@@ -288,4 +288,3 @@ if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
         --dro-hard-choice $dro_hard_choice \
         --dro-model-regularization $dro_model_regularization
 fi
-
