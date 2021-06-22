@@ -269,11 +269,59 @@ def get_parser():
         "--recog-function", type=str, default="recog", help="Recognition function"
     )
     parser.add_argument(
-        "--recog-lang", type=str, default=None, help="RECOG LANG"
+        "--embedding-save-dir",
+        type=str,
+        default=None,
+        help="Filename to save the neural embeddings"
+    )
+
+    parser.add_argument(
+        "--lang2ph",
+        type=str,
+        default=None,
+        help="Filename of language to phoneme dictionary"
+    )
+
+    parser.add_argument(
+        "--recog-size",
+        type=int,
+        default=None,
+        help="Recognition set size",
+    )
+
+    parser.add_argument(
+        "--mask-phoneme",
+        type=strtobool,
+        default=False,
+        help="Filename of language to phoneme dictionary"
+    )
+
+    parser.add_argument(
+        "--lang-label",
+        type=strtobool,
+        default=False,
+        help="Filename of language to phoneme dictionary"
+    )
+
+    parser.add_argument(
+        "--fake-lang-label",
+        type=str,
+        default=None,
+        help="Filename of language to phoneme dictionary"
     )
     parser.add_argument(
-        "--lang2ph", type=str, default=None, help="LANG2PH"
+        "--lang-model",
+        type=str,
+        default=None, nargs="?",
+        help="Filename of language to phoneme dictionary"
     )
+    parser.add_argument(
+        "--lang-model-weight",
+        type=float,
+        default=0, nargs="?",
+        help="Filename of language to phoneme dictionary"
+    )
+
     return parser
 
 
@@ -333,7 +381,7 @@ def main(args):
         )
         sys.exit(1)
 
-
+    
     # recog
     logging.info("backend = " + args.backend)
     if args.num_spkrs == 1:
@@ -348,9 +396,6 @@ def main(args):
                     if args.recog_function == 'recog_ctconly':
                         from espnet.asr.pytorch_backend.recog import recog_ctconly
                         recog_ctconly(args)
-                    elif args.recog_function == 'recog_ctconly_mask':
-                        from espnet.asr.pytorch_backend.recog import recog_ctconly_mask
-                        recog_ctconly_mask(args)
                     elif args.recog_function == 'recog_ctconly_lang':
                         from espnet.asr.pytorch_backend.recog import recog_ctconly_lang
                         recog_ctconly_lang(args)
@@ -359,6 +404,7 @@ def main(args):
 
                         recog_v2(args)
                     elif args.recog_function == 'recog_seg':
+                        logging.warning(f'recog size {args.recog_size}')
                         from espnet.asr.pytorch_backend.recog import recog_seg
                         recog_seg(args)
                     else:

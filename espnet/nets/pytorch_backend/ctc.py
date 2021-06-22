@@ -1,12 +1,13 @@
 from distutils.version import LooseVersion
 import logging
+import pickle as pk
 
 import numpy as np
 import torch
 import torch.nn.functional as F
 
 from espnet.nets.pytorch_backend.nets_utils import to_device
-
+import copy
 
 class CTC(torch.nn.Module):
     """CTC module
@@ -19,7 +20,7 @@ class CTC(torch.nn.Module):
     """
 
     def __init__(self, odim, eprojs, dropout_rate, 
-        ctc_type="warpctc", reduce=True, ctc_lo=None, signature_map=None, length_average=False
+        ctc_type="warpctc", reduce=True, ctc_lo=None, signature_map=None, length_average=False, lang2phid=None
     ):
         super().__init__()
         self.dropout_rate = dropout_rate
@@ -47,13 +48,13 @@ class CTC(torch.nn.Module):
             self.ctc_loss = torch.nn.CTCLoss(reduction=reduction_type)
         elif self.ctc_type == "warpctc":
             import warpctc_pytorch as warp_ctc
-
             self.ctc_loss = warp_ctc.CTCLoss(size_average=not length_average, length_average=length_average, reduce=reduce)
         else:
             raise ValueError(
                 'ctc_type must be "builtin" or "warpctc": {}'.format(self.ctc_type)
             )
-
+        self.lang2phid = lang2phid
+        self.odim = odim
         self.ignore_id = -1
         self.reduce = reduce
 
@@ -73,7 +74,25 @@ class CTC(torch.nn.Module):
         else:
             raise NotImplementedError
 
-    def forward(self, hs_pad, hlens, ys_pad, w=None):
+    def mask_phone(self, ys_hat, lang_labels):
+        # mask_list = None
+        if lang_labels is not None:
+            # logging.warning(f'ctc mask phone {lang_labels}')
+            assert self.lang2phid is not None
+            min_value = float(np.finfo(torch.tensor(0, dtype=ys_hat.dtype).numpy().dtype).min)
+            for batch_idx in range(len(ys_hat)):
+                lang = lang_labels[batch_idx]
+                all_ph_set = set(range(self.odim))
+                lang_ph_set = set(self.lang2phid[lang])
+                mask_list = list(all_ph_set - lang_ph_set)
+                
+                # logging.warning(f'l: {lang_labels[batch_idx]}, masklist: {mask_list}, langph: {lang_ph_set}, allph: {all_ph_set}')
+                
+                ys_hat[batch_idx,:,mask_list] = min_value
+        # logging.warning(ys_hat[-1,:,mask_list])
+        return ys_hat
+
+    def forward(self, hs_pad, hlens, ys_pad, w=None, lang_labels=None):
         """CTC forward
 
         :param torch.Tensor hs_pad: batch of padded hidden state sequences (B, Tmax, D)
@@ -97,9 +116,14 @@ class CTC(torch.nn.Module):
         if self.signature_map is not None:
             self.signature_map = self.signature_map.to(hs_pad.device)
             ys_hat = torch.matmul(ys_hat, self.signature_map.unsqueeze(0))
+        
+        # logging.warning(f'yshat before {ys_hat}')
+
+        
+        ys_hat = self.mask_phone(ys_hat, lang_labels)
 
         # logging.warning(f'yshatbef {ys_hat.size()}')
-        # logging.warning(f'yshat {ys_hat}')
+        # logging.warning(f'yshat after {ys_hat}')
 
         if w is not None:
             # dummy w for irm
@@ -145,7 +169,7 @@ class CTC(torch.nn.Module):
 
         return self.loss
 
-    def log_softmax(self, hs_pad):
+    def log_softmax(self, hs_pad, lang_labels=None):
         """log_softmax of frame activations
 
         :param torch.Tensor hs_pad: 3d tensor (B, Tmax, eprojs)
@@ -162,11 +186,19 @@ class CTC(torch.nn.Module):
             self.signature_map = self.signature_map.to(hs_pad.device)
             logging.warning(f'CTC [signature map] Yes')
             ys_hat = torch.matmul(ys_hat, self.signature_map.unsqueeze(0))
+        
+        
+
+        ys_hat = self.mask_phone(ys_hat, lang_labels)
+
         # else:
             # logging.warning(f'CTC [signature map] None')
+        # if return_hidden:
+        #     return F.log_softmax(ys_hat, dim=2), ys_hat
+        # else:
         return F.log_softmax(ys_hat, dim=2)
     
-    def softmax(self, hs_pad):
+    def softmax(self, hs_pad, lang_labels=None):
         """softmax of frame activations
 
         :param torch.Tensor hs_pad: 3d tensor (B, Tmax, eprojs)
@@ -179,10 +211,12 @@ class CTC(torch.nn.Module):
             logging.warning(f'CTC [signature map] Yes')
             ys_hat = torch.matmul(ys_hat, self.signature_map.unsqueeze(0))
 
+        ys_hat = self.mask_phone(ys_hat, lang_labels)
+
         self.probs = F.softmax(ys_hat, dim=2)
         return self.probs
 
-    def argmax(self, hs_pad):
+    def argmax(self, hs_pad, lang_labels=None):
         """argmax of frame activations
 
         :param torch.Tensor hs_pad: 3d tensor (B, Tmax, eprojs)
@@ -190,10 +224,14 @@ class CTC(torch.nn.Module):
         :rtype: torch.Tensor
         """
         ys_hat = self.ctc_lo(hs_pad)
+        
         if self.signature_map is not None:
             self.signature_map = self.signature_map.to(hs_pad.device)
             logging.warning(f'CTC [signature map] Yes')
             ys_hat = torch.matmul(ys_hat, self.signature_map.unsqueeze(0))
+        
+        ys_hat = self.mask_phone(ys_hat, lang_labels)
+
         return torch.argmax(ys_hat, dim=2)
 
 

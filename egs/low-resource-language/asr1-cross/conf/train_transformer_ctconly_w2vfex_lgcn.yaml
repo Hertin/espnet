@@ -1,0 +1,65 @@
+# network architecture
+# encoder related
+elayers: 12
+eunits: 2048
+# decoder related
+dlayers: 1
+dunits: 2048
+# attention related
+adim: 256
+aheads: 4
+
+# hybrid CTC/attention
+mtlalpha: 1
+ctc-type: warpctc
+# label smoothing
+lsm-weight: 0.1
+report-cer: true
+
+# minibatch related
+batch-size: 32
+maxlen-in: 512  # if input length  > maxlen-in, batchsize is automatically reduced
+maxlen-out: 150 # if output length > maxlen-out, batchsize is automatically reduced
+batch-count: bin
+batch-bins: 800000
+n-iter-processes: 4
+
+# optimization related
+sortagrad: 0 # Feed samples from shortest to longest ; -1: enabled for all epochs, 0: disabled, other: enabled for 'other' epochs
+opt: noam
+accum-grad: 4
+grad-clip: 5
+patience: 0
+epochs: 30
+dropout-rate: 0.1
+
+# transformer specific setting
+backend: pytorch
+model-module: "espnet.nets.pytorch_backend.e2e_asr_transformer_w2vfex_lgcn:E2E"
+transformer-input-layer: linear     # encoder architecture type
+transformer-lr: 1.0
+transformer-warmup-steps: 25000
+transformer-attn-dropout-rate: 0.0
+transformer-length-normalized-loss: false
+transformer-init: pytorch
+
+wav2vec-feature: true
+wav2vec-path: "wav2vec/wav2vec_small.pt"
+wav2vec-feat-folder: "w2vaudio_npy"
+wav2vec-idim: 512
+
+lang2ph: phones/lang2ph.json
+phone-aware: true
+
+lgcn-n2v-dim: 256
+lgcn-hidden-dim: 256,256,256
+lgcn-output-dim: 128
+lgcn-num-layer: 3
+lgcn-graph-path: "langs/l20.gpk"
+lgcn-g2v-path: "langs/l20_lang2vec.zip"
+lgcn-lang2lid-path: "langs/lang2glotto_l20.json"
+
+glotto-all-phonemes: "phones/glotto_all_phonemes.json"
+lang2glottoph: phones/lang2glottoph_l20.json
+glotto2ph: phones/glotto2ph.json 
+use-glottoph: true

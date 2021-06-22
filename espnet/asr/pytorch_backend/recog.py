@@ -2,9 +2,13 @@
 
 import json
 import logging
+import pickle
+import numpy as np
+import os
 
 import torch
-
+from collections import OrderedDict
+import random
 from espnet.asr.asr_utils import add_results_to_json
 from espnet.asr.asr_utils import get_model_conf
 from espnet.asr.asr_utils import torch_load
@@ -47,6 +51,24 @@ def recog_v2(args):
 
     set_deterministic_pytorch(args)
     model, train_args = load_trained_model(args.model)
+
+    # add lang2ph to the model
+    if args.mask_phoneme:
+        logging.warning(f'mask phoneme and create lang2ph for model')
+        assert args.lang2ph is not None
+        with open(args.lang2ph, 'r') as f:
+            model.lang2ph = json.load(f)
+
+        model.lang2phid = {}
+        for lang, phones in model.lang2ph.items(): 
+            phoneset = set(phones + ['<blank>', '<unk>', '<space>', '<eos>'])
+            phoneset = phoneset.intersection(model.args.char_list)
+            model.lang2phid[lang] = list(map(model.args.char_list.index, phoneset))
+            # model.lang2phid[lang] = list(map(model.args.char_list.index, phones+['<blank>', '<unk>', '<space>', '<eos>']))
+        
+        model.ctc.lang2phid = model.lang2phid
+    logging.warning(f'model lang2phid {model.lang2phid}')
+
     assert isinstance(model, ASRInterface)
     model.eval()
 
@@ -59,6 +81,7 @@ def recog_v2(args):
         else args.preprocess_conf,
         preprocess_args={"train": False},
     )
+    logging.warning(f'args.rnnlm: {args.rnnlm}')
 
     if args.rnnlm:
         lm_args = get_model_conf(args.rnnlm, args.rnnlm_conf)
@@ -83,6 +106,7 @@ def recog_v2(args):
         ngram = None
 
     scorers = model.scorers()
+    
     scorers["lm"] = lm
     scorers["ngram"] = ngram
     scorers["length_bonus"] = LengthBonus(len(train_args.char_list))
@@ -130,28 +154,46 @@ def recog_v2(args):
     model.to(device=device, dtype=dtype).eval()
     beam_search.to(device=device, dtype=dtype).eval()
 
+    js = read_json_data(model.args, args.recog_json)
     # read json data
-    with open(args.recog_json, "rb") as f:
-        js = json.load(f)["utts"]
+    # with open(args.recog_json, "rb") as f:
+    #     js = json.load(f)["utts"]
 
-    from collections import OrderedDict
-    import random
     random.seed(args.seed)
     items = list(js.items())
     random.shuffle(items)
-    js = OrderedDict(items[:2])
+    js = OrderedDict(items[:args.recog_size])
     logging.warning(f'data json len {len(js)}')
+
+    import re
+    def get_lang(name):
+        s = name.split('_')[0]
+        s = re.sub(r'\d+$', '', s.split('-')[0]) if re.search('[a-zA-Z]+', s) else s
+        return s
 
     new_js = {}
     with torch.no_grad():
         for idx, name in enumerate(js.keys(), 1):
             logging.info("(%d/%d) decoding " + name, idx, len(js.keys()))
+
+            lang_labels = None
+            lang_labels_for_masking = None
+            if args.lang_label:
+                lang_label = get_lang(name)
+                if args.mask_phoneme:
+                    lang_labels_for_masking = [lang_label] # true lang labels
+                if args.fake_lang_label:
+                    lang_labels = [args.fake_lang_label]
+
             batch = [(name, js[name])]
             feat = load_inputs_and_targets(batch)[0][0]
-            enc = model.encode(torch.as_tensor(feat).to(device=device, dtype=dtype))
+            enc = model.encode(torch.as_tensor(feat).to(device=device, dtype=dtype),  lang_labels=lang_labels)
+
             nbest_hyps = beam_search(
-                x=enc, maxlenratio=args.maxlenratio, minlenratio=args.minlenratio
+                x=enc, maxlenratio=args.maxlenratio, minlenratio=args.minlenratio, 
+                mask_phoneme=args.mask_phoneme, lang_labels_for_masking=lang_labels_for_masking
             )
+
             nbest_hyps = [
                 h.asdict() for h in nbest_hyps[: min(len(nbest_hyps), args.nbest)]
             ]
@@ -317,6 +359,57 @@ def recog_ctconly_mask(args):
 
 
 
+def modify_data_json(args, js):
+    feat_folder = args.wav2vec_feat_folder
+    for uttid, v in js.items():
+        npy_file = f'{feat_folder}/{uttid}.npy'
+        assert 'shape' in v['input'][0]
+        assert 'feat' in v['input'][0]
+        v['input'][0]['feat'] = npy_file
+        v['input'][0]['filetype'] = 'npy'
+        shape = np.load(npy_file, mmap_mode='r').shape[0]
+        if type(shape) is int:
+            shape =(shape, 1)
+        elif len(shape) == 1:
+            shape = (shape[0], 1)
+        v['input'][0]['shape'] = shape
+
+# read json data
+def read_json_data(args, json_path):
+    if not hasattr(args, 'wav2vec_feature') or not args.wav2vec_feature:
+        # use fbank
+        logging.warning(f'Use fbank features {json_path}')
+        with open(json_path, "rb") as f:
+            js = json.load(f)["utts"]
+    else:
+        # use wav2vec
+        if os.path.isfile(f'{json_path}.npy'):
+            # already modified js
+            logging.warning(f'Use modified npy json  {json_path}.npy')
+            with open(f'{json_path}.npy', "r") as f:
+                js = json.load(f)["utts"]
+        else:
+            # need to modify js
+            logging.warning(f'modifying npy json {json_path}')
+            with open(json_path, "rb") as f:
+                js = json.load(f)["utts"]
+            feat_folder = args.wav2vec_feat_folder
+            for uttid, v in js.items():
+                npy_file = f'{feat_folder}/{uttid}.npy'
+                assert 'shape' in v['input'][0]
+                assert 'feat' in v['input'][0]
+                v['input'][0]['feat'] = npy_file
+                v['input'][0]['filetype'] = 'npy'
+                shape = np.load(npy_file, mmap_mode='r').shape[0]
+                if type(shape) is int:
+                    shape =(shape, 1)
+                elif len(shape) == 1:
+                    shape = (shape[0], 1)
+                v['input'][0]['shape'] = shape
+            logging.warning(f'saving modified npy json {json_path}')
+            with open(f'{json_path}.npy', "w") as f:
+                json.dump({'utts': js}, f, indent=2)
+    return js
 
 def recog_ctconly(args):
     """Decode with custom models that implements ScorerInterface.
@@ -343,6 +436,23 @@ def recog_ctconly(args):
     set_deterministic_pytorch(args)
     model, train_args = load_trained_model(args.model)
 
+    # add lang2ph to the model
+    if args.mask_phoneme:
+        logging.warning(f'mask phoneme and create lang2ph for model')
+        assert args.lang2ph is not None
+        with open(args.lang2ph, 'r') as f:
+            model.lang2ph = json.load(f)
+
+        model.lang2phid = {}
+        for lang, phones in model.lang2ph.items(): 
+            phoneset = set(phones + ['<blank>', '<unk>', '<space>', '<eos>'])
+            phoneset = phoneset.intersection(model.args.char_list)
+            model.lang2phid[lang] = list(map(model.args.char_list.index, phoneset))
+            # model.lang2phid[lang] = list(map(model.args.char_list.index, phones+['<blank>', '<unk>', '<space>', '<eos>']))
+        
+        model.ctc.lang2phid = model.lang2phid
+    logging.warning(f'model lang2phid {model.lang2phid}')
+
     assert isinstance(model, ASRInterface)
     model.eval()
 
@@ -366,8 +476,20 @@ def recog_ctconly(args):
 
     # logging.warning(f'Recog deep [model.args] {model.args}')
 
-    with open(args.recog_json, "rb") as f:
-        recog_json = json.load(f)["utts"]
+    # with open(args.recog_json, "rb") as f:
+    #     recog_json = json.load(f)["utts"]
+    
+    recog_json = read_json_data(model.args, args.recog_json)
+
+    if args.recog_size is not None and args.recog_size > 0:
+        random.seed(args.seed)
+        items = list(recog_json.items())
+        random.shuffle(items)
+        recog_json = OrderedDict(items[:args.recog_size])
+        logging.warning(f'data json len {len(recog_json)}')
+
+    # if model.args.wav2vec_feature:
+    #     modify_data_json(model.args, recog_json)
 
     use_sortagrad = model.args.sortagrad == -1 or model.args.sortagrad > 0
 
@@ -383,13 +505,16 @@ def recog_ctconly(args):
         min_batch_size=model.args.ngpu if model.args.ngpu > 1 else 1,
         shortest_first=use_sortagrad,
         count=model.args.batch_count,
-        batch_bins=400000, #model.args.batch_bins,
+        batch_bins=800000, #model.args.batch_bins,
         batch_frames_in=model.args.batch_frames_in,
         batch_frames_out=model.args.batch_frames_out,
         batch_frames_inout=model.args.batch_frames_inout,
         iaxis=0,
         oaxis=0,
     )
+
+    
+
     load_rc = LoadInputsAndTargets(
         mode="asr",
         load_output=True,
@@ -399,7 +524,7 @@ def recog_ctconly(args):
 
     recog_iter = ChainerDataLoader(
         dataset=TransformDataset(
-            recog, lambda data: converter([load_rc(data)]), utt=True
+            recog, lambda data: converter([load_rc(data)]), utt=True, lang_label=args.lang_label
         ),
         batch_size=1,
         num_workers=model.args.n_iter_processes,
@@ -408,45 +533,77 @@ def recog_ctconly(args):
     )
 
     logging.info(f'Character list: {model.args.char_list}')
-
+    logging.warning(f'lang model and weight: {args.lang_model} {args.lang_model_weight}')
     decoder = CTCBeamDecoder(
-        labels=model.args.char_list, beam_width=args.beam_size, log_probs_input=True
+        labels=model.args.char_list, beam_width=args.beam_size, log_probs_input=True,
+        model_path=args.lang_model, alpha=args.lang_model_weight
     )
 
-    with open(args.recog_json, "rb") as f:
-        js = json.load(f)["utts"]
+    # with open(args.recog_json, "rb") as f:
+    #     js = json.load(f)["utts"]
+    # if model.args.wav2vec_feature:
+    #     modify_data_json(model.args, js)
+    js = read_json_data(model.args, args.recog_json)
+
     new_js = {}
+    with torch.no_grad():
+        for batch in recog_iter:
+            lang_labels = None
+            lang_labels_for_masking = None
+            if args.lang_label:
+                lang_labels, names, x = batch[0], batch[1], batch[2:]
+                if args.mask_phoneme:
+                    lang_labels_for_masking = lang_labels # true lang labels
+                if args.fake_lang_label:
+                    lang_labels = [args.fake_lang_label] * len(lang_labels)
+                
+            else:
+                names, x = batch[0], batch[1:]
+                
 
-    for batch in recog_iter:
-        names, x = batch[0], batch[1:]
-        # logging.warning(f"Recog deep [names] {names}")
-        x = _recursive_to(x, device)
+            logging.warning(f'{lang_labels}')
+            # if np.prod(list(x[0].size())) >= 350000:
+            #     logging.warning(f'batch {x[0].size()} {np.prod(list(x[0].size())) } too large, skip')
+            #     continue
+            # logging.warning(f"Recog deep [names] {names}")
+            x = _recursive_to(x, device)
+            
 
-        xs_pad, ilens, ys_pad = x
-        logprobs, seq_lens = model.encode_with_length(xs_pad, ilens)
+            xs_pad, ilens, ys_pad = x
 
-        # logging.warning(f'Recog Deep [logprobs] {logprobs.size()}')
-        out, scores, offsets, seq_lens = decoder.decode(logprobs, seq_lens)
-        for hyp, trn, length, name, score in zip(out, ys_pad, seq_lens, names, scores): # iterate batch
-            # logging.warning(f'{score}')
-            best_hyp = hyp[0,:length[0]]
-
-            new_js[name] = add_results_to_json(
-                js[name], [{"yseq": best_hyp, "score": float(score[0])}], model.args.char_list
+            logprobs, seq_lens = model.encode_with_length(
+                xs_pad, ilens, lang_labels=lang_labels, 
+                mask_phoneme=args.mask_phoneme, 
+                lang_labels_for_masking=lang_labels_for_masking
             )
 
+            ## just for check
+            # with open('check.pk', 'wb') as f:
+            #     o = model.args.char_list, logprobs, seq_lens, ys_pad, lang_labels
+            #     pickle.dump(o, f)
+            #     raise
 
-            # logging.warning(f'Recog deep [new_js] {new_js}')
-            # break
+            # logging.warning(f'Recog Deep [logprobs] {logprobs.size()}')
+            out, scores, offsets, seq_lens = decoder.decode(logprobs, seq_lens, )
+            for hyp, trn, length, name, score in zip(out, ys_pad, seq_lens, names, scores): # iterate batch
+                # logging.warning(f'{score}')
+                best_hyp = hyp[0,:length[0]]
 
-        # raise
+                new_js[name] = add_results_to_json(
+                    js[name], [{"yseq": best_hyp, "score": float(score[0])}], model.args.char_list
+                )
+
+
+                # logging.warning(f'Recog deep [new_js] {new_js}')
+                # break
+
+            # raise
     with open(args.result_label, "wb") as f:
         f.write(
             json.dumps(
                 {"utts": new_js}, indent=4, ensure_ascii=False, sort_keys=True
             ).encode("utf_8")
         )
-
 
 def recog_ctconly_lang(args):
     """Decode with custom models that implements ScorerInterface.
@@ -499,6 +656,13 @@ def recog_ctconly_lang(args):
 
     with open(args.recog_json, "rb") as f:
         recog_json = json.load(f)["utts"]
+
+    if args.recog_size is not None and args.recog_size > 0:
+        random.seed(args.seed)
+        items = list(recog_json.items())
+        random.shuffle(items)
+        recog_json = OrderedDict(items[:args.recog_size])
+        logging.warning(f'data json len {len(recog_json)}')
 
     use_sortagrad = model.args.sortagrad == -1 or model.args.sortagrad > 0
 
@@ -665,7 +829,7 @@ def recog_seg(args):
 
     recog_iter = ChainerDataLoader(
         dataset=TransformDataset(
-            recog, lambda data: converter([load_rc(data)]), utt=True
+            recog, lambda data: converter([load_rc(data)]), utt=True, lang_label=args.lang2ph
         ),
         batch_size=1,
         num_workers=model.args.n_iter_processes,
@@ -675,34 +839,60 @@ def recog_seg(args):
 
     logging.info(f'Character list: {model.args.char_list}')
 
-    decoder = CTCBeamDecoder(
-        labels=model.args.char_list, beam_width=args.beam_size, log_probs_input=True
-    )
+    if args.lang2ph is not None:
+    # if args.irm_lang2ph is not None:
+        with open(args.lang2ph, 'r') as f:
+            lang2ph = json.load(f)
+
+        lang2phid = {}
+        for lang, phones in lang2ph.items(): 
+            lang2phid[lang] = list(map(model.args.char_list.index, phones+['<blank>', '<unk>', '<space>', '<eos>']))
+        model.lang2phid = lang2phid
+    logging.warning(f'model lang2phid {model.lang2phid}')
 
     with open(args.recog_json, "rb") as f:
         js = json.load(f)["utts"]
     new_js = {}
 
+    save_embedding = args.embedding_save_dir is not None and args.embedding_save_dir != ''
+    if save_embedding:
+        embedding_js = {}
+
     for batch in recog_iter:
-        names, x = batch[0], batch[1:]
+        if args.lang2ph:
+            lang_labels, names, x = batch[0], batch[1], batch[2:]
+        else:
+            names, x = batch[0], batch[1:]
+            lang_labels = None 
         # logging.warning(f"Recog deep [names] {names}")
         x = _recursive_to(x, device)
 
         xs_pad, ilens, ys_pad = x
-        logits = model.encode(xs_pad, ilens)
+        
+        if not save_embedding:
+            logits = model.encode(xs_pad, ilens, hidden=save_embedding, lang_labels=lang_labels)
+            embeddings = [0] * len(logits) # dummy list
+        else:
+            logits, embeddings = model.encode(xs_pad, ilens, hidden=save_embedding, lang_labels=lang_labels)
+        
+
         # logging.warning(f"Recog logit {logits.size()}")
         # torch.argmax(logit.view())
         predicts = torch.argmax(logits, dim=1)
+        probs = torch.softmax(logits, dim=1)
         # logging.warning(f"Recog logit {logits.size()} {predicts.size()}")
         # logging.warning(f"Recog logit {predicts[:10]}")
         # logging.warning(f"Recog logit {ys_pad[:10]}")
-        for pred, trn, name, logit in zip(predicts, ys_pad, names, logits):
+        for pred, trn, name, logit, prob, embedding in zip(predicts, ys_pad, names, logits, probs, embeddings):
             best_hyp = pred.view(-1)
             # logging.warning(f'{torch.nn.functional.pad(best_hyp, (1,0))}, {model.args.char_list[pred]}')
             new_js[name] = add_results_to_json(
                 js[name], [{"yseq": torch.nn.functional.pad(best_hyp, (1,0)), "score": float(logit[best_hyp])}], model.args.char_list
             )
-
+            
+            if save_embedding:
+                cur_save = {'pred': pred.cpu().numpy(), 'GT': trn.cpu().numpy(), 'prob': prob.cpu().numpy(), 'embedding': embedding.cpu().numpy()}
+                embedding_js[name] = cur_save
             # logging.warning(f'{new_js[name]}')
 
     with open(args.result_label, "wb") as f:
@@ -711,3 +901,6 @@ def recog_seg(args):
                 {"utts": new_js}, indent=4, ensure_ascii=False, sort_keys=True
             ).encode("utf_8")
         )
+    if save_embedding:
+        with open(args.embedding_save_dir, "wb") as f:
+            pickle.dump(embedding_js, f)

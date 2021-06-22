@@ -1,0 +1,1285 @@
+
+
+
+                     SYSTEM SUMMARY PERCENTAGES by SPEAKER                      
+
+,------------------------------------------------------------------------------.
+|exp/train_pytorch_wav2vecfexlemb/plot_eval_505_N_decode/snapshot.ep.21/hyp.trn|
+|------------------------------------------------------------------------------|
+| SPKR    |  # Snt   # Wrd  |  Corr     Sub      Del     Ins      Err   S.Err  |
+|---------+-----------------+--------------------------------------------------|
+| n00577  |    57     2234  |  86.9     4.2      9.0     3.7     16.8   100.0  |
+|---------+-----------------+--------------------------------------------------|
+| n00578  |    32     2828  |  93.1     3.1      3.8     5.1     12.0   100.0  |
+|---------+-----------------+--------------------------------------------------|
+| n00596  |    31     2105  |  88.9     4.2      6.8     3.3     14.4   100.0  |
+|---------+-----------------+--------------------------------------------------|
+| n00614  |    34     2210  |  90.9     3.3      5.9     2.4     11.5   100.0  |
+|---------+-----------------+--------------------------------------------------|
+| n00659  |    27     2713  |  89.5     4.6      5.9     3.5     14.0   100.0  |
+|---------+-----------------+--------------------------------------------------|
+| n00740  |    19     2390  |  83.3     6.7     10.1     3.7     20.4   100.0  |
+|==============================================================================|
+| Sum/Avg |   200    14480  |  88.9     4.3      6.8     3.7     14.8   100.0  |
+|==============================================================================|
+|  Mean   |  33.3   2413.3  |  88.8     4.3      6.9     3.6     14.9   100.0  |
+|  S.D.   |  12.8   293.6   |   3.4     1.3      2.3     0.9      3.3     0.0  |
+| Median  |  31.5   2312.0  |  89.2     4.2      6.4     3.6     14.2   100.0  |
+`------------------------------------------------------------------------------'
+
+
+
+                     SYSTEM SUMMARY PERCENTAGES by SPEAKER                      
+
+,------------------------------------------------------------------------------.
+|exp/train_pytorch_wav2vecfexlemb/plot_eval_505_N_decode/snapshot.ep.21/hyp.trn|
+|------------------------------------------------------------------------------|
+| SPKR    |  # Snt   # Wrd  | Corr       Sub     Del     Ins      Err   S.Err  |
+|---------+-----------------+--------------------------------------------------|
+| n00577  |    57     2234  | 1941        93     200      83      376      57  |
+|---------+-----------------+--------------------------------------------------|
+| n00578  |    32     2828  | 2634        87     107     144      338      32  |
+|---------+-----------------+--------------------------------------------------|
+| n00596  |    31     2105  | 1872        89     144      70      303      31  |
+|---------+-----------------+--------------------------------------------------|
+| n00614  |    34     2210  | 2008        72     130      52      254      34  |
+|---------+-----------------+--------------------------------------------------|
+| n00659  |    27     2713  | 2428       124     161      96      381      27  |
+|---------+-----------------+--------------------------------------------------|
+| n00740  |    19     2390  | 1990       159     241      88      488      19  |
+|==============================================================================|
+| Sum     |   200    14480  |12873       624     983     533     2140     200  |
+|==============================================================================|
+|  Mean   |  33.3   2413.3  |2145.5    104.0   163.8    88.8    356.7    33.3  |
+|  S.D.   |  12.8   293.6   |309.2      31.9    49.1    31.1     80.0    12.8  |
+| Median  |  31.5   2312.0  |1999.0     91.0   152.5    85.5    357.0    31.5  |
+`------------------------------------------------------------------------------'
+
+
+		DUMP OF SYSTEM ALIGNMENT STRUCTURE
+
+System name:   exp/train_pytorch_wav2vecfexlemb/plot_eval_505_N_decode/snapshot.ep.21/hyp.trn
+
+Speakers: 
+    0:  n00577
+    1:  n00578
+    2:  n00596
+    3:  n00614
+    4:  n00659
+    5:  n00740
+
+Speaker sentences   0:  n00577   #utts: 57
+id: (n00577-n00577-fn001130.13)
+Scores: (#C #S #D #I) 71 1 4 1
+REF:  R  o ː z i ː <SPACE> r ˈ ɛ n t <SPACE> D ə <space> b ˈ ɑ t k a ː m ə r <space> ˈ ɪ n <space> ˈ ɛ n <space> s t ˈ ɔ P t <space> h ˈ a ː r <space> h ˈ o ː f t <space> ˈ ɔ n d ə r <space> d ə <space> k ɯ d ** ə <space> k r ˈ a ː n 
+HYP:  ˈ o ː z i ː ******* r ˈ ɛ n t ******* * ə <space> b ˈ ɑ t k a ː m ə r <space> ˈ ɪ n <space> ˈ ɛ n <space> s t ˈ ɔ * t <space> h ˈ a ː r <space> h ˈ o ː f t <space> ˈ ɔ n d ə r <space> d ə <space> k ɯ d ˈ ə <space> k r ˈ a ː n 
+Eval: S              D                   D       D                                                                                      D                                                                                                I                           
+
+id: (n00577-n00577-fn001130.16)
+Scores: (#C #S #D #I) 61 3 8 2
+REF:  J ə <space> B ˈ ɛ n T <space> n ˈ i ː t <space> ʋ ˈ ɛ ɪ s <SPACE> Z ˈ ɛ x T <SPACE> h ˈ ɛ ɪ <space> ˈ ɛ n <space> x ˈ e ː F t <space> h ˈ a ː r <space> ˈ e ː n <space> p ** * ɔ r <space> ˈ ɪ n <space> h ˈ a ː r <space> z ˈ ɛ ɪ 
+HYP:  * ə <space> * ˈ ɛ n * <space> n ˈ i ː t <space> ʋ ˈ ɛ ɪ s ******* * ** ə x * ******* h ˈ ɛ ɪ <space> ˈ ɛ n <space> x ˈ e ː S t <space> h ˈ a ː r <space> ˈ e ː n <space> p ˈ O ː r <space> ˈ ɪ n <space> h ˈ a ː r <space> z ˈ ɛ ɪ 
+Eval: D            D         D                                           D       D D  S    D D                                                    S                                                   I  I S                                                           
+
+id: (n00577-n00577-fn001130.2)
+Scores: (#C #S #D #I) 7 0 1 1
+REF:  ˈ ɔ p s t ** a ː n 
+HYP:  ** ɔ p s t ˈ a ː n 
+Eval: D           I         
+
+id: (n00577-n00577-fn001130.21)
+Scores: (#C #S #D #I) 19 3 4 1
+REF:  R ˈ u ː P T <space> p ˈ ɑ * P       A  ː <space> N ˈ a ː r <space> b ˈ o ː v ə 
+HYP:  * ˈ u ː * * <space> p ˈ ɑ T <SPACE> ˈ ə <space> * ˈ a ː r <space> b ˈ o ː v ə 
+Eval: D         D D                 I S       S  S          D                                  
+
+id: (n00577-n00577-fn001130.27)
+Scores: (#C #S #D #I) 24 0 3 0
+REF:  Z ˈ e ː <space> k ˈ ɛ ɪ k t <space> D ˈ o ː r <space> h ɛ T <space> r ˈ a ː m 
+HYP:  * ˈ e ː <space> k ˈ ɛ ɪ k t <space> * ˈ o ː r <space> h ɛ * <space> r ˈ a ː m 
+Eval: D                                        D                        D                     
+
+id: (n00577-n00577-fn001130.30)
+Scores: (#C #S #D #I) 38 0 5 1
+REF:  H ɛ t <space> ˈ ɪ s <space> ˈ o ː K <space> p ˈ ɑ s <space> v ˈ i ː r <SPACE> ˈ y ː r ** <space> ˈ ɪ n <space> d ə <space> ˈ ɔ x t ə n t 
+HYP:  * ɛ t <space> ˈ ɪ s <space> ˈ o ː * <space> p ** ɑ s <space> v ˈ i ː r ******* ** y ː r ə <space> ˈ ɪ n <space> d ə <space> ˈ ɔ x t ə n t 
+Eval: D                                      D           D                           D       D         I                                                        
+
+id: (n00577-n00577-fn001130.32)
+Scores: (#C #S #D #I) 44 1 2 0
+REF:  M  ɑ m ˈ a ː <SPACE> k ˈ ɛ ɪ k t <space> n ˈ ɔ x <space> e ː v ə <space> h ˈ u ː <space> z ˈ e ː <space> m ˈ u ː t ə <space> r ˈ ɛ ɪ d ə 
+HYP:  ˈ ɑ m ˈ a ** ******* k ˈ ɛ ɪ k t <space> n ˈ ɔ x <space> e ː v ə <space> h ˈ u ː <space> z ˈ e ː <space> m ˈ u ː t ə <space> r ˈ ɛ ɪ d ə 
+Eval: S            D  D                                                                                                                                             
+
+id: (n00577-n00577-fn001130.40)
+Scores: (#C #S #D #I) 21 0 3 1
+REF:  D ə <space> r ˈ ɛ ɪ s * <space> D ˈ y ː r t <space> ʋ ˈ ɛ l <SPACE> l ɑ ŋ 
+HYP:  * ə <space> r ˈ ɛ ɪ s T <space> * ˈ y ː r t <space> ʋ ˈ ɛ l ******* l ɑ ŋ 
+Eval: D                         I         D                                D               
+
+id: (n00577-n00577-fn001130.43)
+Scores: (#C #S #D #I) 47 0 3 0
+REF:  ˈ ɔ f <space> m ˈ ɛ t <space> m ɑ m ˈ a ː <space> ʋ ˈ ɑ n t <space> d ˈ i ː <space> ˈ ɪ s <SPACE> x ˈ ɛ k <space> ˈ ɔ p <space> s p ˈ ɛ l ə t j ə s 
+HYP:  ** ɔ f <space> m ˈ ɛ t <space> m ɑ m ** a ː <space> ʋ ˈ ɑ n t <space> d ˈ i ː <space> ˈ ɪ s ******* x ˈ ɛ k <space> ˈ ɔ p <space> s p ˈ ɛ l ə t j ə s 
+Eval: D                                        D                                                              D                                                                 
+
+id: (n00577-n00577-fn001130.52)
+Scores: (#C #S #D #I) 38 2 10 3
+REF:  Z ˈ * ʉ l ə <space> ʋ ˈ e ː <space> z ˈ o ː <space> e ː v ə <space> s t ˈ ɔ p ə <space> v ˈ O ː R <SPACE> ˈ E ː n <SPACE> k ******* ˈ ɔ p <space> k ˈ ɔ f i ː * 
+HYP:  * ˈ E ː l ** <space> ʋ ˈ e ː <space> z ˈ o ː <space> e ː v ə <space> s t ** ɔ p ə <space> v ** * ** * ******* ˈ * ɔ n ******* k <SPACE> ˈ ɔ p <space> k ˈ ɔ f i ː N 
+Eval: D    I S    D                                                                     D                    D  D D  D D          D S    D         I                                      I 
+
+id: (n00577-n00577-fn001130.54)
+Scores: (#C #S #D #I) 40 2 5 2
+REF:  M ɑ m ˈ A ː <SPACE> s x r ˈ ɪ k t <space> ʋ ˈ ɑ k ə r <space> z ˈ e ː <space> z ˈ ɪ t <space> ** ɪ      n ˈ e ː N s <space> r ɛ x t ******* ˈ ɔ p 
+HYP:  * ɑ m ** * ** ɑ      s x r ˈ ɪ k t <space> ʋ ˈ ɑ k ə r <space> z ˈ e ː <space> z ˈ ɪ t <space> ə <SPACE> n ˈ e ː * s <space> r ɛ x t <SPACE> ˈ ɔ p 
+Eval: D      D  D D  S                                                                                           I  S                 D                    I               
+
+id: (n00577-n00577-fn001130.57)
+Scores: (#C #S #D #I) 20 1 2 0
+REF:  V r ˈ a ː x t <space> m ɑ m ˈ a ː <space> b ə d ˈ Y ː s t 
+HYP:  * r ˈ a ː x t <space> m ɑ m ˈ a ː <space> b ə d ˈ * ʉ s t 
+Eval: D                                                        D S      
+
+id: (n00577-n00577-fn001130.58)
+Scores: (#C #S #D #I) 29 2 4 2
+REF:  ** t <space> S x ˈ i ː t <space> ɑ l <space> L ˈ ɛ k ******* ə r <space> ˈ ɔ p <space> z ˈ ɛ x T <SPACE> p ˈ ɑ p a ː 
+HYP:  ɛ t <space> * x ˈ i ː t <space> ɑ l <space> M ˈ ɛ k <SPACE> ɛ r <space> ˈ ɔ p <space> z ˈ ɛ x * ******* p ** ɑ p a ː 
+Eval: I            D                                  S         I       S                                      D D         D            
+
+id: (n00577-n00577-fn001130.60)
+Scores: (#C #S #D #I) 3 0 1 0
+REF:  ˈ ɛ x t 
+HYP:  ** ɛ x t 
+Eval: D         
+
+id: (n00577-n00577-fn001130.62)
+Scores: (#C #S #D #I) 24 0 4 0
+REF:  J ɔ ŋ ə N s <space> h ˈ e ː f t <space> Z ˈ e ː <space> x ə s n ˈ ʉ r k t 
+HYP:  * ɔ ŋ ə * s <space> h ˈ e ː f t <space> * ˈ e ** <space> x ə s n ˈ ʉ r k t 
+Eval: D          D                                 D      D                               
+
+id: (n00577-n00577-fn001130.63)
+Scores: (#C #S #D #I) 48 3 7 5
+REF:  P ˈ ɑ p a ː <space> k ˈ ɛ ɪ k t <space> * ** ** S       n ˈ ɛ l <space> e ː v ə <space> ** ɑ x t ə r ˈ ɔ m <space> ˈ ɛ n <space> x ˈ e ː f t <SPACE> ˈ E ː n <SPACE> k n ˈ ɪ p ******* o ː x 
+HYP:  * ˈ ɑ p a ** <space> k ˈ ɛ ɪ k t <space> Z ˈ ː <SPACE> n ˈ ɛ l <space> e ː v ə <space> ˈ ɑ x t ə r ** ɔ m <space> ˈ ɛ n <space> x ˈ e ː f t ******* ** * ə n ******* k n ˈ E  p <SPACE> o ː x 
+Eval: D           D                                 I I  I  S                                           I              D                                             D       D  D S    D              S    I              
+
+id: (n00577-n00577-fn001130.70)
+Scores: (#C #S #D #I) 24 1 5 1
+REF:  J a ː <SPACE> j a ː <space> h ɛ t <space> Z ˈ ɑ l <SPACE> ˈ ɑ l ə ******* m a ː L <space> ʋ ˈ ɛ l 
+HYP:  * a ː ******* j a ː <space> h ** t <space> S ˈ ɑ l ******* ˈ ɑ l ə <SPACE> m a ː * <space> ʋ ˈ ɛ l 
+Eval: D      D                        D            S         D                  I              D                    
+
+id: (n00577-n00577-fn001130.71)
+Scores: (#C #S #D #I) 29 0 2 0
+REF:  Z ˈ e ː <space> ˈ ɪ s <space> n ˈ ɔ x <space> n ˈ i ː t <space> ˈ ɛ x t <space> ʋ ˈ ɑ k ə r 
+HYP:  * ˈ e ː <space> ˈ ɪ s <space> n ˈ ɔ x <space> n ˈ i ː t <space> ˈ ɛ x t <space> ʋ ** ɑ k ə r 
+Eval: D                                                                                            D            
+
+id: (n00577-n00577-fn001130.76)
+Scores: (#C #S #D #I) 48 2 3 1
+REF:  N ˈ ɔ x <space> e ː v ə <space> ˈ ɛ n <space> ʋ ˈ E ː <space> z ˈ ɪ t ə <space> v ˈ o ː r <space> d ə <space> t ** ɛ n t <space> ˈ a ː n <space> h ɛ t <space> m ˈ e ː r 
+HYP:  * ˈ ɔ x <space> e ː v ə <space> ˈ ɛ n <space> ** ** M ə <space> z ˈ ɪ t ə <space> v ˈ o ː r <space> d ə <space> t ˈ ɛ n t <space> ˈ a ː n <space> h ɛ t <space> m ˈ e ː r 
+Eval: D                                                   D  D  S S                                                                  I                                                              
+
+id: (n00577-n00577-fn001130.8)
+Scores: (#C #S #D #I) 32 2 1 0
+REF:  X ˈ a ː n <space> v ˈ ɑ s t <space> D ˈ ɛ ŋ k t <space> z ˈ e ː <space> x ˈ a ː N <space> v ˈ ɑ s t 
+HYP:  * ˈ a ː n <space> v ˈ ɑ s t <space> T ˈ ɛ ŋ k t <space> z ˈ e ː <space> x ˈ a ː M <space> v ˈ ɑ s t 
+Eval: D                                       S                                                  S                     
+
+id: (n00577-n00577-fn001130.84)
+Scores: (#C #S #D #I) 9 0 4 1
+REF:  R ˈ u ː P t <space> m ** ɑ m ˈ a ː 
+HYP:  * ˈ u ː * t <space> m ˈ ɑ m ** a ** 
+Eval: D         D             I       D    D  
+
+id: (n00577-n00577-fn001130.90)
+Scores: (#C #S #D #I) 17 2 2 2
+REF:  M  ɑ ******* m ˈ a ː <space> ʋ ˈ ɛ ɪ s t <SPACE> ɛ r ******* n ˈ a ː r 
+HYP:  ˈ ɑ <SPACE> m ** a ː <space> ʋ ˈ ɛ ɪ s t ******* ə r <SPACE> n ˈ a ː r 
+Eval: S     I         D                               D       S    I                   
+
+id: (n00577-n00577-fn001130.96)
+Scores: (#C #S #D #I) 17 1 0 1
+REF:  R  o ː z i ː <space> ʋ ˈ ɔ r t <space> k ʋ ** a ː t 
+HYP:  ˈ o ː z i ː <space> ʋ ˈ ɔ r t <space> k ʋ ˈ a ː t 
+Eval: S                                                I         
+
+id: (n00577-n00577-fn001132.101)
+Scores: (#C #S #D #I) 35 2 3 1
+REF:  ˈ ɪ k <space> d ˈ ɑ x T <space> D ˈ ɑ t <space> ˈ ɪ k <space> z ˈ o ː <space> x ** u ː T <space> d ˈ œ ɪ t s <space> k ˈ ɔ N 
+HYP:  ** ɪ k <space> d ˈ ɑ x * <space> H ˈ ɑ t <space> ˈ ɪ k <space> z ˈ o ː <space> x ˈ u ː * <space> d ˈ œ ɪ t s <space> k ˈ ɔ M 
+Eval: D                         D         S                                                     I       D                                        S 
+
+id: (n00577-n00577-fn001132.108)
+Scores: (#C #S #D #I) 40 4 4 3
+REF:  Z ˈ e ː <space> b l ˈ ɛ ɪ f T <space> l ˈ i ː v ə R <space> n ˈ ɔ x <space> ** e ː v ə <space> b ˈ ɛ ɪ <space> h ɛ t <space> Z ʋ ˈ ɛ ** * M       B  ɑ T 
+HYP:  * ˈ e ː <space> b l ˈ ɛ ɪ f * <space> l ˈ i ː v ə * <space> n ˈ ɔ x <space> ˈ e ː v ə <space> b ˈ ɛ ɪ <space> h ** t <space> S ʋ ˈ ɛ ɪ N <SPACE> ˈ ɑ P 
+Eval: D                                D                        D                           I                                         D            S          I  I S       S     S 
+
+id: (n00577-n00577-fn001132.113)
+Scores: (#C #S #D #I) 40 1 2 1
+REF:  H  ɑ l ˈ o ː <space> h ˈ o ː r t <space> z ˈ e ː <space> ɪ n ******* ˈ e ː n S <space> ˈ e ː n <space> s t ˈ ɛ m <space> z ˈ ɛ ɣ ə 
+HYP:  ˈ ɑ l ** o ː <space> h ˈ o ː r t <space> z ˈ e ː <space> ɪ n <SPACE> ˈ e ː n * <space> ˈ e ː n <space> s t ˈ ɛ m <space> z ˈ ɛ ɣ ə 
+Eval: S       D                                                            I                 D                                                             
+
+id: (n00577-n00577-fn001132.120)
+Scores: (#C #S #D #I) 55 8 8 5
+REF:  ˈ ɪ k <space> B ˈ * ɛ n <space> s ** a ː r a ː <space> ˈ ɛ n <space> ˈ ɪ k <space> z ˈ ɪ T  <space> * ˈ ɪ N <space> D ˈ i ː <space> k ˈ ɛ r ə      v ** ɛ n <SPACE> d ˈ a ː r <space> x ** a ː <SPACE> j ə <space> m ˈ E  ː <space> Z ʋ ˈ ɛ m ə 
+HYP:  ** ɪ k <space> * ˈ E ː n <space> s ˈ a ː r a ː <space> ˈ ɛ n <space> ˈ ɪ k <space> z ˈ E  ː <space> D ˈ ɪ * <space> * N  i ː <space> k ˈ ɛ r <SPACE> v ˈ ɪ n ******* d ** a ː r <space> x ˈ a ː ******* j ə <space> m ˈ ɪ S  <space> * ʋ ˈ ɛ m ə 
+Eval: D               D    I S              I                                                           S  S          I       D         D S                         S         I  S    D         D                   I       D                         S  S          D               
+
+id: (n00577-n00577-fn001132.124)
+Scores: (#C #S #D #I) 12 3 1 2
+REF:  ˈ e ː n <space> ʋ ˈ i ː ******* b ə l b ** œ ɪ k 
+HYP:  ** e ː n <space> D  ˈ i ː <SPACE> b ə l b ˈ ɛ R  k 
+Eval: D                 S          I                I  S  S    
+
+id: (n00577-n00577-fn001132.13)
+Scores: (#C #S #D #I) 72 2 4 1
+REF:  R  o ː z i ː <space> h ˈ o ː r t <space> ˈ e ː n <space> p ˈ a ː r <space> m ˈ ɛ ɪ s J ə S <space> * p r ˈ a ː t ə <space> m ˈ a ː r <space> z ˈ e ː <space> v ə r s t ˈ a ː t <SPACE> ˈ ɛ r <space> n ˈ i ː t s <space> v ˈ ɑ n 
+HYP:  ˈ o ː z i ː <space> h ˈ o ː r t <space> ˈ e ː n <space> p ˈ a ː r <space> m ˈ ɛ ɪ s * ə * <space> S p r ˈ a ː t ə <space> m ˈ a ː r <space> z ˈ e ː <space> v ə r s t ˈ a ː t ******* ** ə r <space> n ˈ i ː t s <space> v ˈ ɑ n 
+Eval: S                                                                                               D    D         I                                                                                     D       D  S                                            
+
+id: (n00577-n00577-fn001132.140)
+Scores: (#C #S #D #I) 69 2 5 2
+REF:  N ˈ ɔ x <space> e ː V ə <space> ˈ e ː n <space> p ˈ a ː r <space> b r ˈ o ː t j ə S <space> s m ˈ e ː r ə <space> z ˈ ɛ x t <space> m ɑ m ˈ a ː <space> d ˈ ɑ n <space> k ˈ ʉ n ə <space> ʋ ˈ e ː <space> v ə r t r ** ɛ ** k ə 
+HYP:  * ˈ ɔ x <space> e ː * F  <space> ˈ e ː n <space> p ˈ a ː r <space> b r ˈ o ː t j ə * <space> s m ˈ e ː r ə <space> z ˈ ɛ x t <space> m ɑ m ** a ː <space> d ˈ ɑ n <space> k ˈ ʉ n ə <space> ** ˈ e R  <space> v ə r t r ˈ ɛ ː k ə 
+Eval: D                      D S                                                                   D                                                             D                                                      D       S                     I     I       
+
+id: (n00577-n00577-fn001132.141)
+Scores: (#C #S #D #I) 14 0 3 1
+REF:  J ˈ o ː r ə S <space> * t r ˈ ø ː z ə l t 
+HYP:  * ** o ː r ə * <space> S t r ˈ ø ː z ə l t 
+Eval: D D            D         I                       
+
+id: (n00577-n00577-fn001132.143)
+Scores: (#C #S #D #I) 55 2 3 1
+REF:  H ˈ ɛ ɪ <space> ʋ ˈ ɪ L <space> l ˈ i ː v ə r <space> ˈ ɔ p <space> d ə <space> k ˈ ɛ m * P  ɪ ŋ <space> b l ˈ ɛ ɪ v ə <space> b ˈ ɛ ɪ <space> z ˈ ɛ ɪ n <space> v r ˈ i ː n d ə 
+HYP:  * ˈ ɛ ɪ <space> ʋ ** ** E <space> l ˈ i ː v ə r <space> ˈ ɔ p <space> d ə <space> k ˈ ɛ m D ˈ ɪ ŋ <space> b l ˈ ɛ ɪ v ə <space> b ˈ ɛ ɪ <space> z ˈ ɛ ɪ n <space> v r ˈ i ː n d ə 
+Eval: D                     D  D  S                                                                         I S                                                                                                     
+
+id: (n00577-n00577-fn001132.144)
+Scores: (#C #S #D #I) 38 1 5 2
+REF:  M ˈ a ː r <space> d ˈ ɑ t <space> m ˈ ɑ x * <space> n ˈ i ː t <space> v ˈ ɑ n <space> p ˈ ɑ p A ː <space> ˈ ɛ n <space> m ** ɑ M ˈ a ː 
+HYP:  * ˈ a ː r <space> d ˈ ɑ t <space> m ˈ ɑ x T <space> n ˈ i ː t <space> v ** ɑ n <space> p ˈ ɑ p * ** <space> ˈ ɛ n <space> m ˈ ɑ * N  a ː 
+Eval: D                                               I                               D                         D D                            I     D S       
+
+id: (n00577-n00577-fn001132.150)
+Scores: (#C #S #D #I) 36 1 5 1
+REF:  ˈ o ː v ə r <SPACE> t ˈ i ː N <space> m I  ː n ** y ː t ə <space> v ə r t r ˈ ɛ k t <SPACE> D ə <space> x ˈ ɔ n d ə l 
+HYP:  ** o ː v ə r ******* t ˈ i ː * <space> m ə ː n ˈ y ː t ə <space> v ə r t r ˈ ɛ k t ******* * ə <space> x ˈ ɔ n d ə l 
+Eval: D              D                 D           S       I                                         D       D                             
+
+id: (n00577-n00577-fn001132.151)
+Scores: (#C #S #D #I) 26 3 4 2
+REF:  P ˈ ɑ p ******* ** a ː <space> H ˈ e ː f T <space> ɑ l <space> k ˈ A ː R  t j ə s <space> x ə k ɔ x t 
+HYP:  * ˈ ɑ p <SPACE> ˈ a ː <space> * ˈ e ː f * <space> ɛ l <space> k ˈ * œ ɪ t j ə s <space> x ə k ɔ x t 
+Eval: D         I       I               D           D         S                 D S  S                                 
+
+id: (n00577-n00577-fn001132.163)
+Scores: (#C #S #D #I) 10 2 1 1
+REF:  M  ɑ * m ˈ a ː <space> ʋ ˈ ɛ ɪ s t 
+HYP:  ˈ ɑ N m ** a R  <space> ʋ ˈ ɛ ɪ s t 
+Eval: S     I   D    S                          
+
+id: (n00577-n00577-fn001132.164)
+Scores: (#C #S #D #I) 19 0 4 0
+REF:  D ˈ ɑ t <space> z ˈ i ː <SPACE> ˈ ɪ k <space> ˈ o ː k <space> ʋ ˈ ɛ l 
+HYP:  * ˈ ɑ t <space> z ˈ i ː ******* ** ** k <space> ˈ o ː k <space> ʋ ˈ ɛ l 
+Eval: D                           D       D  D                                         
+
+id: (n00577-n00577-fn001132.170)
+Scores: (#C #S #D #I) 44 0 2 1
+REF:  H ɛ t <space> ˈ ɪ s <space> d r ˈ ʉ k <space> m ˈ a ː r <space> z ˈ ɛ ɪ <SPACE> k ******* ˈ ɑ n <space> ˈ ɑ l ə s <space> x u ː t <space> z ˈ i ː n 
+HYP:  * ɛ t <space> ˈ ɪ s <space> d r ˈ ʉ k <space> m ˈ a ː r <space> z ˈ ɛ ɪ ******* k <SPACE> ˈ ɑ n <space> ˈ ɑ l ə s <space> x u ː t <space> z ˈ i ː n 
+Eval: D                                                                                 D         I                                                                         
+
+id: (n00577-n00577-fn001132.174)
+Scores: (#C #S #D #I) 20 0 1 0
+REF:  V r ˈ a ː x t <space> z ˈ e ː <space> z ˈ ɪ x <space> ˈ ɑ f 
+HYP:  * r ˈ a ː x t <space> z ˈ e ː <space> z ˈ ɪ x <space> ˈ ɑ f 
+Eval: D                                                                   
+
+id: (n00577-n00577-fn001132.177)
+Scores: (#C #S #D #I) 20 2 6 0
+REF:  M  ɑ m ˈ A ː <space> ˈ ɪ s <space> b ˈ ɑ ŋ <space> v ˈ O ː r <SPACE> h ˈ ɔ n d ə 
+HYP:  ˈ ɑ m ** * ** <space> ˈ ɪ s <space> b ˈ ɑ ŋ <space> v ** * ə r ******* h ˈ ɔ n d ə 
+Eval: S       D  D D                                               D  D S    D                      
+
+id: (n00577-n00577-fn001132.20)
+Scores: (#C #S #D #I) 47 0 3 1
+REF:  D ˈ ɛ ŋ k t <space> z ˈ e ː <space> ɑ l s <space> ˈ ɪ k <space> z ˈ e ː <space> h ** e ː l ə m ˈ a ː L <space> n ˈ i ː t <space> b ə ɣ r ˈ ɛ ɪ p 
+HYP:  * ˈ ɛ ŋ k t <space> z ˈ e ː <space> ɑ l s <space> ˈ ɪ k <space> z ˈ e ː <space> h ˈ e ː l ə m ** a ː * <space> n ˈ i ː t <space> b ə ɣ r ˈ ɛ ɪ p 
+Eval: D                                                                                           I              D       D                                                  
+
+id: (n00577-n00577-fn001132.23)
+Scores: (#C #S #D #I) 18 0 2 1
+REF:  D ˈ i ː <space> b ə ɣ ** ɪ n T <space> t ə <space> l ˈ ɑ x ə 
+HYP:  * ˈ i ː <space> b ə ɣ ˈ ɪ n * <space> t ə <space> l ˈ ɑ x ə 
+Eval: D                         I       D                                   
+
+id: (n00577-n00577-fn001132.29)
+Scores: (#C #S #D #I) 6 0 1 0
+REF:  X ˈ a ː b i ː 
+HYP:  * ˈ a ː b i ː 
+Eval: D                
+
+id: (n00577-n00577-fn001132.30)
+Scores: (#C #S #D #I) 78 3 5 3
+REF:  J ə <space> m ˈ u ː t <space> x ə ʋ ˈ O ː n <space> j a ː <space> j ** a ː <space> z ˈ ɛ ɣ ə <space> ˈ ɛ n <space> * V  e ː l <space> x ə b ˈ a ː r ə <SPACE> m ˈ a ː k ə <space> l ˈ ɛ x t <space> j ˈ o ː r ə s <space> e ː v ə <space> l ** a ː t ə r <space> ˈ œ ɪ t 
+HYP:  * ə <space> m ˈ u ː t <space> x ə ʋ ˈ * ɔ n <space> j a ː <space> j ˈ a ː <space> z ˈ ɛ ** X  <space> ˈ ɛ n <space> P ˈ e ː l <space> x ə b ˈ a ː r ə ******* m ** a ː k ə <space> l ˈ ɛ x t <space> j ˈ o ː r ə s <space> e ː v ə <space> l ˈ a ː t ə r <space> ˈ œ ɪ t 
+Eval: D                                           D S                             I                       D  S                          I S                                     D         D                                                                                     I                                 
+
+id: (n00577-n00577-fn001132.38)
+Scores: (#C #S #D #I) 47 2 2 0
+REF:  Z ˈ e ː <space> b ə ɣ r ˈ ɛ ɪ p t <space> ˈ o ː k <space> ˈ e ː n <space> B ˈ e ː t J ə <space> ʋ ˈ ɑ t <space> X ˈ a ː b i ː <space> z ˈ ɛ x t 
+HYP:  * ˈ e ː <space> b ə ɣ r ˈ ɛ ɪ p t <space> ˈ o ː k <space> ˈ e ː n <space> M ˈ e ː t * ə <space> ʋ ˈ ɑ t <space> K ˈ a ː b i ː <space> z ˈ ɛ x t 
+Eval: D                                                                                    S           D                               S                                    
+
+id: (n00577-n00577-fn001132.40)
+Scores: (#C #S #D #I) 20 0 0 10
+REF:  ** * * ******* * ** ** * ******* h ˈ e ː r l ə k <space> n a ː t ˈ * y ː r l ə k 
+HYP:  ˈ E T <SPACE> L ˈ ɪ K <SPACE> h ˈ e ː r l ə k <space> n a ː t ˈ Y y ː r l ə k 
+Eval: I  I I I       I I  I  I I                                              I               
+
+id: (n00577-n00577-fn001132.51)
+Scores: (#C #S #D #I) 50 5 9 2
+REF:  N ˈ e ː <SPACE> j ˈ ɔ <space> s ˈ ʉ f ə r T <space> l ˈ ɑ x t <space> j ˈ o ː r ə s <space> h ˈ ɛ L m ʉ T <space> * ˈ * ɪ S <space> j ɯ ʋ <space> b r ˈ u ː r <SPACE> t ˈ ɔ x <space> n ˈ i ː t 
+HYP:  * ˈ e ː ******* j ** S  <space> s ** ʉ f ə r S <space> l ˈ ɑ x t <space> j ˈ o ː r ʉ s <space> h ˈ ɛ * m ** * <space> M ˈ U ː T <space> j ɯ ʋ <space> b r ˈ u ː r ******* t ** ɔ x <space> n ˈ i ː t 
+Eval: D         D         D  S            D            S                                         S                    D   D  D         I    I S  S                                       D         D                           
+
+id: (n00577-n00577-fn001132.53)
+Scores: (#C #S #D #I) 53 4 7 2
+REF:  ** H ɔ j <space> * R ˈ u ː p t <space> z ˈ E ː <SPACE> H ˈ ɛ M <space> d ˈ ɑ n <space> t ˈ u ː <space> ˈ ɛ n <space> d ˈ œ ɪ k t <space> x ə l ˈ ɛ ɪ k <space> ˈ ɔ n d ə R <space> ʋ ˈ a ː t ə r 
+HYP:  ˈ O ː j <space> B L ˈ u ː p t <space> z ** * ** ******* * ˈ ɛ N <space> d ˈ ɑ n <space> t ˈ u ː <space> ˈ ɛ n <space> d ˈ œ ɪ k t <space> x ə l ˈ ɛ ɪ k <space> ** ɔ n d ə * <space> ʋ ˈ a ː t ə r 
+Eval: I  S S            I S                       D  D D  D       D       S                                                                                                              D            D                           
+
+id: (n00577-n00577-fn001132.60)
+Scores: (#C #S #D #I) 23 4 3 1
+REF:  Z ˈ e ː <space> k r ** ɛ ɪ x t <space> h ɛ T  <space> ˈ ɛ R  <space> ʋ ˈ ɑ r m <space> v ˈ ɑ n 
+HYP:  * ˈ e ː <space> k r ˈ ɛ ɪ x t <space> h ** ə <space> ** T  ə <space> ʋ ˈ ɔ r m <space> v ˈ ɑ n 
+Eval: D                     I                      D  S          D  S  S                S                        
+
+id: (n00577-n00577-fn001132.61)
+Scores: (#C #S #D #I) 20 4 5 1
+REF:  ʋ ˈ i ː <space> H ˈ ɛ M <space> H ɛ t <space> ˈ e ː r s t <space> ˈ ɔ * B D  œ ɪ K t 
+HYP:  ** ˈ i ː <space> * ˈ ** R <space> M ɛ t <space> ** e ː r s t <space> ˈ ɔ P T ˈ œ ɪ * t 
+Eval: D                  D    D  S         S              D                           I S S        D   
+
+id: (n00577-n00577-fn001132.62)
+Scores: (#C #S #D #I) 18 1 3 4
+REF:  R ˈ u ː p T <space> j ˈ o ː r ə S <space> * ** * ** ɪ      n ˈ e ː n s 
+HYP:  * ˈ u ː p * <space> j ˈ o ː r ə * <space> Z ˈ E ː <SPACE> n ˈ e ː n s 
+Eval: D           D                        D         I I  I I  S                     
+
+id: (n00577-n00577-fn001132.63)
+Scores: (#C #S #D #I) 43 2 1 0
+REF:  H ˈ ɛ ɪ <space> x ˈ o ː j t <space> ˈ e ː n <space> s t ˈ e ː n <space> m ˈ ɪ d ə <space> ˈ ɪ n <space> h ɛ t <space> Z ʋ ˈ ɛ m b ɑ t 
+HYP:  * ˈ ɛ ɪ <space> x ˈ o ː j t <space> ˈ e ː n <space> s t ˈ e ː n <space> m ˈ ɪ d ə <space> ˈ ɪ n <space> h ɛ t <space> S ʋ ˈ ɛ m b ə t 
+Eval: D                                                                                                                                    S              S    
+
+id: (n00577-n00577-fn001132.78)
+Scores: (#C #S #D #I) 54 3 4 2
+REF:  S t ˈ e ː t S <space> z ˈ i ː t <space> z ˈ e ː <space> ʋ ˈ e ː r <space> n ** i ː ʋ ə <space> ˈ ɛ n <space> d ˈ i ː * <space> N ˈ E ː m t <space> Z ˈ e ː <space> d ˈ ɑ n <space> m ˈ e ː 
+HYP:  * t ˈ e ː t * <space> z ˈ i ː t <space> z ˈ e ː <space> ʋ ˈ e ː r <space> n ˈ i ː ʋ ə <space> ˈ ɛ n <space> d ˈ i ː N <space> H ˈ * ɛ m t <space> T ˈ e ** <space> d ˈ ɑ n <space> m ˈ e ː 
+Eval: D             D                                                                      I                                               I         S    D S              S      D                                      
+
+id: (n00577-n00577-fn001132.83)
+Scores: (#C #S #D #I) 31 1 4 3
+REF:  R ˈ u ː P t <space> z ˈ e ː <space> p l ˈ a ː ɣ ə r ə x <space> n ˈ a ː r <space> h ˈ ɛ l ******* m ** * ʉ t 
+HYP:  * ˈ u ː * t <space> z ˈ e ** <space> p l ˈ a ː ɣ ** r ə x <space> n ˈ a ː r <space> h ˈ ɛ l <SPACE> m ˈ U ː t 
+Eval: D         D                  D                         D                                               I         I  I S    
+
+id: (n00577-n00577-fn001132.84)
+Scores: (#C #S #D #I) 60 4 3 2
+REF:  Z ˈ e ː <space> ʋ ˈ ɑ x t <SPACE> T  ɔ t <space> h ˈ ɛ ɪ <space> H ˈ a ː r <space> ** ɑ x t ə r n ˈ a ː <space> k ˈ ɔ m t <space> ** ɔ M <space> d ə <space> s t ˈ e ː n <space> ˈ ɑ f <space> T ə <space> p ˈ ɑ k ə 
+HYP:  * ˈ e ː <space> ʋ ˈ ɑ x t ******* ə L  t <space> h ˈ ɛ ɪ <space> * ˈ a ː r <space> ˈ ɑ x t ə r n ˈ a ː <space> k ˈ ɔ m t <space> ˈ ɔ N <space> d ə <space> s t ˈ e ː n <space> ˈ ɑ f <space> D ə <space> p ˈ ɑ k ə 
+Eval: D                              D       S  S                               D                   I                                                    I     S                                                            S                         
+
+id: (n00577-n00577-fn001132.88)
+Scores: (#C #S #D #I) 38 0 3 2
+REF:  Z ˈ ɛ x t <space> r ** o ː z i ː <space> h ˈ e ː L <space> l ˈ ɑ ŋ z a ː M <space> * ˈ ɛ n <space> d ˈ œ ɪ d ə l ə k 
+HYP:  * ˈ ɛ x t <space> r ˈ o ː z i ː <space> h ˈ e ː * <space> l ˈ ɑ ŋ z a ː * <space> M ˈ ɛ n <space> d ˈ œ ɪ d ə l ə k 
+Eval: D                     I                                D                           D         I                                        
+
+id: (n00577-n00577-fn001132.96)
+Scores: (#C #S #D #I) 20 1 1 0
+REF:  Z ˈ e ː <space> p r ˈ u ː S t ə <space> h ɛ t <space> ˈ œ ɪ t 
+HYP:  * ˈ e ː <space> p r ˈ u ː F t ə <space> h ɛ t <space> ˈ œ ɪ t 
+Eval: D                             S                                        
+
+Speaker sentences   1:  n00578   #utts: 32
+id: (n00578-n00578-fn001133.1)
+Scores: (#C #S #D #I) 11 0 1 1
+REF:  H ˈ o ː f t s t ʉ k <space> ** n 
+HYP:  * ˈ o ː f t s t ʉ k <space> ˈ n 
+Eval: D                              I    
+
+id: (n00578-n00578-fn001133.10)
+Scores: (#C #S #D #I) 45 0 4 5
+REF:  H ˈ u ː <SPACE> d ə <SPACE> r ** e ː ɣ ə <space> ˈ o ː k <space> t ə ******* k ˈ e ː r ******* ɣ ** ɪ ŋ <space> h ˈ ɛ ɪ <space> s m ˈ a ː k t ə <space> z ˈ u ː t * 
+HYP:  * ˈ u ː ******* d ə ******* r ˈ e ː ɣ ə <space> ˈ o ː k <space> t ə <SPACE> k ˈ e ː r <SPACE> ɣ ˈ ɪ ŋ <space> h ˈ ɛ ** <space> s m ˈ a ː k t ə <space> z ˈ u ː t S 
+Eval: D         D            D         I                                            I                   I          I                        D                                                 I 
+
+id: (n00578-n00578-fn001133.14)
+Scores: (#C #S #D #I) 213 3 9 12
+REF:  ˈ ɛ r <space> l ˈ i ː p ə <space> ˈ o ː K <space> k l ɛ ɪ n ə <space> d r ˈ ʉ p ə l s <space> ɔ m ******* l ˈ a ː X  <space> ˈ ɪ n <space> z ˈ ɛ ɪ N <space> n ˈ ɛ k <space> ˈ ɛ n <space> ˈ o ː v ə r <space> d ə <space> z ˈ ɛ ɪ k ɑ n ******* t ə <space> v ˈ ɑ n <space> z ** ** ** n <space> h ˈ o ː f t <space> ʋ ˈ a ː r <space> z ˈ e ː <space> l ˈ œ ɪ * ** <space> ˈ ɪ n <space> d ə <space> k r ˈ ɔ ŋ k ə l s <space> v ˈ ɑ n <space> z ˈ ɛ ɪ n <space> ** o ː r ə <space> k r ˈ o ː p ə <space> v ˈ o ː r <space> z ˈ e ː <SPACE> v ə r d ə r <space> ˈ ɑ f s ɑ k t ə <space> n ˈ a ː r <space> d ə <space> b ˈ e ː k J ə S <space> D ˈ ** * * i ː <space> l ˈ ɑ ŋ s <SPACE> Z  n <SPACE> b ** e ː n ə <space> s t r ˈ o ː m d ə 
+HYP:  ** ɛ r <space> l ˈ i ː p ə <space> ˈ o ː * <space> k l ɛ ɪ n ə <space> d r ˈ ʉ p ə l s <space> ɔ m <SPACE> l ˈ a ː ɣ <space> ˈ ɪ n <space> z ˈ ɛ ɪ * <space> n ˈ ɛ k <space> ˈ ɛ n <space> ˈ o ː v ə r <space> d ə <space> z ˈ ɛ ɪ k ɑ n <SPACE> t ə <space> v ˈ ɑ n <space> z ˈ ɛ ɪ n <space> h ˈ o ː f t <space> ʋ ˈ a ː r <space> z ˈ e ː <space> l ˈ œ ɪ J ə <space> ˈ ɪ n <space> d ə <space> k r ˈ ɔ ŋ k ə l s <space> v ˈ ɑ n <space> z ˈ ɛ ɪ n <space> ˈ o ː r ə <space> k r ˈ o ː p ə <space> v ˈ o ː r <space> z ˈ e ː ******* v ə r d ə r <space> ˈ ɑ f s ɑ k t ə <space> n ˈ a ː r <space> d ə <space> b ˈ e ː k * ** * <space> X ˈ ɪ S T i ː <space> l ˈ ɑ ŋ s ******* ɛ n ******* b ˈ e ː n ə <space> s t r ˈ o ː m d ə 
+Eval: D                                              D                                                                I                 S                                     D                                                                                                 I                                        I  I  I                                                                                    I I                                                                                                            I                                                                           D                                                                                                      D D  D         S    I  I I                           D       S    D         I                                         
+
+id: (n00578-n00578-fn001133.23)
+Scores: (#C #S #D #I) 145 3 4 5
+REF:  ˈ ɪ n <space> z ** * N  <space> n ˈ a ː v ə l <space> s t ˈ ɔ n t <space> ˈ e ː n <space> v ˈ ɛ ɪ v ə r t j ə <space> v ˈ ɑ n <SPACE> r ˈ e ː ɣ ə N       ʋ a ː t ə r <space> h ˈ ɛ ɪ <space> k n ˈ e ː p <space> ** m <space> d ˈ ɪ x t <space> ɔ m <space> d ə <space> r ** e ː ɣ ə <space> ** ɛ r ˈ œ ɪ t <space> t ə <space> l ˈ a ː t ə <space> l ˈ o ː p ə <space> n ˈ a ː r <space> d ə <space> r i ː v ˈ i ː r <space> d ˈ i ː <space> n ˈ a ː r <space> z ˈ e ː <SPACE> l ˈ i ː p 
+HYP:  ** ɪ n <space> z ˈ E ː <space> n ˈ a ː v ə l <space> s t ˈ ɔ n t <space> ˈ e ː n <space> v ˈ E  ɪ v ə r t j ə <space> v ˈ ɑ n ******* r ˈ e ː ɣ ə <SPACE> ʋ a ː t ə r <space> h ˈ ɛ ɪ <space> k n ˈ e ː p <space> ə m <space> d ˈ ɪ x t <space> ɔ m <space> d ə <space> r ˈ e ː ɣ ə <space> ˈ ɛ r ˈ œ ɪ t <space> t ə <space> l ˈ a ː t ə <space> l ˈ o ː p ə <space> n ˈ a ː r <space> d ə <space> r i ː v ˈ i ː r <space> d ˈ i ː <space> n ˈ a ː r <space> z ˈ e ː ******* l ** i ː p 
+Eval: D                 I  I S                                                                                S                                     D                       S                                                                       I                                                            I                     I                                                                                                                                                                                                 D         D         
+
+id: (n00578-n00578-fn001133.24)
+Scores: (#C #S #D #I) 33 1 0 2
+REF:  ** Z  n <space> k ** ɔ r t ə <space> b r ˈ u ː k <space> ʋ ˈ ɑ s <space> h ˈ ɛ m <space> t ə <space> ʋ ˈ ɛ ɪ t 
+HYP:  ˈ ɛ n <space> k ˈ ɔ r t ə <space> b r ˈ u ː k <space> ʋ ˈ ɑ s <space> h ˈ ɛ m <space> t ə <space> ʋ ˈ ɛ ɪ t 
+Eval: I  S              I                                                                                                          
+
+id: (n00578-n00578-fn001133.3)
+Scores: (#C #S #D #I) 165 6 6 7
+REF:  N ˈ i ː t * <space> d ə <space> m ˈ ɪ l d ə <space> s p r ˈ ɛ ŋ k ə l ɪ ŋ <space> ʋ ˈ a ː r ******* m ˈ e ː <space> x ɔ t <SPACE> d ə <space> j ** ɔ ŋ ******* ɣ ə b ˈ o ː r ə ******* ** n ə <space> z ˈ e ː ɣ ə n t <space> m ˈ a ː r <space> ˈ e ː n <space> r ˈ a ː z ə n d ə <space> ʋ ˈ ɔ l ɡ b r ø ː k <space> d ˈ i ː <space> d ə <space> ɔ m b ə r ˈ ɪ s p ə l ə k <space> x ə m ˈ a ː J d ə * <space> x a ː z ˈ ɔ n s <space> v ə r ˈ ɑ n d ə r d ə <space> ˈ ɪ n <space> z ˈ ɔ m P ə ɣ ə <SPACE> m ˈ ɔ d ə r z ˈ e ː N  
+HYP:  * ˈ i ː t S <space> d ə <space> m ˈ ɪ l d ə <space> s p r ˈ ɛ ŋ k ə l ɪ ŋ <space> ʋ ˈ a ː r <SPACE> m ˈ e ː <space> x ɔ t ******* d ə <space> j ˈ ɔ ŋ <SPACE> X  ə b ˈ o ː r ə <SPACE> ɛ n ** <space> z ˈ e ː ɣ ə n t <space> m ˈ a ː r <space> ˈ e ː n <space> r ˈ a ː z ə n d ə <space> H  ˈ ɔ l ɡ b r ø ː k <space> d ˈ i ː <space> d ə <space> ɔ m b ə r ** ɛ s p ə l ə k <space> x ə m ** a ː R d ə X <space> x a ː z ˈ ɔ n s <space> v ə r ˈ ɑ n d ə r d ə <space> ˈ ɪ n <space> z ˈ ɔ m B ə ɣ ə ******* m ˈ ɔ d ə r z ˈ e ː ə 
+Eval: D           I                                                                                              I                                D                      I        I       S                    I       I    D                                                                                                          S                                                                            D  S                               D       S      I                                                                                                 S          D                                S  
+
+id: (n00578-n00578-fn001133.32)
+Scores: (#C #S #D #I) 102 0 3 6
+REF:  H ɛ t <space> ʋ ˈ ɑ s <space> z ** * ** n <space> v ə r j ˈ a ː r d ɑ x <space> h ˈ ɛ ɪ <space> ʋ ˈ ɑ s <space> v ˈ i ː r <space> x ə ʋ ˈ ɔ r d ə <space> ˈ o ː k <space> ɑ l <space> h ˈ ɑ t <space> n ˈ i ː m ɑ n t <space> b ə h ˈ ɑ l v ə <space> h ** ɛ ɪ ******* z ˈ ɛ l f <space> d ˈ a ː r ** a ː N <space> x ə d ˈ ɑ x t 
+HYP:  * ɛ t <space> ** ˈ ɑ s <space> z ˈ E ː n <space> v ə r j ˈ a ː r d ɑ x <space> h ˈ ɛ ɪ <space> ʋ ˈ ɑ s <space> v ˈ i ː r <space> x ə ʋ ˈ ɔ r d ə <space> ˈ o ː k <space> ɑ l <space> h ˈ ɑ t <space> n ˈ i ː m ɑ n t <space> b ə h ˈ ɑ l v ə <space> h ˈ ɛ ɪ <SPACE> z ˈ ɛ l f <space> d ˈ a ː r ˈ a ː * <space> x ə d ˈ ɑ x t 
+Eval: D              D                    I  I I                                                                                                                                                                                                                                               I        I                                       I       D                          
+
+id: (n00578-n00578-fn001133.34)
+Scores: (#C #S #D #I) 66 0 1 4
+REF:  Z ˈ e ː <space> h ˈ ɑ * d ə <space> n ˈ i ː t s <space> x ə z ˈ ɛ x t <space> ˈ ɛ n <space> h ˈ ɛ ɪ <space> ʋ ˈ ɑ s <space> v ə r ɣ e ː t ə <space> ** ɛ r * ******* n ˈ a ː r <space> t ə <space> v r ˈ a ː ɣ ə 
+HYP:  * ˈ e ː <space> h ˈ ɑ L d ə <space> n ˈ i ː t s <space> x ə z ˈ ɛ x t <space> ˈ ɛ n <space> h ˈ ɛ ɪ <space> ʋ ˈ ɑ s <space> v ə r ɣ e ː t ə <space> ˈ ɛ r N <SPACE> n ˈ a ː r <space> t ə <space> v r ˈ a ː ɣ ə 
+Eval: D                         I                                                                                                                                               I       I I                                                          
+
+id: (n00578-n00578-fn001133.45)
+Scores: (#C #S #D #I) 71 6 6 1
+REF:  S  ɛ n t ə <space> ˈ œ ɪ t <space> d ə <space> h ˈ e ː m ə l <space> h ˈ ɛ ɪ <space> h ˈ ɑ t <space> ˈ ɛ r <SPACE> ˈ E ː N  <space> l ˈ i ː t j ə <space> ˈ o ː v ə r <space> X  ə h ˈ o ː r t <space> ˈ ɔ p <space> d ə <space> x r ** ɑ m O  ː      f ˈ o ː n 
+HYP:  ˈ ɛ n t ə <space> ˈ œ ɪ t <space> d ə <space> h ˈ e ː m ɔ l <space> h ˈ ɛ ɪ <space> h ** ɑ t <space> ** ɛ r ******* ** * ** ə <space> l ˈ i ː t j ə <space> ˈ o ː v ə r <space> ɣ ə h ˈ o ː r t <space> ˈ ɔ p <space> d ə <space> x r ˈ ɑ m ə <SPACE> f ˈ o ː n 
+Eval: S                                                                S                                 D               D       D       D  D D  S                                                          S                                                            I       S  S                   
+
+id: (n00578-n00578-fn001136.14)
+Scores: (#C #S #D #I) 173 2 8 4
+REF:  H ˈ i ː r <SPACE> ˈ ɛ n <space> d ˈ a ː r <space> k ʋ ɑ m <space> ˈ e ː n <space> p l ˈ ɛ k <space> l ˈ ɪ ɣ d b r œ ɪ n <space> v ˈ ɛ l <space> ˈ e ː n <space> s t ˈ ʉ k j ə <space> n ˈ ɑ t ə <space> ʋ ˈ ɪ t ə <space> b l ** u ː z ə <space> ˈ ɔ f <space> ˈ e ː n <space> x r ˈ u ː n ə <space> ˈ ɔ f <space> r ** o ː d ə <SPACE> r ˈ œ ɪ T <SPACE> t ə <space> v ˈ o ː r s x ɛ ɪ n <space> ˈ œ ɪ t <space> d ə <space> m ˈ ɔ d ə r <space> ʋ ˈ a ː r <space> H ˈ ɛ ɪ <space> b ˈ ɛ ɪ ******* n ** a ː <space> h e ː l ə m ˈ a ː l <space> ˈ ɔ n d ə r <SPACE> z ˈ ɑ t 
+HYP:  * ˈ i ː r ******* ˈ ə n <space> d ˈ a ː r <space> k ʋ ɑ m <space> ˈ e ː n <space> p l ˈ ɛ k <space> l ˈ ɪ X  d b r œ ɪ n <space> v ** ɛ l <space> ˈ e ː n <space> s t ˈ ʉ k j ə <space> n ˈ ɑ t ə <space> ʋ ˈ ɪ t ə <space> b l ˈ u ː z ə <space> ˈ ɔ f <space> ˈ e ː n <space> x r ˈ u ː n ə <space> ˈ ɔ f <space> r ˈ o ː d ə ******* r ˈ œ ɪ * ******* t ə <space> v ˈ o ː r s x ɛ ɪ n <space> ˈ œ ɪ t <space> d ə <space> m ˈ ɔ d ə r <space> ʋ ˈ a ː r <space> * ˈ ɛ ɪ <space> b ˈ ɛ ɪ <SPACE> n ˈ a ː <space> h e ː l ə m ˈ a ː l <space> ˈ ɔ n d ə r ******* z ˈ ɑ t 
+Eval: D           D          S                                                                                                S                          D                                                                                                         I                                                                                                 I            D                  D D                                                                                                                                D                             I         I                                                              D                 
+
+id: (n00578-n00578-fn001136.16)
+Scores: (#C #S #D #I) 54 0 3 3
+REF:  H ˈ ɛ ɪ <space> v ˈ u ː l d ə <space> ˈ a ː n <space> z ˈ ɛ ɪ n <space> h ˈ a ː r <space> ˈ ɛ n <space> z ** ** ** n <space> h ˈ ɑ n t <SPACE> ʋ ˈ ɛ r t <space> m ˈ ɔ d ə r ə x 
+HYP:  * ˈ ɛ ɪ <space> v ˈ u ː l d ə <space> ˈ a ː n <space> z ˈ ɛ ɪ n <space> h ˈ a ː r <space> ˈ ɛ n <space> z ˈ ɛ ɪ n <space> h ˈ ɑ n t ******* ʋ ** ɛ r t <space> m ˈ ɔ d ə r ə x 
+Eval: D                                                                                                                        I  I  I                        D          D                                     
+
+id: (n00578-n00578-fn001136.20)
+Scores: (#C #S #D #I) 128 2 7 6
+REF:  Z ˈ ɛ l f s <space> b ˈ ʉ s t ə r <space> ʋ ˈ ɑ s <space> ˈ ɔ p x ə h ɯ d ə <space> m ˈ ɛ t <space> z ** ** ** n <space> ˈ e ː ʋ ə ɣ ə <space> x ə b l ** ɑ f <space> ** ɑ L s ˈ ɔ f <space> h ˈ ɛ ɪ <space> b ə s ˈ ɛ f t ə <space> h ˈ u ː <SPACE> z ˈ ɪ n ******* l o ː S <SPACE> H ɛ t <space> ʋ ˈ ɑ s <space> ɔ m <space> h ˈ ɑ r d ə r <space> t ə <space> ʋ ˈ ɪ l ə <space> b r ˈ ʉ l ə <SPACE> d ˈ ɑ n <space> d ə <space> r e ː ɣ ə 
+HYP:  * ˈ ɛ l f s <space> b ** ʉ s t ə r <space> ʋ ˈ ɑ s <space> ˈ ɔ p x ə h ɯ d ə <space> m ˈ ɛ t <space> z ˈ ɛ ɪ n <space> ˈ e ː ʋ ə ɣ ə <space> x ə b l ˈ ɑ f <space> ʋ ɑ * s ˈ ɔ f <space> h ˈ ɛ ɪ <space> b ə s ˈ ɛ f t ə <space> h ˈ u ː ******* z ˈ ɪ n <SPACE> l o ː * ******* Z ə t <space> ʋ ˈ ɑ s <space> ɔ m <space> h ˈ ɑ r d ə r <space> t ə <space> ʋ ˈ ɪ l ə <space> b r ˈ ʉ l ə ******* d ˈ ɑ n <space> d ə <space> r e ː ɣ ə 
+Eval: D                       D                                                                                            I  I  I                                                 I               I     D                                                                            D                 I              D D       S S                                                                                                                       D                                                   
+
+id: (n00578-n00578-fn001136.22)
+Scores: (#C #S #D #I) 125 4 4 10
+REF:  H ˈ ɛ ɪ <space> h ˈ ɪ ŋ <space> z ** n <space> b r ˈ u ː k <space> n ˈ ɛ t j ə s <space> ˈ o ː v ə r <space> d ə <space> k r ** o ː t O ː n ******* h ** a ː x <space> p ˈ ɑ k t ə <space> z n <space> b l ** u ː z ə <SPACE> b ˈ ɛ ɪ <space> * ˈ E ː N <space> p ˈ ʉ n t <space> ˈ ɛ n <space> s l ˈ ɪ ŋ ə r ******* d ə ** <space> h ˈ ɛ M <space> b ˈ o ː v ə <space> z ** ** n <space> h ˈ o ː f t <space> ˈ ɪ n <space> h ɛ t <space> r ˈ ɔ n t 
+HYP:  * ˈ ɛ ɪ <space> h ˈ ɪ ŋ <space> z ˈ n <space> b r ˈ u ː k <space> n ˈ ɛ t j ə s <space> ˈ o ː v ə r <space> d ə <space> k r ˈ o ː t * ɔ n <SPACE> h ˈ a ː x <space> p ˈ ɑ k t ə <space> z n <space> b l ˈ u ː z ə ******* b ˈ ɛ ɪ <space> H ˈ * ɛ M <space> p ˈ ʉ n t <space> ˈ ɛ n <space> s l ˈ ɪ ŋ ə r <SPACE> d ə ɪ <space> h ˈ ɛ N <space> b ˈ o ː v ə <space> z ˈ ɛ n <space> h ˈ o ː f t <space> ˈ ɪ n <space> h ɛ t <space> r ˈ ɔ n t 
+Eval: D                                       I                                                                                                   I         D S    I         I                                                        I            D                          I    D S  S                                                               I            I                  S                                  I  I                                                                             
+
+id: (n00578-n00578-fn001136.27)
+Scores: (#C #S #D #I) 35 0 1 0
+REF:  H ˈ ɛ ɪ <space> ʋ ˈ ɪ l d ə <space> d ˈ ɑ t <space> ˈ i ː <space> ˈ e ː n <space> b ˈ o ː m <space> ʋ ˈ ɑ s 
+HYP:  * ˈ ɛ ɪ <space> ʋ ˈ ɪ l d ə <space> d ˈ ɑ t <space> ˈ i ː <space> ˈ e ː n <space> b ˈ o ː m <space> ʋ ˈ ɑ s 
+Eval: D                                                                                                                             
+
+id: (n00578-n00578-fn001136.32)
+Scores: (#C #S #D #I) 39 1 1 0
+REF:  H ˈ ɛ ɪ <space> h ˈ ɑ t <space> ˈ ɛ R <space> x ˈ e ː n <space> ʋ ˈ o ː r t <space> ˈ o ː v ə r <space> x ə z ˈ ɛ x t 
+HYP:  * ˈ ɛ ɪ <space> h ˈ ɑ t <space> ˈ ɛ X <space> x ˈ e ː n <space> ʋ ˈ o ː r t <space> ˈ o ː v ə r <space> x ə z ˈ ɛ x t 
+Eval: D                                          S                                                                                            
+
+id: (n00578-n00578-fn001136.36)
+Scores: (#C #S #D #I) 93 2 1 3
+REF:  H ˈ ɛ ɪ <space> ʋ ˈ ɑ s <space> ˈ ɪ n <space> d ə <space> ɡ ʋ ˈ a ː v ə ******* b o ː m <space> x ə k l ɔ m ə <space> d ˈ i ː <space> ɑ l s <space> ˈ e ː n <space> d r ˈ ɔ ŋ k ə <space> m ɑ n <space> ** ɔ p ******* S ˈ ɛ ɪ <space> t ˈ e ː ɣ ə <space> h ɛ t <space> h ˈ œ ɪ s <space> ˈ a ː n <space> h ˈ ɪ ŋ 
+HYP:  * ˈ ɛ ɪ <space> ʋ ˈ ɑ s <space> ˈ ɪ n <space> d ə <space> K  ʋ ˈ a ː v ə <SPACE> b o ː m <space> x ə k l ɔ m ə <space> d ˈ i ː <space> ɑ l s <space> ˈ e ː n <space> d r ˈ ɔ ŋ k ə <space> m ɑ n <space> ˈ ɔ p <SPACE> Z ˈ ɛ ɪ <space> t ˈ e ː ɣ ə <space> h ɛ t <space> h ˈ œ ɪ s <space> ˈ a ː n <space> h ˈ ɪ ŋ 
+Eval: D                                                                  S                  I                                                                                                                                             I       I       S                                                                                                           
+
+id: (n00578-n00578-fn001136.38)
+Scores: (#C #S #D #I) 30 0 1 0
+REF:  Z ˈ e ː <space> z ˈ a ː ɣ ə <space> ˈ ɛ r <space> s x ˈ ɪ t ə r ə n t <space> ˈ œ ɪ t 
+HYP:  * ˈ e ː <space> z ˈ a ː ɣ ə <space> ˈ ɛ r <space> s x ˈ ɪ t ə r ə n t <space> ˈ œ ɪ t 
+Eval: D                                                                                                    
+
+id: (n00578-n00578-fn001136.52)
+Scores: (#C #S #D #I) 52 1 2 1
+REF:  H ˈ ɛ ɪ <space> ʋ ˈ ɑ s <space> b ˈ ɑ ŋ <space> ˈ ɛ n <space> h ɛ t <space> ˈ ɛ r ɣ ə R d ə <space> h ˈ ɛ m <space> d ˈ ɑ t <space> * ˈ i ː <space> b ˈ ɑ ŋ <space> ʋ ˈ ɑ s 
+HYP:  * ˈ ɛ ɪ <space> ʋ ˈ ɑ s <space> b ˈ ɑ N  <space> ˈ ɛ n <space> h ɛ t <space> ˈ ɛ r ɣ ə * d ə <space> h ˈ ɛ m <space> d ˈ ɑ t <space> D ˈ i ː <space> b ˈ ɑ ŋ <space> ʋ ˈ ɑ s 
+Eval: D                                             S                                                       D                                                  I                                               
+
+id: (n00578-n00578-fn001136.54)
+Scores: (#C #S #D #I) 84 4 4 1
+REF:  B l ˈ o ː t <space> ˈ ɛ n <space> n ˈ ɑ t <space> ˈ o ː v ə r <space> d ə <space> v ə r ˈ ɑ n d a ː <space> l ˈ o ː p ə <space> z ɯ ʋ <space> ʋ ˈ ɑ T <space> D ˈ ɑ t <space> b ə t r ˈ ɔ f <space> x ˈ e ː n <space> ˈ ɛ ŋ k ə L <space> v ə r s x ** ɪ l <space> m ˈ a ː k ə 
+HYP:  * l ˈ o ː t <space> ˈ ɛ n <space> n ˈ ɑ t <space> ˈ o ː v ə r <space> d ə <space> v ə r ˈ ɑ n d a R  <space> l ˈ o ː p ə <space> z ɯ ʋ <space> ʋ ˈ ɑ * <space> T ˈ ɑ t <space> b ə t r O  ː f <space> x ˈ e ː n <space> ˈ ɛ ŋ k ə * <space> v ə r s x ˈ ɪ l <space> m ** a ː k ə 
+Eval: D                                                                                                              S                                                          D         S                          S  S                                              D                    I                 D            
+
+id: (n00578-n00578-fn001136.55)
+Scores: (#C #S #D #I) 55 1 1 7
+REF:  ˈ ɔ p <space> d ə <space> k ˈ o ː k ******* ɔ s ******* m ** * ɑ t <space> s t ˈ ɔ n t <space> ˈ ɪ n <space> x ˈ ɔ l v ** ə n ******* d ə <space> k r ˈ ʉ l ** ɛ t ə r s <space> ʋ ˈ ɛ l k ɔ m 
+HYP:  ** ɔ p <space> d ə <space> k ˈ o ː k <SPACE> ɔ s <SPACE> m ˈ A ː t <space> s t ˈ ɔ n t <space> ˈ ɪ n <space> x ˈ ɔ l v ˈ ə n <SPACE> d ə <space> k r ˈ ʉ l ˈ ɛ t ə r s <space> ʋ ˈ ɛ l k ɔ m 
+Eval: D                                        I            I         I  I S                                                              I       I                                I                                        
+
+id: (n00578-n00578-fn001136.59)
+Scores: (#C #S #D #I) 56 1 1 0
+REF:  D ə <space> v l ˈ u ː r ə <space> ʋ ˈ a ː r ə <space> r ˈ o ː t <space> ˈ ɛ n <space> k ˈ ɔ r t x ə l e ː d ə <space> x l ˈ ɪ m ə n t <space> x ə ʋ r e ː v ə 
+HYP:  * ə <space> v l ˈ u ː r ə <space> ʋ ˈ a ː r ə <space> r ˈ o ː t <space> ˈ ɛ n <space> k ˈ ɔ r t x ə l e ː d ə <space> x l ˈ ɪ m ə n t <space> x ə V  r e ː v ə 
+Eval: D                                                                                                                                                                      S              
+
+id: (n00578-n00578-fn001136.6)
+Scores: (#C #S #D #I) 48 2 6 0
+REF:  H ˈ ɛ ɪ <space> d ˈ e ː t <space> z n <space> o ː ɣ ə <space> ˈ o ː p ə <space> ˈ ɛ n <space> z ˈ ɑ x <space> ɑ l ˈ e ː N <SPACE> m ˈ a ː r <SPACE> ʃ o ː k O ː l a ː 
+HYP:  * ˈ ɛ ɪ <space> d ˈ e ː t <space> z n <space> o ː ɣ ə <space> ˈ o ː p ə <space> ˈ ɛ n <space> z ˈ ɑ x <space> ə l ˈ e ː * ******* m ** a ** r ******* ʃ o ː k U ː l a ː 
+Eval: D                                                                                                                            S            D D         D    D    D                 S           
+
+id: (n00578-n00578-fn001136.64)
+Scores: (#C #S #D #I) 121 9 7 16
+REF:  Z ˈ ɛ t ******* ** ə * <space> ** Z n <space> b ˈ ɔ r s t k ɑ s <space> ˈ œ ɪ t <space> ˈ ɛ n <space> s l ˈ ɛ n t ə r D ə <space> n ˈ a ː r <space> d ə <space> s t ˈ u ː l <space> d ˈ i ː <space> h ɛ t <space> D ˈ ɪ x T s t <SPACE> b ˈ ɛ ɪ <space> h ˈ ɛ m <space> s t ˈ ɔ n t <space> d ˈ i ******* ː <space> ʋ ˈ a ː r ** * ɪ n <space> m ˈ e ː s t ** ɑ l <SPACE> d ə <space> s ** Y ː d ˈ Y ː <SPACE> m ** a ː * ******* h ** ɑ t ** * ɑ j a ː * <space> z ˈ ɑ t 
+HYP:  * ˈ ɛ t <SPACE> ˈ ə S <space> ˈ E n <space> b ˈ ɔ r s t k ɑ s <space> ˈ œ ɪ t <space> ˈ ɛ n <space> s l ˈ ɛ n t ə r * ə <space> n ˈ a ː r <space> d ə <space> s t ˈ u ː l <space> d ˈ i ː <space> h ɛ t <space> T ˈ E  x * s t ******* b ˈ ɛ ɪ <space> h ˈ ɛ m <space> s t ˈ ɔ n t <space> d ˈ i <SPACE> R  <space> ʋ ˈ a ː r ˈ E ː n <space> m ˈ e ː s t ˈ ɛ l ******* d ə <space> s ˈ U ː d ** U ː ******* m ˈ a ː R <SPACE> h ˈ ɑ t ˈ A ː j a ː R <space> z ˈ ɑ t 
+Eval: D         I       I     I         I  S                                                                                              D                                                                                                    S    S    D     D                                                                         I       S                       I  I S                          I  S    D                      I  S      D  S    D         I       I I         I       I  I S         I                   
+
+id: (n00578-n00578-fn001136.66)
+Scores: (#C #S #D #I) 5 2 1 3
+REF:  K r ˈ * ** ɪ ʃ      n ** a ː 
+HYP:  * r ˈ I ː S  <SPACE> n ˈ a ː 
+Eval: D      I I  S  S         I       
+
+id: (n00578-n00578-fn001136.67)
+Scores: (#C #S #D #I) 19 1 1 0
+REF:  r ˈ I ː p <space> h ˈ ɛ ɪ <space> x ə b ˈ i ː d ə n t 
+HYP:  r ˈ * ɪ p <space> h ˈ ɛ ɪ <space> x ə b ˈ i ː d ə n t 
+Eval:      D S                                                       
+
+id: (n00578-n00578-fn001136.77)
+Scores: (#C #S #D #I) 63 1 1 3
+REF:  H ɛ t <space> k ˈ ɑ n t ʋ ɛ r k <space> v ˈ ɑ n <space> h ˈ ʉ n <space> b l ˈ u ː m b l ** a ː t j ə s <space> r ˈ ʉ s t ə <space> ˈ ɪ n <space> ˈ e ː n <space> m ˈ ɔ d ə r ******* ɣ r ** ɑ f 
+HYP:  * ɛ t <space> k ˈ ɑ n t ʋ ɛ r k <space> v ˈ ɑ n <space> h ˈ ʉ n <space> b l ˈ u ː m b l ˈ a ː t j ə s <space> r ˈ ʉ s t ə <space> ˈ ɪ n <space> ˈ e ː n <space> m ˈ ɔ d ə r <SPACE> X  r ˈ ɑ f 
+Eval: D                                                                                                  I                                                                                                I       S    I       
+
+id: (n00578-n00578-fn001136.80)
+Scores: (#C #S #D #I) 85 8 2 4
+REF:  D ə <space> r ˈ a ː m ə <space> z ˈ a ː t ə <space> b ˈ o ː v ə * <SPACE> ʃ ɑ n ******* d ˈ ɪ S  <space> * H ˈ o ː f t <space> z ˈ ɛ l f s <space> m ˈ ɛ t <space> x * ɔ r d ˈ ɛ ɪ n ə <space> ˈ o ː p ə <space> m ˈ a ː r <space> D ˈ ɑ t <space> ʋ ˈ a ː r ə <space> z ˈ e ː <space> n ˈ i ː t 
+HYP:  * ə <space> r ˈ a ː m ə <space> z ˈ a ː t ə <space> b ˈ o ː v ə T J       ˈ ɑ n <SPACE> d ˈ I  ː <space> S X ˈ o ː f t <space> z ˈ ɛ l f s <space> m ˈ ɛ t <space> x O ː r d ˈ ɛ ɪ n ə <space> ˈ o ː p ə <space> m ˈ a ː r <space> * H  ɛ t <space> ʋ ˈ a ː r ə <space> z ˈ e ː <space> n ˈ i ː t 
+Eval: D                                                                         I S       S       I            S  S          I S                                                               I S                                                                     D S  S                                                                  
+
+id: (n00578-n00578-fn001136.83)
+Scores: (#C #S #D #I) 108 8 8 6
+REF:  D ə <space> ˈ e ː t k a ː m ə r <space> k ʋ ɑ * ******* m ** <SPACE> ɛ r ******* ˈ ɔ p <space> ˈ œ ɪ t <space> ˈ ɛ n <space> h ** u ː ʋ ˈ ɛ l <SPACE> d ə <space> d ˈ ø ː r <SPACE> d ˈ ɪ x t <space> ʋ ˈ ɑ s <space> d ˈ E ː t <SPACE> ʃ ɑ n d ** i ː <space> Z  n <space> ˈ œ ɪ t ə r s t ə <space> b ˈ ɛ s t <SPACE> x ˈ e ː n <space> ˈ ɛ ŋ k ə l <space> x ə l ˈ œ ɪ T <SPACE> t ə <space> m ˈ a ː k ə 
+HYP:  * ə <space> ˈ e ː t k a ː m ə r <space> k ʋ ɑ N <SPACE> m ˈ A       ː r <SPACE> ˈ ɔ p <space> ˈ œ ɪ t <space> ˈ ɛ n <space> h ˈ u ː ʋ ˈ ɛ l ******* d ə <space> d ˈ ø ː r ******* d ˈ ɛ x t <space> ʋ ˈ ɑ s <space> d ** * ə t J       ˈ ɑ n d ˈ i ː <space> ˈ n <space> ˈ A  ɪ t ə r s t ə <space> b ˈ ɛ s t ******* x ˈ e ː n <space> ˈ ɛ ŋ k ə l <space> x ə l ˈ œ ɪ * ******* t ə <space> m ˈ a ː k ə 
+Eval: D                                                    I I         I  S       S    I                                                            I                  D                                 D            S                                   D  D S    S       S         I               S               S                                       D                                                                   D D                                   
+
+id: (n00578-n00578-fn001136.88)
+Scores: (#C #S #D #I) 35 1 1 6
+REF:  N ˈ y ** ******* ** ː * <space> z ˈ a ː t ə <SPACE> d ə <space> v ˈ a ː t ə <space> v ** ɔ l <space> x ˈ ɛ m b ə r b ** i ː r 
+HYP:  * ˈ y ː <SPACE> ˈ ː N <space> z ˈ a ː t ə R       d ə <space> v ˈ a ː t ə <space> v ˈ ɔ l <space> x ˈ ɛ m b ə r b ˈ i ː r 
+Eval: D      I  I       I     I                        S                                             I                                  I         
+
+id: (n00578-n00578-fn001136.89)
+Scores: (#C #S #D #I) 157 10 4 4
+REF:  H ˈ ɛ ɪ <space> k ˈ e ː k <space> ɔ m <space> z ˈ ɪ x <space> h ˈ e ː n <space> m ˈ a ː r <space> d R  <space> ʋ ˈ ɑ s <space> x ˈ E ː n <space> t ˈ e ː k ə <space> v ˈ ɑ n <space> l ˈ e ː v ə <space> ˈ ɑ f x ə z I  ː n <space> v ˈ ɑ n <space> d ə <space> r ˈ ʉ p s ə <space> d ˈ i ː <space> ˈ ɔ n d ə r <space> d ə <space> d ˈ ɔ n z ə ɣ ə <space> b ə ɣ o ː n i ː j ** a ː ******* b l ** a ː d ə r ə <space> ˈ e ː n <space> h ˈ e ː * ŋ      k O  ː m ə <space> z ˈ ɔ x t ə <space> t ˈ e ː ɣ ə <SPACE> D ə <space> R  e ː ɣ ə 
+HYP:  * ˈ ɛ ɪ <space> k ˈ e ː k <space> ɔ m <space> z ˈ ɛ x <space> h ˈ e ː n <space> m ˈ a ː r <space> d ə <space> ʋ ˈ ɑ s <space> x ˈ * ɪ n <space> t ˈ e ː k ə <space> v ˈ ɑ n <space> l ˈ e ː v ə <space> ˈ ɑ f x ə z ˈ ɪ n <space> v ˈ ɑ n <space> d ə <space> r ˈ ʉ p s ə <space> d ˈ i ː <space> ** ɔ n d ə r <space> d ə <space> d ˈ ɔ n z ə ɣ ə <space> b ə ɣ o ː n i ː j ˈ a ː <SPACE> b l ˈ a ː d ə r ə <space> ˈ e ː n <space> h ˈ e ː N <SPACE> k ˈ ɔ m ə <space> z ˈ ɔ x t ə <space> t ˈ e ː ɣ ə ******* L ə <space> ʋ e ː ɣ ə 
+Eval: D                                                        S                                                      S                                  D S                                                                                           S  S                                                                                    D                                                                                      I       I           I                                                     I S         S  S                                                      D       S            S             
+
+id: (n00578-n00578-fn001136.9)
+Scores: (#C #S #D #I) 97 2 4 3
+REF:  N ˈ i ː t <space> d ˈ ɑ t <space> h ˈ ɛ ɪ <SPACE> t <space> n ˈ ɔ x <space> p R ə s ˈ i ː s <space> ʋ ˈ ɪ s t <space> h ˈ u ː <space> * ʃ o ː k o ː l ** a ː <space> s m ˈ a ː k t ə <space> h ˈ ɛ ɪ <space> h ˈ ɑ t <space> h ɛ t <space> m ˈ a ː r <space> t ʋ ˈ e ː <SPACE> k ******* ˈ e ː r <space> x ə p r ˈ u ː F t 
+HYP:  * ˈ i ː t <space> d ˈ ɑ t <space> h ˈ ɛ ɪ ******* t <space> n ˈ ɔ x <space> p * ə s ˈ i ː s <space> ʋ ˈ ɪ s t <space> h ˈ u ː <space> Z ˈ o ː k o ː l ˈ a ː <space> s m ˈ a ː k t ə <space> h ˈ ɛ ɪ <space> h ˈ ɑ t <space> h ɛ t <space> m ˈ a ː r <space> t ʋ ˈ e ː ******* k <SPACE> ˈ e ː r <space> x ə p r ˈ u ː X t 
+Eval: D                                                D                                     D                                                               I S                I                                                                                                                               D         I                                          S   
+
+id: (n00578-n00578-fn001136.91)
+Scores: (#C #S #D #I) 121 6 4 21
+REF:  H ˈ ɛ ɪ <space> h ˈ I ː l t <space> n ˈ i ː t <space> v ˈ ɑ n ******* * ** ** * * ** ******* * ** ******* * ** * ** * <space> h ɛ t <space> b r ˈ ɑ n d ə <space> ˈ ɔ p <space> z n <space> t ˈ ɔ ŋ <space> m ˈ a ː r <space> d ə <space> x ə d r ** o ː ɣ d ə <space> r o ː z ˈ ɛ ɪ n ə <space> d ˈ I  ː <space> d ə <space> s ** Y ː d ˈ Y ː <SPACE> n ˈ o ː n ** a ː <space> ** ɛ r ******* ˈ ɪ n <space> d ˈ e ː t <space> ʋ ˈ a ː r ə <space> ʋ ˈ ɑ t <space> ˈ ɑ n d ə r s 
+HYP:  * ˈ ɛ ɪ <space> h ˈ E ː l t <space> n ˈ i ː t <space> v ˈ ɑ n <SPACE> X ˈ ɛ M B ə <SPACE> D ə <SPACE> B ˈ E ː R <space> h ɛ t <space> b r ˈ ɑ n d ə <space> ˈ ɔ p <space> z n <space> t ˈ ɔ M  <space> m ˈ a ː r <space> d ə <space> x ə d r ˈ o ː X  d ə <space> r o ː z ˈ ɛ ɪ n ə <space> d ˈ ɪ ː <space> d ə <space> s ˈ U ː d ** A ː ******* n ˈ o ː n ˈ a ː <space> ˈ ɛ r <SPACE> ˈ ɪ n <space> d ** e ː t <space> ʋ ˈ a ː r ə <space> ʋ ˈ ɑ t <space> ˈ ɑ n d ə r s 
+Eval: D                       S                                              I       I I  I  I I I  I       I I  I       I I  I I  I                                                                                     S                                                    I       S                                                   S                            I  S      D  S    D                   I               I       I                         D                                                                             
+
+Speaker sentences   2:  n00596   #utts: 31
+id: (n00596-n00596-fn001212.14)
+Scores: (#C #S #D #I) 117 2 8 3
+REF:  H ɛ t <space> ʋ ˈ ɑ s <space> m ˈ ɛ ɪ n <space> t ˈ a ː k <space> ɔ m <space> d ə <space> ˈ ɑ x t ə r ******* k l ** ɛ p <SPACE> t ə <space> s l ˈ œ ɪ t ə <space> z o ː d r a ː <SPACE> ˈ ɛ r <space> ˈ o ː k <space> m ˈ a ː r <space> ˈ e ː n ə ɣ ə <space> b ə ʋ ˈ e ː ɣ ɪ ŋ <SPACE> k ʋ ɑ m <space> ˈ ɪ n <space> d ə <space> m * ɑ s ˈ i ː f <space> ˈ o ː ɣ ə N       d ə <space> b ə p ˈ ɑ k ɪ ŋ 
+HYP:  * ɛ t <space> ʋ ˈ ɑ s <space> m ˈ ɛ ɪ n <space> t ˈ a ː k <space> ɔ m <space> d ə <space> ˈ ɑ x t ə r <SPACE> k l ˈ ɛ p ******* t ə <space> s l ˈ œ ɪ t ə <space> z o ː d r a ː ******* ** ** r <space> ˈ o ː k <space> m ˈ a ː r <space> ˈ e ː n ə ɣ ə <space> b ə ʋ ˈ e ː ** ɪ ŋ ******* k ʋ ɑ m <space> ˈ ɪ n <space> d ə <space> m A ː s ˈ i ː f <space> ** o ː ɣ ə <SPACE> d ə <space> b ə p ˈ ɑ k ɪ ŋ 
+Eval: D                                                                                                                   I           I       D                                                              D       D  D                                                                                             D        D                                                        I S                      D             S                                         
+
+id: (n00596-n00596-fn001212.19)
+Scores: (#C #S #D #I) 125 2 7 6
+REF:  T ˈ ɔ x <space> k ʋ ɑ m <space> * ** t <space> v o ː r ˈ œ ɪ t ******* * S  ɪ x t <space> v ˈ ɑ n <space> ˈ e ː n <space> m ˈ a ː n t <space> ˈ ɪ n <space> d ˈ e ː z ə <space> z ˈ o ː m ə R s ə <space> r e ː ɣ i ː j o ː n ə <space> ɔ n s <space> d ɪ t <space> j ˈ a ː R <SPACE> n ˈ i ː T <space> ɑ L s <space> ˈ e ː n <space> ˈ a ː ŋ ɣ ə n a ː m ə <space> ** ɔ n d ə r ******* b r e ː k ɪ ŋ <space> v ˈ o ː r 
+HYP:  * ˈ ɔ x <space> k ʋ ɑ m <space> H ɛ t <space> v o ː r ˈ œ ɪ t <SPACE> Z ˈ ɪ x t <space> v ˈ ɑ n <space> ˈ e ː n <space> m ˈ a ː n t <space> ˈ ɪ n <space> d ˈ e ː z ə <space> z ˈ o ː m ə * s E  <space> r e ː ɣ i ː j o ː n ** <space> ɔ n s <space> d ɪ t <space> j ˈ a ː * ******* n ˈ i ː * <space> ɑ * s <space> ˈ e ː n <space> ˈ a ː ŋ ɣ ə n a ː m ə <space> ˈ ɔ n d ə r <SPACE> b r e ː k ɪ ŋ <space> v ˈ o ː r 
+Eval: D                                   I I                                I       I S                                                                                                                                 D   S                                  D                                                  D D                 D            D                                                                  I              I                                            
+
+id: (n00596-n00596-fn001212.21)
+Scores: (#C #S #D #I) 25 3 4 0
+REF:  Z ˈ e ː <space> z ˈ ɑ x <SPACE> ˈ ɛ r <SPACE> x ə      a ː m y ː z ˈ e ː r t <space> ˈ œ ɪ t 
+HYP:  * ˈ e ː <space> z ˈ A  x ******* ** ə r ******* x <SPACE> a ː m y ː z ˈ e ː r t <space> ˈ œ ɪ t 
+Eval: D                      S    D       D  S    D         S                                                    
+
+id: (n00596-n00596-fn001212.35)
+Scores: (#C #S #D #I) 34 0 1 0
+REF:  D ə <space> z ˈ ɔ n <space> z ˈ ɑ k t ə <space> m ˈ a ː r <space> h ˈ e ː l <space> l ˈ ɑ ŋ z a ː m 
+HYP:  * ə <space> z ˈ ɔ n <space> z ˈ ɑ k t ə <space> m ˈ a ː r <space> h ˈ e ː l <space> l ˈ ɑ ŋ z a ː m 
+Eval: D                                                                                                                 
+
+id: (n00596-n00596-fn001212.50)
+Scores: (#C #S #D #I) 25 1 1 2
+REF:  V ˈ ɑ n <space> ʋ ˈ ɑ l m ə n d ə <space> b ə s t ˈ ɛ l * ɯ t o ː * s 
+HYP:  * ˈ ɑ n <space> ʋ ˈ ɑ l m ə n d ə <space> b ə s t ˈ ɛ l O ː t o ː R s 
+Eval: D                                                                 I S         I   
+
+id: (n00596-n00596-fn001212.56)
+Scores: (#C #S #D #I) 8 2 1 2
+REF:  ɑ l s <space> ** ** V ə r ˈ a ː t 
+HYP:  ** l s <space> ʋ ˈ A ː r ˈ a ː t 
+Eval: D              I  I  S S              
+
+id: (n00596-n00596-fn001212.60)
+Scores: (#C #S #D #I) 41 2 3 0
+REF:  ˈ ɪ k <space> H ˈ ɑ T <space> ɑ l <space> m ˈ a ː n d ə l ɑ ŋ <space> N ˈ ɛ r ɣ ə N s <space> m ˈ e ː r <space> z ˈ ɪ n <space> ˈ ɪ n 
+HYP:  ** ɪ k <space> * ˈ ɑ L <space> ɑ l <space> m ˈ a ː n d ə l ɑ ŋ <space> D ˈ ɛ r ɣ ə * s <space> m ˈ e ː r <space> z ˈ ɪ n <space> ˈ ɪ n 
+Eval: D               D       S                                                       S               D                                                         
+
+id: (n00596-n00596-fn001212.9)
+Scores: (#C #S #D #I) 46 0 1 2
+REF:  ˈ ɛ n <space> d ə <space> l ˈ ʉ x t <space> b ˈ o ː v ə <space> d ə <space> b ˈ œ ɪ t ə ******* ʋ ɛ ɪ k <space> ʋ ˈ ɑ s <space> d ˈ i ː ******* b l ɯ ʋ 
+HYP:  ** ɛ n <space> d ə <space> l ˈ ʉ x t <space> b ˈ o ː v ə <space> d ə <space> b ˈ œ ɪ t ə <SPACE> ʋ ɛ ɪ k <space> ʋ ˈ ɑ s <space> d ˈ i ː <SPACE> b l ɯ ʋ 
+Eval: D                                                                                                    I                                                       I                 
+
+id: (n00596-n00596-fn001213.10)
+Scores: (#C #S #D #I) 32 2 10 1
+REF:  Z ˈ E ː <space> x ˈ ɪ ŋ <space> ˈ ɔ p <space> ˈ e ː n <space> ˈ ɔ m ɣ ə k ** e ː R T <SPACE> k ˈ ɪ s T J ə <SPACE> s t ˈ a ː n 
+HYP:  * ˈ * ɛ <space> x ˈ ɪ ŋ <space> ˈ ɔ p <space> ˈ e ː n <space> ** ɔ m ɣ ə k ˈ e ː * * ******* k ** ə s * * ə ******* s t ˈ a ː n 
+Eval: D    D S                                                               D               I       D D D         D  S    D D    D                     
+
+id: (n00596-n00596-fn001213.100)
+Scores: (#C #S #D #I) 140 8 8 11
+REF:  ˈ ɔ p <SPACE> z ˈ a ː t ə r ******* d ** * ** ɑ ɣ      m ** ɪ d ɑ x <space> r ˈ e ː T <space> ˈ ɪ k <space> ˈ ɔ p <space> n ˈ i ː n * ɑ s <space> F  ˈ i ː t s <space> n ˈ a ː r <space> h ɛ t <space> ɯ d ˈ ə <space> s ** ɛ n t ** r ʉ m <space> ʋ ˈ a ː r <space> m ˈ ɛ ɪ n <space> m ˈ u ː d ə r <space> s ˈ ɪ n T s <space> h ˈ a ː r <space> s x ˈ ɛ ɪ d ɪ ŋ <space> ˈ ɔ p <space> ˈ e ː n <space> k l ˈ ɛ ɪ n <space> ˈ e ː * M p ə R s O  ː n s ******* h ** œ ɪ s j ə <space> ʋ ˈ o ː n d ə 
+HYP:  ** ɔ p ******* z ˈ a ː t ə r <SPACE> d ˈ A ː R  <SPACE> m ˈ ɪ d ɑ x <space> r ** e ː D <space> ˈ ɪ k <space> ˈ ɔ p <space> n ˈ i ː n A ː s <space> ʋ ˈ i ː t s <space> n ˈ a ː r <space> h ɛ t <space> ɯ d ˈ ə <space> s ˈ ɛ n t ə r ** m <space> ʋ ˈ a ː r <space> m ˈ ɛ ɪ n <space> m ˈ u ː d ə r <space> s ˈ ɪ n * s <space> h ˈ a ː r <space> s x ˈ ɛ ɪ d ɪ ŋ <space> ˈ ɔ p <space> ˈ e ː n <space> k l ** ɛ ɪ n <space> ** e ː N S p ə * s ˈ ɔ n s <SPACE> h ˈ œ ɪ s j ə <space> ʋ ˈ o ː n d ə 
+Eval: D       D                        I         I  I I  S  S         I                      D       S                                                     I S            S                                                                              I         I    D                                                                                         D                                                                                                  D                  D       I S      D   S  S      I         I                                         
+
+id: (n00596-n00596-fn001213.102)
+Scores: (#C #S #D #I) 79 5 5 2
+REF:  Z ˈ e ː <SPACE> ʋ ˈ ɑ * s <space> s l ˈ ɛ x t <space> T ˈ ɛ r <space> b ˈ e ː n <space> ˈ ɔ f <space> ʋ ˈ ɛ n d ə <space> D  ɪ t <space> v ˈ o ː r <space> ˈ ɛ n <space> v ə R  l ˈ o ː r <SPACE> X  ə m ˈ ɑ k ə l ə k <space> h ˈ a ː r <space> ˈ e ː v ə n ******* ʋ ɪ x t 
+HYP:  * ˈ e ː ******* ʋ ** ɑ L s <space> s l ˈ ɛ x t <space> * ˈ ə r <space> b ˈ e ː n <space> ˈ ɔ f <space> B  ˈ ɛ n d ə <space> ˈ ɪ t <space> v ˈ o ː r <space> ˈ ɛ n <space> v ə ː l ˈ o ː r ******* ɣ ə m ˈ ɑ k ə l ə k <space> h ˈ a ː r <space> ˈ e ː v ə n <SPACE> ʋ ɪ x t 
+Eval: D         D          D     I                                 D    S                                                S                       S                                                        S              D       S                                                                    I                 
+
+id: (n00596-n00596-fn001213.108)
+Scores: (#C #S #D #I) 61 2 1 2
+REF:  ˈ ɛ n <space> t ˈ u ː n <space> ˈ ɪ k <space> v r ˈ u ː x <space> ˈ ɔ f <space> z ˈ e ː <space> m ˈ e ː ******* ɣ ɪ ŋ <space> b ˈ o ː t s x ** ɑ p ə <space> d ˈ u ː n <space> Z ˈ ɛ ɪ <space> z ˈ e ː 
+HYP:  ** ɛ n <space> t ˈ u ː n <space> ˈ ɪ k <space> v r ˈ u ː x <space> ˈ ɔ f <space> z ˈ e ː <space> m ˈ e ː <SPACE> X  ɪ ŋ <space> b ˈ o ː t s x ˈ ɑ p ə <space> d ˈ u ː n <space> H ˈ ɛ ɪ <space> z ˈ e ː 
+Eval: D                                                                                                                     I       S                                I                                      S                            
+
+id: (n00596-n00596-fn001213.110)
+Scores: (#C #S #D #I) 66 3 7 1
+REF:  B  o ː v ə ******* d ˈ i ː n <space> ʋ ˈ e ː t <space> j ə <space> m ˈ a ː r <space> n ˈ o ː j t <space> ˈ ɔ f <SPACE> ʋ ˈ E ː <space> j ə <space> v ˈ a ː D ə R <space> t ˈ e ː ɣ ə <space> h ɛ t <space> l ˈ ɛ ɪ F <SPACE> l ˈ o ː p ə 
+HYP:  ˈ o ː v ə <SPACE> d ˈ i ː n <space> ʋ ˈ e ː t <space> j ə <space> m ˈ a ː r <space> n ˈ o ː j t <space> ˈ ɔ f ******* ** ** * ** <space> j ə <space> v ˈ a ː L ə * <space> t ˈ e ː ɣ ə <space> h ɛ t <space> l ˈ ɛ ɪ * V       l ˈ o ː p ə 
+Eval: S            I                                                                                                               D       D  D  D D                                 S    D                                                           D S                      
+
+id: (n00596-n00596-fn001213.27)
+Scores: (#C #S #D #I) 37 0 2 0
+REF:  ˈ ɪ k <space> v ˈ u ː l d ə <space> d ˈ ɑ t <space> ˈ ɪ k <space> ˈ e ː n <space> k l ˈ ø ː r <SPACE> k r ˈ e ː x 
+HYP:  ** ɪ k <space> v ˈ u ː l d ə <space> d ˈ ɑ t <space> ˈ ɪ k <space> ˈ e ː n <space> k l ˈ ø ː r ******* k r ˈ e ː x 
+Eval: D                                                                                                           D                     
+
+id: (n00596-n00596-fn001213.33)
+Scores: (#C #S #D #I) 21 0 3 0
+REF:  Z ˈ ɛ ɪ <space> ˈ ɪ k <space> n ˈ ɔ x <space> ˈ e ː n <space> k ˈ e ː r 
+HYP:  * ˈ ɛ ɪ <space> ** ** k <space> n ˈ ɔ x <space> ˈ e ː n <space> k ˈ e ː r 
+Eval: D                  D  D                                                            
+
+id: (n00596-n00596-fn001213.35)
+Scores: (#C #S #D #I) 13 2 2 0
+REF:  M ˈ E ː n <space> j ə <space> d ˈ ɑ t <space> n U  ː 
+HYP:  * ˈ * ɛ n <space> j ə <space> d ˈ ɑ t <space> n ɯ ː 
+Eval: D    D S                                             S     
+
+id: (n00596-n00596-fn001213.38)
+Scores: (#C #S #D #I) 13 0 1 0
+REF:  X r ˈ ɪ n ə k t ə <space> z ˈ e ː 
+HYP:  * r ˈ ɪ n ə k t ə <space> z ˈ e ː 
+Eval: D                                       
+
+id: (n00596-n00596-fn001213.41)
+Scores: (#C #S #D #I) 4 0 1 0
+REF:  M ˈ a ː r 
+HYP:  * ˈ a ː r 
+Eval: D           
+
+id: (n00596-n00596-fn001213.44)
+Scores: (#C #S #D #I) 60 0 3 1
+REF:  ˈ ɛ r ******* <space> k l ˈ ɔ p t ə <space> ˈ i ː t s <space> n ˈ i ː t <space> ˈ a ː n <space> d ə <space> l ˈ ʉ x t ə ɣ ə <space> h ɯ d ˈ ɪ ŋ <space> v ˈ ɑ n <space> m ˈ ɛ ɪ N <space> z ˈ ʉ s 
+HYP:  ** ɛ r <SPACE> <space> k l ˈ ɔ p t ə <space> ˈ i ː t s <space> n ˈ i ː t <space> ˈ a ː n <space> d ə <space> l ˈ ʉ x t ə ɣ ə <space> h ɯ d ** ɪ ŋ <space> v ˈ ɑ n <space> m ˈ ɛ ɪ * <space> z ˈ ʉ s 
+Eval: D       I                                                                                                                                                   D                                             D                   
+
+id: (n00596-n00596-fn001213.49)
+Scores: (#C #S #D #I) 5 2 1 0
+REF:  Z ˈ ɛ ɪ <space> ˈ ɪ k 
+HYP:  * ˈ E  ː <space> ˈ ɪ k 
+Eval: D    S  S                  
+
+id: (n00596-n00596-fn001213.66)
+Scores: (#C #S #D #I) 34 2 1 2
+REF:  H ɛ t <space> h ˈ ɑ t <space> n ˈ ɔ x <space> n ˈ o ː J t <space> z ˈ o ː <space> l ** ɑ ŋ <space> x ə d ** y ː r t 
+HYP:  * ɛ t <space> h ˈ ɑ t <space> n ˈ ɑ x <space> n ˈ o ː R t <space> z ˈ o ː <space> l ˈ ɑ ŋ <space> x ə d ˈ y ː r t 
+Eval: D                                     S                      S                               I                       I           
+
+id: (n00596-n00596-fn001213.68)
+Scores: (#C #S #D #I) 90 2 3 1
+REF:  ˈ ɪ k <space> k ˈ ɔ n <SPACE> d ɪ t <space> Z  ˈ i ː n <space> v ** ɑ n ˈ œ ɪ T <space> d ə <space> r ˈ a ː m ə <space> ˈ ɔ p <space> d ə <space> e ː r s t ə <space> v ə r d ˈ i ː p ɪ ŋ <space> ˈ a ː n <space> d ə <space> ˈ ɑ x t ə r k ɑ n t <space> v ˈ ɑ n <space> h ɛ t <space> h ˈ œ ɪ s 
+HYP:  ** ɪ k <space> k ˈ ɔ n ******* d ɛ t <space> ʃ ˈ i ː n <space> v ˈ ɑ n ˈ œ ɪ * <space> d ə <space> r ˈ a ː m ə <space> ˈ ɔ p <space> d ə <space> e ː r s t ə <space> v ə r d ˈ i ː p ɪ ŋ <space> ˈ a ː n <space> d ə <space> ˈ ɑ x t ə r k ɑ n t <space> v ˈ ɑ n <space> h ɛ t <space> h ˈ œ ɪ s 
+Eval: D                         D         S            S                      I                D                                                                                                                                                                                                                                              
+
+id: (n00596-n00596-fn001213.69)
+Scores: (#C #S #D #I) 43 4 3 2
+REF:  D ə <space> z ˈ ɔ l d ə r <space> h ˈ ɑ t <SPACE> ˈ ɪ k <space> ** T  ɔ t <space> v ə r b o ː d ə <space> T ɛ r ** ɛ ɪ n <space> v ə r k l ˈ a ː R t 
+HYP:  * ə <space> z ˈ ɔ l d ə r <space> h ˈ ɑ t ******* ˈ ɪ k <space> ʋ ˈ ɑ t <space> v ə r b o ː d ə <space> D ə r ˈ ɛ ɪ n <space> v ə r k l ˈ a ː * t 
+Eval: D                                               D                       I  S  S                                       S S    I                                     D   
+
+id: (n00596-n00596-fn001213.70)
+Scores: (#C #S #D #I) 75 3 6 5
+REF:  V ɑ n * ˈ œ ɪ T <space> d ə <space> s l ˈ a ː p ******* k ** a ː m ə r <space> v ˈ ɑ n <space> b ˈ ɛ n <space> ˈ ɛ N  <space> n ˈ i ː n a ː <space> ʋ ˈ ɑ s <space> d ə <space> t ˈ œ ɪ n <space> v ˈ ɑ n <space> ** * J  v ɛ t ə <space> x u ː T <SPACE> t ə <space> z ˈ i ː n 
+HYP:  * ɑ n R ˈ œ ɪ * <space> d ə <space> s l ˈ a ː p <SPACE> k ˈ a ː m ə r <space> v ˈ ɑ n <space> b ˈ ɛ n <space> ˈ A  ː <space> n ˈ i ː n a ː <space> ʋ ˈ ɑ s <space> d ** <space> t ˈ œ ɪ n <space> v ˈ ɑ n <space> ˈ I ː v ɛ t ** <space> x u ː * ******* t ə <space> z ˈ i ː n 
+Eval: D      I          D                                    I         I                                                             S  S                                                        D                                                 I  I S         D                 D D                                
+
+id: (n00596-n00596-fn001213.72)
+Scores: (#C #S #D #I) 261 16 17 10
+REF:  * ** J       v ˈ ɛ t ə S <space> * x ˈ ɑ ŋ ə <space> v ˈ u ː r d ə <space> h ˈ a ː r <space> v e ː l ə <space> m ** a ː l ə <space> p ** ə R  <space> ˈ y ː r <space> n ˈ a ː r <space> H ˈ A ː R  <SPACE> t ˈ œ ɪ n <space> ʋ ˈ a ː r <space> x ** * ə r ˈ ɑ r t <space> ˈ ɪ k <space> z ɯ ʋ <space> H ˈ ɛ m <space> n ˈ o ː j t <space> m ˈ e ː r <space> z ˈ ɔ n d ə r <space> h ˈ o ː r n t j ə s <space> k ˈ ʉ n ə <space> z ˈ i ː n <space> z ˈ ɑ T <SPACE> t ə <space> l ** e ː z ə <space> h ɛ t <space> X R ˈ ɑ S <SPACE> m ˈ a ː J d ə <space> ˈ e ː n <space> x l ˈ ɑ s <SPACE> d r ˈ ɔ ŋ k <space> z ˈ ɪ x <space> ɔ m ******* s t ˈ ɑ n d ə x <space> ˈ œ ɪ T r ɛ k t ə <space> ˈ e ː n <space> p r ˈ a ː t j ə <space> m ˈ a ː k t ə <space> m ˈ ɛ t <space> ˈ e ː n <space> b ˈ y ː r v r ɯ ʋ <space> d ˈ i ː <space> b ˈ ɛ ɪ <space> d ə <space> ˈ ɑ x t ə R       p ** o ː r T <SPACE> b l ˈ e ː 
+HYP:  I ː <SPACE> v ˈ ɛ t ə * <space> S x ˈ ɑ ŋ ə <space> v ˈ u ː r d ə <space> h ˈ a ː r <space> v e ː l ə <space> m ˈ a ː l ə <space> p ˈ ɛ ɪ <space> ˈ y ː r <space> n ˈ a ː r <space> * ** * ** ɑ F       t ˈ œ ɪ n <space> ʋ ˈ a ː r <space> x ˈ E ː r ˈ œ r t <space> ˈ ɪ k <space> z ɯ ʋ <space> * ** ɔ m <space> n ˈ o ː j t <space> m ˈ e ː r <space> z ˈ ɑ n d ə r <space> h ˈ o ː r n t j ə s <space> k ˈ ʉ n ə <space> z ˈ i ː n <space> z ˈ ɑ * ː      t ə <space> l ˈ e ː z ə <space> h ɛ t <space> * V ˈ ** A Z       m ˈ a ː R d ə <space> ˈ e ː n <space> x l ˈ ɑ s ******* d r ** ɔ ŋ k <space> z ˈ ɪ x <space> ɔ m <SPACE> s t ˈ ɑ n d ə x <space> ˈ œ ɪ D r ɛ k t ə <space> ˈ e ː n <space> p r ˈ a ː t j ə <space> m ˈ a ː k t ə <space> m ˈ ɛ t <space> ˈ e ː n <space> b ˈ y ː r v r ɯ ʋ <space> d ˈ i ː <space> b ˈ ɛ ɪ <space> d ə <space> ˈ ɑ x t ə <SPACE> p ˈ o ː r * ******* b l ** e ː 
+Eval: I I  S                    D         I                                                                                          I                      I  S  S                                                D D  D D  S  S                                                   I  I S       S                                              D D  S                                                           S                                                                                                   D S                      I                                   D S    D  S S                 S                                            D           D                                         I                                           S                                                                                                                                                                                                                            S         I         D D           D       
+
+>> REF:  f <SPACE> s t ˈ a ː n 
+>> HYP:  f ******* s t ** a ː n 
+>> Eval:   D           D         
+
+id: (n00596-n00596-fn001213.78)
+Scores: (#C #S #D #I) 12 0 2 0
+REF:  D ə <space> z ˈ ɔ n <SPACE> s x ˈ e ː n 
+HYP:  * ə <space> z ˈ ɔ n ******* s x ˈ e ː n 
+Eval: D                      D                     
+
+id: (n00596-n00596-fn001213.86)
+Scores: (#C #S #D #I) 81 5 6 2
+REF:  D ə <space> x l ˈ ɑ n s <space> v ˈ ɑ n <space> d ə <space> b ˈ y ː r t <space> d ˈ e ː t <space> m ə <space> v ˈ o ː r <space> H ɛ T  <space> ˈ e ː r s T <SPACE> d ˈ ɛ ŋ k ə <space> ˈ a ː n <space> ˈ e ː n <space> k ˈ ɛ ɪ ******* h ** ɑ R  d ə <space> p l ˈ ɛ s t ɪ k <SPACE> s x ˈ ɪ l 
+HYP:  * ə <space> x l ˈ ɑ n s <space> v ˈ ɑ n <space> d ə <space> b ˈ y ː r t <space> d ˈ e ː t <space> m ə <space> v ˈ o ː r <space> * D  ə <space> ** e ː r s * ******* d ˈ ɛ ŋ k ə <space> ˈ a ː n <space> ˈ e ː n <space> k ˈ ɛ ɪ <SPACE> h ˈ A  ː d ə <space> p l ˈ ɛ s t ə k ******* s x ˈ ɪ l 
+Eval: D                                                                                                                                            D S  S          D           D D                                                                              I         I  S  S                             S    D                   
+
+id: (n00596-n00596-fn001213.92)
+Scores: (#C #S #D #I) 113 6 4 8
+REF:  ˈ e ː n <space> h ˈ ɑ l F <space> f l ˈ ɛ s j ə <space> h ˈ u ː S t S I  ː      r ******* ** o ː p <space> ˈ e ː n <space> p ˈ ɑ k j ə <space> p l ˈ ɛ ɪ s t ə r s <space> ˈ e ː n <space> s x ˈ a ː r <space> t ˈ ɑ n T p ɑ * s t a ː * <space> m ˈ a ː x t ** A ː      b l ** ɛ t ə <space> ˈ e ː n <space> z ʋ ˈ ɑ x t ə l <space> ˈ ɛ n <space> m ˈ ɔ n * D       ʋ ** a ː t ə r 
+HYP:  ** e ː n <space> h ˈ ɑ l * <space> f l ˈ ɛ s j ə <space> h ˈ u ː * t J ə <SPACE> r <SPACE> ˈ o ː p <space> ˈ e ː n <space> p ˈ ɑ k j ə <space> p l ˈ ɛ ɪ s t ə r s <space> ˈ e ː n <space> s x ˈ a ː r <space> t ˈ ɑ n * p ɑ R s t a ː R <space> m ˈ a ː x t ə R <SPACE> b l ˈ ɛ t ə <space> ˈ e ː n <space> z ʋ ˈ ɑ x t ə l <space> ˈ ɛ n <space> m ˈ ɔ n T <SPACE> ʋ ˈ a ː t ə r 
+Eval: D                           D                                            D   S S  S         I       I                                                                                                                                            D      I          I                       I  S S           I                                                                                          I S          I              
+
+id: (n00596-n00596-fn001213.94)
+Scores: (#C #S #D #I) 40 5 5 1
+REF:  ˈ ɪ k <space> x ˈ ɪ ŋ <space> N ˈ A ː r <space> D  ə <space> k ˈ a ː m ə R <SPACE> ʋ ˈ a ː r <space> D ˈ ɪ k <space> z ˈ ɑ t <space> T ə <space> ʋ ** ɛ r k ə 
+HYP:  ** ɪ k <space> x ˈ ɪ ŋ <space> H ˈ * ɛ r <space> ˈ ə <space> k ˈ a ː m ə * L       ʋ ˈ a ** r <space> * ˈ ɪ k <space> z ˈ ɑ t <space> D ə <space> ʋ ˈ ɛ r k ə 
+Eval: D                                  S    D S            S                            D S               D            D                                   S               I            
+
+id: (n00596-n00596-fn001213.95)
+Scores: (#C #S #D #I) 66 7 18 4
+REF:  Z ˈ e ː <space> H ˈ ɛ b ə <space> n ˈ i ː t <space> ˈ e ː n s <space> ɑ s ******* p I ː r ˈ i ː N t j ə s <space> ˈ ɪ N <space> H ˈ ʉ N <SPACE> m e ː d i ː ******* S ˈ ɛ ɪ * ŋ      k ɑ S T  j ə <space> l ˈ ɪ ɣ ə <space> z ˈ ɛ ɪ <space> ˈ ɪ k <space> T ˈ e ː ɣ ə <SPACE> H ˈ ɛ ** m 
+HYP:  * ˈ e ** <space> * ** ** b ə <space> n ˈ i ː t <space> ˈ e ː n s <space> ɑ s <SPACE> p * ** r ˈ i ː * t j ə s <space> ˈ ɪ * <space> * ˈ ** E ː      m e ː d i ː <SPACE> Z ˈ ɛ ɪ N <SPACE> k ɑ * ʃ j ə <space> l ˈ ɪ ɣ ə <space> z ˈ ɛ ɪ <space> ** ** k <space> * D  e ː ** ** ******* R ˈ ɛ ɪ m 
+Eval: D      D          D D  D                                                            I         D D            D                        D         D    D  S S                     I       S          I S            D S                                                        D  D            D S       D  D  D       S       I    
+
+id: (n00596-n00596-fn001213.97)
+Scores: (#C #S #D #I) 105 3 9 2
+REF:  M ˈ ɪ s x i ː n <space> h ˈ ɛ b ə <space> z ˈ E ː <SPACE> D ˈ i ː <space> m ˈ e ː ɣ ə n o ː m ə <space> ˈ ɔ p <space> v A  ː * k ˈ ɑ n s i ː <space> z ˈ ɛ ɪ <space> D ˈ ɪ k <space> ˈ ɛ n <space> h ˈ ɛ ɪ <space> v ə ** r z ˈ ɔ ŋ k <space> ʋ ˈ e ː r <space> ˈ ɪ n <space> z ˈ ɛ ɪ n <space> f i ː n ˈ a ː l ə <space> s t ˈ a ː d i ː J ʉ M 
+HYP:  * ˈ ɪ s x i ː n <space> h ˈ ɛ b ə <space> z ** * ** ******* * ˈ i ː <space> m ˈ e ː ɣ ə n o ː m ə <space> ˈ ɔ p <space> v ə ː R k ˈ ɑ n s i ː <space> z ˈ ɛ ɪ <space> * ˈ ɪ k <space> ˈ ɛ n <space> h ˈ ɛ ɪ <space> v ə ː r z ˈ ɔ N  k <space> ʋ ˈ e ː r <space> ˈ ɪ n <space> z ˈ ɛ ɪ n <space> f i ː n ˈ a ː l ə <space> s t ˈ a ː d i ː * ** N 
+Eval: D                                                 D  D D  D       D                                                                       S     I                                             D                                                         I            S                                                                                                                       D D  S 
+
+Speaker sentences   3:  n00614   #utts: 34
+id: (n00614-n00614-fn001248.10)
+Scores: (#C #S #D #I) 74 4 2 1
+REF:  H ɛ t <space> ʋ ˈ a ː t ə r <space> ˈ ɪ n <space> d ə <space> b ** e ː k <space> d ˈ ɑ t <space> ˈ o ː v ə r <space> d ə <space> R ˈ ɔ D Z B l ɔ k ə <space> s t r ˈ o ː m t <space> m ˈ ʉ r m ə l t <space> ˈ ɛ n <space> x ˈ ɔ r ɣ ə l t 
+HYP:  * ɛ t <space> ʋ ˈ a ː t ə r <space> ˈ ɪ n <space> d ə <space> b ˈ e ː k <space> d ˈ ɑ t <space> ˈ o ː v ə r <space> d ə <space> H ˈ ɔ * T P l ʉ k ə <space> s t r ˈ o ː m t <space> m ˈ ʉ r m ə l t <space> ˈ ɛ n <space> x ˈ ɔ r ɣ ə l t 
+Eval: D                                                                       I                                                                       S       D S S   S                                                                                                        
+
+id: (n00614-n00614-fn001248.15)
+Scores: (#C #S #D #I) 15 0 2 0
+REF:  H e ː l ə m ˈ a ː L <space> ɑ l ˈ e ː n 
+HYP:  * e ː l ə m ˈ a ː * <space> ɑ l ˈ e ː n 
+Eval: D                     D                        
+
+id: (n00614-n00614-fn001248.17)
+Scores: (#C #S #D #I) 35 2 1 1
+REF:  D  ɪ t <space> z ˈ ɑ l <space> x ˈ e ː n <space> x ə ʋ ˈ o ː n <space> d ˈ ɑ * ɣ      b u ː k <space> ʋ ˈ ɔ r d ə 
+HYP:  ˈ ɪ t <space> z ˈ ɑ l <space> x ˈ e ː n <space> x ə ʋ ˈ o ː n <space> d ** ɑ X <SPACE> b u ː k <space> ʋ ˈ ɔ r d ə 
+Eval: S                                                                                 D     I S                                        
+
+id: (n00614-n00614-fn001248.20)
+Scores: (#C #S #D #I) 0 1 2 0
+REF:  J A ː 
+HYP:  * * ɛ 
+Eval: D D S  
+
+id: (n00614-n00614-fn001248.22)
+Scores: (#C #S #D #I) 25 2 1 1
+REF:  ˈ ɪ k <space> v ˈ U ː L <space> m ˈ ɛ ɪ * <space> n ˈ ɔ x <space> n ˈ i ː t <space> ɯ t 
+HYP:  ** ɪ k <space> v ˈ O ː R <space> m ˈ ɛ ɪ N <space> n ˈ ɔ x <space> n ˈ i ː t <space> ɯ t 
+Eval: D                    S    S                    I                                                    
+
+id: (n00614-n00614-fn001248.37)
+Scores: (#C #S #D #I) 58 4 10 1
+REF:  K <SPACE> H ˈ ɛ p <SPACE> ˈ ɛ R  <space> v ˈ a ː k <space> ˈ o ː v ə r <space> x ə d r ˈ o ː m t <SPACE> ˈ E ː N  <space> m ** ɑ n <SPACE> t ə <space> h ˈ ɛ b ə <space> ˈ ɛ n <space> ˈ e ː n <space> ˈ ɛ ɪ ɣ ə <SPACE> t ˈ œ ɪ s 
+HYP:  * ******* * ˈ ɛ p ******* ** B  ə <space> v ˈ a ː k <space> ˈ o ː v ə r <space> x ə d r ˈ o ː m t ******* ** * ** ə <space> m ˈ ɑ n ******* t ə <space> h ˈ ɛ b ə <space> ˈ ɛ n <space> ˈ e ː n <space> ˈ ɛ ɪ ɣ ə N       t ˈ œ ɪ s 
+Eval: D D       D         D       D  S  S                                                                          D       D  D D  S            I       D                                                                                          S                    
+
+id: (n00614-n00614-fn001248.41)
+Scores: (#C #S #D #I) 86 2 1 2
+REF:  T ˈ u ː n <space> p ˈ ɑ p A  ː <space> ʋ ˈ ɑ s <space> x ə s t ˈ ɔ r v ə <space> l ˈ e ː k <space> * ** t <space> ʋ ˈ ɛ l <space> ˈ ɔ f <space> m ˈ u ː d ə r <space> h ˈ a ː r <space> ʋ ˈ ɪ l <space> ɔ m <space> t ə <space> l ˈ e ː v ə <space> k ʋ ˈ ɛ ɪ t r a ː k t ə 
+HYP:  * ˈ u ː n <space> p ˈ ɑ p ə R  <space> ʋ ˈ ɑ s <space> x ə s t ˈ ɔ r v ə <space> l ˈ e ː k <space> H ɛ t <space> ʋ ˈ ɛ l <space> ˈ ɔ f <space> m ˈ u ː d ə r <space> h ˈ a ː r <space> ʋ ˈ ɪ l <space> ɔ m <space> t ə <space> l ˈ e ː v ə <space> k ʋ ˈ ɛ ɪ t r a ː k t ə 
+Eval: D                             S  S                                                                               I I                                                                                                                                                                                              
+
+id: (n00614-n00614-fn001248.48)
+Scores: (#C #S #D #I) 66 0 5 0
+REF:  N ˈ y ː <space> k ˈ ɑ n <space> ˈ ɪ k <space> d ˈ o ː R <SPACE> m ˈ ɛ ɪ n <space> t r ˈ a ː n ə <space> n ˈ ɔ x <space> n ɯ ʋ ˈ ə l ə k S <space> z ˈ i ː n <space> ʋ ˈ ɑ t <space> ˈ ɪ k <space> s x R ˈ ɛ ɪ f 
+HYP:  * ˈ y ː <space> k ˈ ɑ n <space> ˈ ɪ k <space> d ˈ o ː * ******* m ˈ ɛ ɪ n <space> t r ˈ a ː n ə <space> n ˈ ɔ x <space> n ɯ ʋ ˈ ə l ə k * <space> z ˈ i ː n <space> ʋ ˈ ɑ t <space> ˈ ɪ k <space> s x * ˈ ɛ ɪ f 
+Eval: D                                                             D D                                                                                            D                                                                    D            
+
+id: (n00614-n00614-fn001248.51)
+Scores: (#C #S #D #I) 38 0 1 0
+REF:  H ɛ t <space> ʋ ˈ o ː r t <space> v ˈ ɑ n <space> d ə <space> h ˈ e ː r ə <space> ˈ ɪ s <space> b ə p r ˈ u ː f t 
+HYP:  * ɛ t <space> ʋ ˈ o ː r t <space> v ˈ ɑ n <space> d ə <space> h ˈ e ː r ə <space> ˈ ɪ s <space> b ə p r ˈ u ː f t 
+Eval: D                                                                                                                                
+
+id: (n00614-n00614-fn001248.56)
+Scores: (#C #S #D #I) 66 1 4 1
+REF:  K <SPACE> h ˈ ɛ p <space> d ə <space> ʋ ˈ ɛ r k ə l ə k ə <space> b ə t ˈ e ː k ə n ɪ s <space> l ˈ e ː r ə <space> b ə ɣ r ˈ ɛ ɪ p ə <space> v ˈ ɑ n <space> k r ˈ ɪ s t ʉ S  <space> * ʋ ˈ o ː r d ə 
+HYP:  * ******* h ˈ ɛ p <space> d ə <space> ʋ ˈ ɛ r k ə l ə k ** <space> b ə t ˈ e ː k ə n ɪ s <space> l ˈ e ː r ə <space> b ə ɣ r ˈ ɛ ɪ p ə <space> v ˈ ɑ n <space> k r ˈ ɪ s t ** ə <space> S ʋ ˈ o ː r d ə 
+Eval: D D                                                             D                                                                                                                                    D  S          I                   
+
+id: (n00614-n00614-fn001248.59)
+Scores: (#C #S #D #I) 66 0 3 0
+REF:  X ə m ˈ e ː n s x ɑ p <space> m ˈ ɛ t <space> h ˈ ɛ m <space> ˈ ɪ s <space> v ˈ o ː r <space> m ˈ ɛ ɪ <space> b ə l ˈ ɑ ŋ r ɛ ɪ k ə R <space> x ə ʋ ˈ ɔ r d ə <space> d ˈ ɑ n <space> ˈ o ː j t 
+HYP:  * ə m ˈ e ː n s x ɑ p <space> m ˈ ɛ t <space> h ˈ ɛ m <space> ˈ ɪ s <space> v ** o ː r <space> m ˈ ɛ ɪ <space> b ə l ˈ ɑ ŋ r ɛ ɪ k ə * <space> x ə ʋ ˈ ɔ r d ə <space> d ˈ ɑ n <space> ˈ o ː j t 
+Eval: D                                                                                       D                                                                 D                                                                    
+
+id: (n00614-n00614-fn001248.60)
+Scores: (#C #S #D #I) 80 1 5 4
+REF:  M ˈ ɛ ɪ n <space> d ˈ i ː r ******* b a ː r ə <space> v r ** i ː n d ******* ˈ ɪ n <space> m ˈ ɑ r i ː <space> d ˈ i ː <space> ˈ o ː k <space> n ˈ i ː t <space> ˈ ɪ s <space> x ə t r ɯ ʋ t <space> s x R ˈ e ː f * <space> m ˈ ɛ ɪ <space> ˈ E ː n <space> b r ˈ i ː f 
+HYP:  * ˈ ɛ ɪ n <space> d ˈ i ː r <SPACE> b a ː r ə <space> v r ˈ i ː n d <SPACE> ˈ ɪ n <space> m ** ɛ r i ː <space> d ˈ i ː <space> ˈ o ː k <space> n ˈ i ː t <space> ˈ ɪ s <space> x ə t r ɯ ʋ t <space> s x * ˈ e ː f T <space> m ˈ ɛ ɪ <space> ˈ * ** n <space> b r ˈ i ː f 
+Eval: D                                I                               I           I                         D  S                                                                                                                      D           I                               D D                          
+
+id: (n00614-n00614-fn001248.8)
+Scores: (#C #S #D #I) 81 5 3 2
+REF:  Z ˈ e ː <space> b r ˈ ɛ ŋ t <space> ˈ e ː n <space> z ˈ u ː t ə <space> x ˈ ø ː r <space> v ˈ O ː R <space> m ˈ ɛ ɪ <space> m ˈ e ː <space> ˈ ɛ n <space> d ˈ u ː T <space> d ə <space> b l ˈ a ː d ə r ə <space> b ˈ o ː v ə <space> m ˈ ɛ ɪ <space> r ˈ ɪ t ******* * S  ə l ə 
+HYP:  * ˈ e ː <space> b r ˈ ɛ ŋ t <space> ˈ e ː n <space> z ˈ u ː t ə <space> x ˈ ø ː r <space> v ** * ə L <space> m ˈ ɛ ɪ <space> m ˈ e ː <space> ˈ ɛ n <space> d ˈ u ː R <space> d ə <space> b l ˈ a ː d ə r ə <space> b ˈ o ː v ə <space> m ˈ ɛ ɪ <space> r ˈ ɪ t <SPACE> Z ˈ ɪ l ə 
+Eval: D                                                                                                        D  D S  S                                                                        S                                                                                                        I       I S  S       
+
+id: (n00614-n00614-fn001249.11)
+Scores: (#C #S #D #I) 17 1 2 1
+REF:  D ˈ i ː <space> v r ˈ i ː N  t <space> ˈ ɪ s <space> x ** ɔ t 
+HYP:  * ˈ i ː <space> v r ˈ i ** ŋ t <space> ˈ ɪ s <space> x ˈ ɔ t 
+Eval: D                          D  S                              I       
+
+id: (n00614-n00614-fn001249.15)
+Scores: (#C #S #D #I) 25 1 2 1
+REF:  ʋ ˈ ɑ t <space> r ˈ œ ɪ s t <SPACE> d ə <space> b ** e ː k <space> l ˈ i ː f l ə k 
+HYP:  ** ˈ ɑ t <space> r ˈ ɛ ɪ s t ******* d ə <space> b ˈ e ː k <space> l ˈ i ː f l ə k 
+Eval: D                       S         D                      I                                    
+
+id: (n00614-n00614-fn001249.20)
+Scores: (#C #S #D #I) 104 6 6 2
+REF:  M ˈ a ː r <space> ˈ ɑ l ə s <space> ʋ ˈ ɑ t <space> ˈ ɪ k <space> b ə d ˈ ɛ ŋ k ə <SPACE> k ˈ ɑ n <space> ˈ ɪ s <space> s x ˈ o ː L j ** ʉ      F r ɯ ʋ <space> ʋ ˈ ɔ r d ə <space> ˈ ɛ n <space> ˈ ɪ k <space> B ˈ * ɛ n <space> ˈ ɛ ɪ ɣ ə l ə k <space> t ə <space> ɯ t <space> ɔ m <space> d ˈ A  ː r <space> n ˈ ɔ x <space> ˈ a ː N <space> t ə <space> b ə ɣ ˈ ɪ n ə 
+HYP:  * ˈ a ː r <space> ** ɑ l ə s <space> ʋ ˈ ɑ t <space> ˈ ɪ k <space> b ə d ˈ ɛ ŋ k ə ******* k ** ɑ n <space> ˈ ɪ s <space> s x ˈ o ː * j ə <SPACE> V r ɯ ʋ <space> ʋ ˈ O  r d ə <space> ˈ ɛ n <space> ˈ ɪ k <space> * ˈ E ː n <space> ˈ ɛ ɪ ɣ ə l ə k <space> t ə <space> ɯ t <space> ɔ m <space> d ˈ ɑ ː r <space> n ˈ ɔ x <space> ˈ a ː M <space> t ə <space> b ə ɣ ˈ ɪ n ə 
+Eval: D                   D                                                                            D         D                                           D   I  S       S                       S                                                 D    I S                                                                                      S                                         S                                         
+
+id: (n00614-n00614-fn001249.23)
+Scores: (#C #S #D #I) 0 0 1 0
+REF:  N 
+HYP:  * 
+Eval: D 
+
+id: (n00614-n00614-fn001249.28)
+Scores: (#C #S #D #I) 51 1 2 2
+REF:  ʋ ˈ e ː <space> m ˈ u ː t ə <space> ɔ m <SPACE> l ˈ ɛ ɪ d ɪ ŋ <space> v r ˈ a ː ɣ ə <space> ˈ ɛ n <space> * ˈ * ɛ r <space> x ə r ɪ x t <space> ɔ m <space> b ˈ ɪ d ə 
+HYP:  ** ˈ e ː <space> m ˈ u ː t ə <space> ɔ m ******* l ˈ ɛ ɪ d ɪ ŋ <space> v r ˈ a ː ɣ ə <space> ˈ ɛ n <space> H ˈ A ː r <space> x ə r ɪ x t <space> ɔ m <space> b ˈ ɪ d ə 
+Eval: D                                              D                                                                            I    I S                                                            
+
+id: (n00614-n00614-fn001249.35)
+Scores: (#C #S #D #I) 49 4 0 1
+REF:  X  a ː * <space> T ɔ t <space> x ɔ t <space> ˈ ɛ n <space> z ˈ ɛ x <space> h ˈ i ː r <space> b ˈ ɛ n <space> ˈ ɪ k <space> h ˈ e ː m ə l S ə <space> v ˈ a ː d ə r 
+HYP:  ˈ a ː T <space> H ɛ t <space> x ɔ t <space> ˈ ɛ n <space> z ˈ ɛ x <space> h ˈ i ː r <space> b ˈ ɛ n <space> ˈ ɪ k <space> h ˈ e ː m ə l Z ə <space> v ˈ a ː d ə r 
+Eval: S       I         S S                                                                                                                                    S                             
+
+id: (n00614-n00614-fn001249.38)
+Scores: (#C #S #D #I) 63 1 2 1
+REF:  ˈ y ː <space> m ˈ u ː t <space> n ˈ i ː t s <space> d ˈ u ː n <space> t ɔ t <space> x ɔ t <space> z ˈ ɛ ɪ n <space> ʋ ˈ ɛ X  <space> d ˈ œ ɪ d ə l ə k <space> h ˈ e ː f t <space> x ə m ** a ː k t 
+HYP:  ** y ː <space> m ˈ u ː t <space> n ˈ i ː t s <space> d ˈ u ː n <space> t ɔ t <space> x ɔ t <space> z ˈ ɛ ɪ n <space> ʋ ˈ ɛ ɣ <space> d ** œ ɪ d ə l ə k <space> h ˈ e ː f t <space> x ə m ˈ a ː k t 
+Eval: D                                                                                                                                         S            D                                                         I           
+
+id: (n00614-n00614-fn001249.41)
+Scores: (#C #S #D #I) 8 0 4 0
+REF:  J ø ː n <space> m ˈ ɪ l t ə N 
+HYP:  * ** ** n <space> m ˈ ɪ l t ə * 
+Eval: D D  D                           D 
+
+id: (n00614-n00614-fn001249.43)
+Scores: (#C #S #D #I) 115 5 4 5
+REF:  ** M  n <space> h ** ɑ r t <space> ˈ ɪ s <space> v ** ɔ ** l <space> v r ˈ ø ː ɣ D ə <space> ˈ ɛ n <space> ˈ ɪ k <space> ʋ ˈ e ː t <space> d ˈ ɑ t <space> ɑ l s <space> ˈ ɪ k <space> ˈ ɑ l ə s <space> ˈ a ː n <space> x ɔ t <space> z ˈ ɑ l <space> t ˈ u ː ******* v ə r t r ɯ ʋ ə <space> h ˈ ɛ ɪ <space> m ˈ ɛ ɪ <space> s t ˈ ɑ p <space> v ˈ O ː r <SPACE> s t ˈ ɑ p <space> z ˈ ɑ L <space> l ˈ ɛ ɪ d ə 
+HYP:  ˈ ɛ n <space> h ˈ ɑ r t <space> ˈ ə s <space> v ˈ ɔ ː l <space> v r ˈ ø ː X  T ə <space> ˈ ɛ n <space> ˈ ɪ k <space> ʋ ˈ e ː t <space> d ˈ ɑ t <space> ɑ l s <space> ˈ ɪ k <space> ˈ ɑ l ə s <space> ˈ a ː n <space> x ɔ t <space> z ˈ ɑ l <space> t ˈ u ː <SPACE> v ə r t r ɯ ʋ ə <space> h ˈ ɛ ɪ <space> m ˈ ɛ ɪ <space> s t ˈ ɑ p <space> v ** * ə r ******* s t ˈ ɑ p <space> z ˈ ɑ * <space> l ˈ ɛ ɪ d ə 
+Eval: I  S              I                    S              I     I                         S  S                                                                                                                                                                                                    I                                                                                               D  D S    D                                   D                         
+
+id: (n00614-n00614-fn001249.47)
+Scores: (#C #S #D #I) 70 5 2 2
+REF:  Z ˈ e ː <space> ʋ ˈ ɑ s <space> x ə t r ɯ ʋ t <space> m ˈ ɛ t <space> ˈ ɪ s ** a ː k <space> b ˈ ɔ n t r a ː ɣ ə r <space> ˈ ɛ n <space> h ˈ ɑ t <space> p ˈ ɑ s <space> ˈ e ː n <space> b ˈ e ː B  i ː <space> x ə k r ** e ː ɣ ə 
+HYP:  * ˈ e ː <space> ʋ ˈ ɑ s <space> x ə t r ɯ ɪ t <space> m ˈ ɛ t <space> I  ː s ˈ a ː k <space> b ˈ ɔ n t r a ː K  ə r <space> ˈ ɛ n <space> h ˈ ɑ t <space> p ˈ ɑ s <space> ˈ e ː n <space> b ˈ e ː ʋ i ** <space> x ə k r ˈ e ː ɣ ə 
+Eval: D                                                S                              S  S    I                                    S                                                                                               S    D                   I             
+
+id: (n00614-n00614-fn001249.48)
+Scores: (#C #S #D #I) 173 3 8 7
+REF:  ɑ n ɑ s <space> ɔ ŋ ɣ ə t r ɯ ʋ d ə <space> d ˈ ɔ x t ə r <space> ** ** ** ** r ə b ˈ ɛ k A ː <space> d ˈ e ː t <space> h ɛ t <space> h ˈ œ ɪ s h ɯ d ə <space> v ˈ o ː r <space> ˈ ɪ s ** a ː k <space> ˈ ɛ n <space> z ˈ ɔ r ɣ d ə <space> v ˈ o ː r <space> d ə <space> b ˈ e ː b i ː <space> m ˈ a ː r <space> z ˈ e ː <SPACE> x ˈ a ː t <space> n ˈ y ː <space> t r ɯ ʋ ə <space> ˈ ɛ n <space> z ˈ e ː <space> z ˈ ɛ ɪ n <space> d ** a ː r ɔ m <space> ˈ ɔ p <space> z ˈ u ː k <space> n ˈ a ː r <space> ˈ e ː n <space> n ** i ː ʋ ə <space> h ˈ œ ɪ s H ɯ t s t ə r 
+HYP:  ** n ɑ s <space> ɔ ŋ ɣ ə t r ɯ ** d ə <space> d ˈ ɔ x t ə r <space> ʋ ˈ ɔ ː r ** b ˈ ɛ k * ə <space> d ˈ e ː t <space> h ɛ t <space> h ˈ œ ɪ s h ɯ d ə <space> v ˈ o ː r <space> I  ː s ˈ a ː k <space> ˈ ɛ n <space> z ˈ ɔ r ɣ d ə <space> v ˈ o ː r <space> d ə <space> b ˈ e ː b i ː <space> m ** a ː r <space> z ˈ e ː ******* x ˈ a ː t <space> n ˈ y ː <space> t r ɯ ʋ ə <space> ˈ ɛ n <space> z ˈ e ː <space> z ˈ ɛ ɪ n <space> d ˈ a ː r ɔ m <space> ˈ ɔ p <space> z ** u ː k <space> n ˈ a ː r <space> ˈ e ː n <space> n ˈ i ː ʋ ə <space> h ˈ œ ɪ s * ɯ t s t ə r 
+Eval: D                                    D                                        I  I  I  I    D            D S                                                                                                S  S    I                                                                                                                       D                           D                                                                                                                           I                                        D                                                         I                                  D               
+
+id: (n00614-n00614-fn001249.51)
+Scores: (#C #S #D #I) 35 0 1 1
+REF:  ʋ ˈ ɪ l <space> x ɔ t <space> d ˈ ɑ t <space> ˈ ɪ k <space> ** ɛ r h ˈ e ː n <space> z ˈ ɑ l <space> x ˈ a ː n 
+HYP:  ** ˈ ɪ l <space> x ɔ t <space> d ˈ ɑ t <space> ˈ ɪ k <space> ˈ ɛ r h ˈ e ː n <space> z ˈ ɑ l <space> x ˈ a ː n 
+Eval: D                                                                   I                                                         
+
+id: (n00614-n00614-fn001249.56)
+Scores: (#C #S #D #I) 52 2 4 0
+REF:  ˈ ɪ k <space> k ˈ ɑ N <space> m ˈ a ː r <space> n ɯ ʋ ˈ ə l ə k s <space> x ə l ˈ o ː v ə <space> d ˈ ɑ t <space> ˈ ɪ k <space> n ˈ y ː <space> h ˈ I ː r <space> b ˈ ɛ n 
+HYP:  ** ɪ k <space> k ** ɑ M <space> m ˈ a ː r <space> n ɯ ʋ ** ə l ə k s <space> x ə l ** o ː v ə <space> d ˈ ɑ t <space> ˈ ɪ k <space> n ˈ y ː <space> h ˈ E ː r <space> b ˈ ɛ n 
+Eval: D                 D     S                                     D                             D                                                                             S                        
+
+id: (n00614-n00614-fn001249.63)
+Scores: (#C #S #D #I) 68 4 6 4
+REF:  M ˈ a ː r <space> H ɛ T <SPACE> ˈ ɪ s <space> n ˈ y ː <space> ** * ɯ      ɣ ˈ ʉ s t ʉ s <space> ˈ ɛ n <space> h ɛ t <space> Z ˈ ɑ l <space> ʋ ** a ː r s x ˈ ɛ ɪ n l ə k <space> n ˈ ɔ x <space> ʋ ˈ ɛ l <space> ʋ ** ɑ r m ə R <space> ʋ ˈ ɔ r d ə 
+HYP:  * ˈ a ː r <space> * ** * Z       ˈ ɪ s <space> n ˈ y ː <space> ɑ L <SPACE> X  ˈ ʉ s t ʉ s <space> ˈ ɛ n <space> h ɛ t <space> V ˈ ɑ l <space> ʋ ˈ a ** r s x ˈ ɛ ɪ n l ə k <space> n ˈ ɔ x <space> ʋ ˈ ɛ l <space> ʋ ˈ ɑ r m ə * <space> ʋ ˈ ɔ r d ə 
+Eval: D                   D D  D S                                         I  I S       S                                                        S                    I    D                                                                          I            D                         
+
+id: (n00614-n00614-fn001249.75)
+Scores: (#C #S #D #I) 26 2 7 2
+REF:  K <SPACE> H ˈ ɛ p <space> h ɛ t <space> h ˈ i ː R <space> ˈ ɛ r x <space> n ˈ a ː R <SPACE> m ** N  <space> z ˈ * ɪ n 
+HYP:  * ******* * ˈ ɛ p <space> h ɛ t <space> h ˈ i ː * <space> ˈ ɛ r x <space> n ** a ː * ******* m ˈ ː <space> z ˈ I ː n 
+Eval: D D       D                                          D                             D       D D         I  S               I S    
+
+id: (n00614-n00614-fn001249.76)
+Scores: (#C #S #D #I) 75 2 10 6
+REF:  T <SPACE> L ˈ ɛ ɪ k t <space> ʋ ˈ ɛ l <space> ˈ ɔ f <space> d R  <space> * ˈ i ː t s <space> ˈ ɪ n <space> d ə <space> l ˈ ʉ x t <space> z ˈ ɪ t <space> ʋ ** a ː r d ˈ o ː R <SPACE> ˈ ɪ k * <space> m ** ** ə <space> h ** e ː l ə m ˈ a ː l <space> x ə l ˈ ʉ k ə x <space> v ˈ u ː l 
+HYP:  * ******* * ˈ ɛ ** k t <space> ʋ ˈ ɛ l <space> ˈ ɔ f <space> d ə <space> R ˈ i ː t s <space> ˈ ɪ n <space> d ə <space> l ˈ ʉ x t <space> z ˈ ɪ t <space> ʋ ˈ a ː r d ˈ o ː * ******* ** ** k T <space> m ˈ ɛ ɪ <space> h ˈ e ː l ə m ˈ a ** l <space> x ə l ** ʉ k ə x <space> v ˈ u ː l 
+Eval: D D       D       D                                                   S          I                                                                                           I                   D D       D  D    I           I  I  S            I                   D                   D                                
+
+id: (n00614-n00614-fn001249.82)
+Scores: (#C #S #D #I) 49 1 3 0
+REF:  ˈ ɪ k <space> z ˈ ɑ l <space> d ˈ ɑ t <space> x ə v ˈ u ː l <space> v ˈ O ː r <space> ˈ ɑ l t ɛ ɪ t <space> b l ˈ ɛ ɪ v ə <space> k ˈ u ː s t ə r ə 
+HYP:  ** ɪ k <space> z ˈ ɑ l <space> d ˈ ɑ t <space> x ə v ˈ u ː l <space> v ** * ə r <space> ˈ ɑ l t ɛ ɪ t <space> b l ˈ ɛ ɪ v ə <space> k ˈ u ː s t ə r ə 
+Eval: D                                                                              D  D S                                                                                      
+
+id: (n00614-n00614-fn001249.86)
+Scores: (#C #S #D #I) 78 6 2 3
+REF:  B ˈ œ ɪ t ə <space> r ˈ e ː ɣ ə n t <space> h ɛ t <space> p ˈ ɛ ɪ P ə ******* s t ** e ː l ə <space> ˈ ɛ n <space> ˈ ɪ s a ː k <SPACE> z ˈ ɪ t <space> ˈ ɔ p <space> d ə <space> v l ˈ u ː r <space> m ˈ ɛ t <space> m ˈ ɑ t ** E ː ʋ <SPACE> t ə <space> s p ˈ e ː l ə 
+HYP:  * ˈ œ ɪ t ə <space> r ˈ e ː ɣ ə n t <space> h ɛ t <space> p ˈ ɛ ɪ B ə <SPACE> s t ˈ e ː l ə <space> ˈ ɛ n <space> I  ː s a ː k S       z ˈ ɪ t <space> ˈ ɔ p <space> d ə <space> v l ˈ u ː r <space> m ˈ ɛ t <space> m ˈ ɛ t ʃ U ː ʋ ******* t ə <space> s p ˈ e ː l ə 
+Eval: D                                                                             S    I           I                                    S  S           S                                                                                                   S    I  S       D                                     
+
+id: (n00614-n00614-fn001249.93)
+Scores: (#C #S #D #I) 50 2 2 0
+REF:  M ˈ a ː r <space> ˈ ɪ s A  ː k <SPACE> s x ˈ ɛ ɪ n t <space> ˈ ɑ l t ɛ ɪ t <space> t ə <space> ʋ ˈ e ː t ə <space> ʋ ˈ ɑ t <space> h ˈ ɛ ɪ <space> d ˈ u ː t 
+HYP:  * ˈ a ː r <space> ˈ ɪ s ˈ ɑ k ******* s x ˈ ɛ ɪ n t <space> ˈ ɑ l t ɛ ɪ t <space> t ə <space> ʋ ˈ e ː t ə <space> ʋ ˈ ɑ t <space> h ˈ ɛ ɪ <space> d ˈ u ː t 
+Eval: D                           S  S    D                                                                                                                                                 
+
+id: (n00614-n00614-fn001249.98)
+Scores: (#C #S #D #I) 130 3 6 0
+REF:  ˈ ɪ n <space> h ɛ t <space> ɑ L  ɣ ə m ˈ e ː n <space> x ə s p r o ː k ə <space> h ˈ e ː f t <space> h ˈ ɛ ɪ <space> b ˈ ɛ s t <space> ˈ e ː n <space> p r ˈ ɛ t ə x <space> ˈ œ ɪ t ə R l ə k <space> b r ˈ œ ɪ n <space> x ˈ ɔ L  v ə n t <space> h ˈ a ː r <space> ˈ ɛ n <space> ˈ e ː r l ə k ə <space> ˈ ɛ n <space> ˈ o ː p ə <SPACE> b l ˈ ɪ k <space> l ɑ ŋ <space> ˈ ɛ n <space> x u ː t <space> x ə b ɯ ʋ t 
+HYP:  ** ɪ n <space> h ɛ t <space> ** ɯ ɣ ə m ˈ e ː n <space> x ə s p r o ː k ə <space> h ˈ e ː f t <space> h ˈ ɛ ɪ <space> b ˈ ɛ s t <space> ˈ e ː n <space> p r ˈ ɛ t ə x <space> ˈ œ ɪ t ə * l ə k <space> b r ˈ œ ɪ n <space> x ˈ O  ː v ə n t <space> h ˈ a ː r <space> ˈ ɛ n <space> ** e ː r l ə k ə <space> ˈ ɛ n <space> ˈ o ː p ə ******* b l ˈ ɪ k <space> l ɑ ŋ <space> ˈ ɛ n <space> x u ː t <space> x ə b ɯ ** t 
+Eval: D                              D  S                                                                                                                                                                               D                                            S  S                                                       D                                                        D                                                                                      D    
+
+id: (n00614-n00614-fn001249.99)
+Scores: (#C #S #D #I) 80 1 16 1
+REF:  H ˈ u ː <SPACE> l ˈ ɑ ŋ ə r ** <space> ˈ ɪ k <SPACE> H ˈ I ː R <SPACE> b ˈ ɛ n <space> h ˈ u ː <SPACE> m ˈ e ː r <space> ˈ ɪ k <space> m ˈ ɛ ɪ <space> r e ː J A ː l i ː z ˈ e ː r <space> d ˈ ɑ t <space> h ˈ ɛ ɪ <SPACE> ˈ E ː n <space> ˈ a ː r d ə ɣ ə <space> k ˈ e ː r ə l <space> ˈ ɪ s 
+HYP:  * ˈ u ː ******* l ˈ ɑ ŋ ə r ə <space> ** ** k ******* * ˈ E ː * ******* b ˈ ɛ n <space> h ˈ u ː ******* m ˈ e ː r <space> ˈ ɪ k <space> m ˈ ɛ ɪ <space> r e ː * * ː l i ː z ˈ e ː r <space> d ˈ ɑ t <space> h ˈ ɛ ɪ ******* ** * ** n <space> ˈ a ː r d ə ɣ ə <space> k ˈ e ː r ə l <space> ** ɪ s 
+Eval: D         D                       I          D  D    D       D    S    D D                                   D                                                                     D D                                                            D       D  D D                                                                  D       
+
+Speaker sentences   4:  n00659   #utts: 27
+id: (n00659-n00659-fn001159.1)
+Scores: (#C #S #D #I) 7 4 2 5
+REF:  M ˈ ɔ n t ******* ** H  I  ː ɣ I ː      j ** ** n ** 
+HYP:  * ˈ ɔ n t <SPACE> ʋ ˈ ɪ ː ** X <SPACE> j ˈ ɛ n ə 
+Eval: D           I       I  S  S     D  S S         I  I    I  
+
+id: (n00659-n00659-fn001159.101)
+Scores: (#C #S #D #I) 116 7 7 4
+REF:  ˈ ɔ f <space> H ɛ * t <SPACE> z ɯ ʋ <SPACE> d ə <space> h ˈ ɛ r ******* ɪ n v ** U ː r ɪ ŋ <space> v ˈ ɑ n <space> d ə <space> * ɡ i ː J o ː t ˈ i ː n ə <space> m ˈ u ː t ə <space> ʋ ˈ e ː z ə <space> ʋ ˈ a ː r <space> h ɛ t <space> b ə t r ˈ ɑ p t ə <space> b ˈ a ː S J  ə <space> m ˈ ɛ t <space> z ˈ ɛ ɪ n <space> h ˈ o ː f t <space> ˈ ɔ p <space> m ˈ u ː t <space> X ˈ a ː n <space> l ˈ ɪ ɣ ə 
+HYP:  ** O  f <space> V ɛ R t ******* z ɯ ** ******* d ə <space> h ˈ ɛ r <SPACE> ɪ n v ˈ O ː r ɪ ŋ <space> v ˈ ɑ n <space> d ə <space> K ˈ i ː * o ː t ˈ i ː n ə <space> m ˈ u ː t ə <space> ʋ ˈ e ː z ə <space> M  ˈ a ː r <space> h ɛ t <space> b ə t r ˈ ɑ p t ə <space> b ˈ a ː * ʒ ə <space> m ˈ ɛ t <space> z ˈ ɛ ɪ n <space> h ˈ o ː f t <space> ˈ ɔ p <space> m ˈ u ː t <space> R ˈ a ** n <space> l ˈ ɪ ɣ ə 
+Eval: D  S            S    I   D            D  D                              I              I  S                                                   I S       D                                                                            S                                                                           D S                                                                                                              S      D                          
+
+id: (n00659-n00659-fn001159.116)
+Scores: (#C #S #D #I) 139 9 16 9
+REF:  B ˈ œ ɪ t ** * ** ə <space> b ə Z ˈ I ː R S  <space> v ə r ʋ ˈ ɛ ɪ s t <space> ˈ E ː n <space> h ˈ ɑ n t ******* x ə s x ɪ l d ə R T <space> b ˈ ɔ r t j ə <space> m ˈ ɛ t <space> ** s p ˈ a ː <space> N ˈ a ː r <SPACE> ˈ E ː N <space> v ** o ː r m ˈ a ː l ə ɣ ə <space> s x ˈ ɔ ɡ b r e ː k ə r ******* F ɑ b R i ː k <space> ʋ ** a ː r ˈ œ ɪ t <space> ˈ e ː n <space> ˈ ɔ n ʋ ** e ː r <space> v ˈ ɑ n <space> x ə b l ɑ f <space> k ˈ ɔ m t <space> ˈ a ː ŋ ɣ ə b ˈ ʉ l d ə r t 
+HYP:  * ˈ œ ɪ t ˈ E ː N  <space> b ** * ** * ː * ʒ <space> v ə r ʋ ˈ ɛ ɪ s t <space> ˈ * ɛ n <space> h ˈ ɑ n t <SPACE> x ə s x ɪ l d ə * * <space> b ˈ ɔ r t j ə <space> m ˈ ɛ t <space> ɛ s p ɪ a ː <space> M ˈ a ː r ******* ˈ * ** * <space> v ˈ o ː r m ˈ a ː l ə ɣ ə <space> s x ˈ ɔ ɡ b r e ː k ə r <SPACE> V ə b L i ː k <space> ʋ ˈ a ː r ˈ œ ɪ t <space> ˈ e ː n <space> ** ɔ n ʋ ˈ e ː r <space> v ˈ ɑ n <space> x ə b l ɑ f <space> k ** ɔ m t <space> ˈ a ** ŋ ɣ ə b ˈ ɪ l d ə r t 
+Eval: D            I  I I  S            D  D D  D    D S                                            D S                        I                          D D                                                    I      S               S           D          D D  D           I                                                                   I       S S    S                   I                                              D          I                                                           D                      D                S             
+
+id: (n00659-n00659-fn001159.119)
+Scores: (#C #S #D #I) 194 7 12 3
+REF:  D ə <space> b ə h ˈ E ː R  s t ə r <space> h ˈ e ː F t <space> ˈ e ː n <space> l ˈ i ː f <space> m ˈ a ː r <space> v ə r t r ˈ ɔ k ə <space> x ə z ɪ x t <space> ˈ ɪ n <space> ˈ e ː n <space> p ɛ r m A ː n ˈ ɛ n T <SPACE> s x ˈ e ː f x ə h ɯ d ** ə <space> h ˈ o ː f t <space> d ˈ ɑ t <space> z ˈ ɛ ɪ n <space> ˈ œ ɪ t ə R s ******* T ə <space> b ˈ ɛ s T <space> d ˈ u ː t <space> ɔ M <SPACE> ˈ ɔ n d ə r <space> h ɛ t <space> x ˈ e ː n <space> m o ː m ˈ ɛ n t <space> ˈ ɑ f l a ː t ə n d ə <space> x ə b l ** ɑ f <space> t ə <space> v ə r s t ˈ a ː N <space> ʋ ˈ ɑ t <space> ˈ ɛ r <space> x ə z ˈ ɛ x t <space> ʋ ˈ ɔ r t 
+HYP:  * ə <space> b ə h ˈ * ** ɪ s t ə r <space> h ˈ e ː * t <space> ˈ e ** n <space> l ˈ i ː f <space> m ˈ a ː r <space> v ə r t r ˈ ɔ k ə <space> x ə z ɪ x t <space> ˈ ɛ n <space> ˈ e ː n <space> p ɛ r m * ə n ˈ ɛ n * ******* s x ˈ e ː f x ə h ɯ d ˈ ə <space> h ˈ o ː f t <space> d ˈ ɑ t <space> z ˈ ɛ ɪ n <space> ˈ œ ɪ t ə * s <SPACE> D ə <space> b ˈ ɛ s * <space> d ˈ u ː t <space> ɔ * N       ˈ ɔ n d ə r <space> h ɛ t <space> x ˈ e ː n <space> m o ː m ˈ ɛ n t <space> ˈ ɑ f l a ː t ə n d ə <space> x ə b l ˈ ɑ f <space> t ə <space> v ə r s t ˈ a ː M <space> ʋ ˈ ɑ t <space> ** ə r <space> x ə z ˈ ɛ x t <space> ʋ ˈ ɔ r t 
+Eval: D                      D D  S                             D                D                                                                                                           S                                       D S            D D                                 I                                                                                        D   I       S                      D                                D S                                                                                                                                        I                                               S                            D  S                                                  
+
+id: (n00659-n00659-fn001159.120)
+Scores: (#C #S #D #I) 269 18 28 9
+REF:  ˈ ɪ k <space> r ˈ u ː p <space> h ˈ a ː r <space> t ˈ u ː <space> ʋ ˈ ɑ t <space> m ˈ ɛ ɪ <space> ˈ ɪ s <space> ** o ː v ə r k ˈ o ː m ə <space> L ˈ a ː t <space> h ˈ a ː r <space> d ə <space> ɑ n t i ː t ˈ e ː k ə * s p r ** e ː <space> ˈ ɛ n <SPACE> D ə <space> r ɛ s T J ə S <SPACE> ʃ ˈ ɑ m p o ː <SPACE> z ˈ I ː n <space> ˈ ɛ n <space> d ə <SPACE> r ˈ e ː k ə n ɪ ŋ <space> ˈ ɛ n <space> D ə <space> v ə r K l ** a ː r ɪ ŋ <space> v ˈ ɑ n <space> d ə <space> d ˈ I ː r ə * ɑ R  t s <space> ˈ ɛ n <space> p r ˈ ɔ p <space> d ˈ œ ɪ d ə l ə k <space> z ˈ ɪ ɣ d b a ː r <space> ˈ e ː n <space> x ˈ ɪ f t <space> v ˈ ɑ n <space> t ʋ ˈ e ː ******* h ɔ n d ə r t <SPACE> F r ɑ ŋ K S  <space> ˈ ɪ n <space> d ə <space> s x ˈ o ː r s t e ː n <space> v ˈ ɑ n <space> ˈ e ː n <space> d ** a ː R t ˈ u ː <space> ˈ ɔ p <space> d ə <space> b ˈ A ː l I ː <space> x ə p l ** a ː t s t <space> 
+HYP:  ** ɪ k <space> r ˈ u ː p <space> h ˈ a ː r <space> t ˈ u ː <space> ʋ ˈ ɑ t <space> m ˈ A  ɪ <space> ˈ ɪ s <space> ˈ o ː v ə r k ** o ː m ə <space> N ˈ a ː t <space> h ˈ a ː r <space> d ə <space> ɑ n t i ː t ˈ e ː k ə N s p r ˈ e ː <space> ˈ ɛ n ******* * ** <space> r ɛ s * * ə * ******* ʃ ˈ A  m p o ː ******* z ** * ɪ n <space> ˈ ɛ n <space> d ə ******* r ** e ː k ə n ɪ ŋ <space> ˈ ɛ n <space> T ə <space> v ə r P l ˈ a ː r ɪ ŋ <space> v ˈ ɑ n <space> d ə <space> d ˈ E ː r ə N œ ɪ t s <space> ˈ ɛ n <space> p r ˈ ɔ p <space> d ˈ œ ɪ d ə l ə k <space> z ˈ ɪ X  d b a ː r <space> ˈ e ** n <space> x ˈ ɪ f t <space> v ˈ ɑ n <space> t ʋ ˈ e ː <SPACE> h ɔ n d ə r t ******* * r ** ** A ː <space> ˈ ɪ n <space> d ə <space> s x ˈ o ː r s t e ɪ n <space> v ˈ ɑ n <space> ˈ e ː n <space> d ˈ a ː * t ˈ u ː <space> ˈ ɔ p <space> d ə <space> b ˈ * ɑ l * ə <space> x ə p l ˈ a ː t s t <space> 
+Eval: D                                                                                                 S                             I                D                    S                                                                               I       I                       D       D D                 D D    D D             S           D         D  D S                                 D         D                                            S                   S   I                                                           S         I S  S                                                                                         S                          D                                                               I                       D       D   D  D  S S                                                           S                                                  I       D                                                     D S    D S                   I                     
+
+>> REF:  m i ː n ** I ː J A ː t ˈ y ː r <SPACE> H ˈ ɔ n d ə H ɔ k 
+>> HYP:  m i ː n ˈ E ː * * R  t ** y ː r ******* * ** ɔ n d ə R ɔ k 
+>> Eval:          I  S    D D S    D         D       D D            S      
+
+id: (n00659-n00659-fn001159.125)
+Scores: (#C #S #D #I) 62 8 6 1
+REF:  M ˈ a ː r <space> z ˈ e ː <space> h ˈ ɑ d ə <space> D ˈ A ː R <space> X ˈ e ː n <space> ** A  ː Z       ˈ i ː l <space> m ə v r ɯ ʋ <space> ˈ ɛ n <space> n ˈ i ː m ɑ n t <space> k ˈ ɛ n d ə <space> d ˈ e ː z ə <SPACE> H ˈ ɔ n t 
+HYP:  * ˈ a ː r <space> z ˈ e ː <space> h ˈ ɑ d ə <space> N ˈ * ɑ X <space> * ˈ e ː n <space> ˈ ɛ S  <SPACE> ˈ i ː l <space> m ə v r O  ʋ <space> ˈ ɛ n <space> n ˈ i ː m ɑ n t <space> k ˈ ɛ n d ə <space> d ˈ e ː z ** ******* * ˈ ɑ n t 
+Eval: D                                                          S    D S  S         D                   I  S  S  S                                  S                                                                                           D  D       D    S      
+
+id: (n00659-n00659-fn001159.129)
+Scores: (#C #S #D #I) 21 0 3 2
+REF:  M ˈ a ː r <SPACE> n ˈ i ː ******* m ** ɑ N t <space> l ˈ œ ɪ s t ə r t 
+HYP:  * ˈ a ː r ******* n ˈ i ː <SPACE> m ˈ ɑ * t <space> l ˈ œ ɪ s t ə r t 
+Eval: D           D                 I         I     D                                 
+
+id: (n00659-n00659-fn001159.134)
+Scores: (#C #S #D #I) 6 1 4 0
+REF:  N ˈ e ː <SPACE> m ə V R       ɯ ʋ 
+HYP:  * ˈ e ː ******* m ə * <SPACE> ɯ ** 
+Eval: D         D            D S          D  
+
+id: (n00659-n00659-fn001159.136)
+Scores: (#C #S #D #I) 28 4 1 0
+REF:  D ˈ ɑ n <space> l ˈ o ː P ə <space> ʋ ˈ ɛ ɪ <space> n ˈ a ː r <space> m ˈ ɛ ɪ n <space> ɯ t o ː 
+HYP:  * ˈ ɑ n <space> l ˈ o ː B ə <space> V  ˈ ɑ N  <space> n ˈ a ː r <space> m ˈ ɛ ɪ n <space> ɯ t o ː 
+Eval: D                           S            S     S  S                                                             
+
+id: (n00659-n00659-fn001159.137)
+Scores: (#C #S #D #I) 110 11 6 11
+REF:  ˈ ɪ k <space> d ˈ u ː <space> d ə <space> ˈ ɑ x t ə r k l ** ɛ p <SPACE> ɔ m ******* h ˈ o ː x <space> p ˈ ɑ k <SPACE> D ə <SPACE> r ˈ i ː M <space> ˈ ɛ n <space> x ˈ e ː f <space> h ˈ ɛ m <space> z ˈ o ː <SPACE> s ******* n ˈ * ɛ l <space> m ˈ o ː ɣ ə l ə k <space> ˈ a ː n <space> * D  ə <space> ** D  i ː r ɛ k ******* t r ˈ i ː S ə <space> v ˈ ɑ n <space> h ɛ t <space> ** s p ** ** ** ˈ a ː F I  ː l I ː J a ː l 
+HYP:  ** ɪ k <space> d ˈ u ː <space> d ə <space> ˈ ɑ x t ə r k l ˈ ɛ p ******* ɔ m <SPACE> h ˈ o ː x <space> p ˈ ɑ k ******* T ə ******* r ˈ i ː N <space> ˈ ɛ n <space> x ˈ e ː f <space> h ˈ ɛ m <space> z ˈ o ː ******* s <SPACE> n ˈ A ː l <space> m ˈ o ː ɣ ə l ə k <space> ˈ a ː n <space> H ɛ T  <space> ʋ ˈ i ː r ə k <SPACE> t r ˈ i ː Z ə <space> v ˈ ɑ n <space> h ɛ t <space> ɛ s p ˈ ɛ ɪ ˈ a ː V ə ː l E ː * a ː l 
+Eval: D                                                                 I       D            I                                     D       S    D                 S                                                                         D         I            I S                                                             I S  S          I  S         S    I                   S                                             I      I  I  I          S S       S    D        
+
+id: (n00659-n00659-fn001159.138)
+Scores: (#C #S #D #I) 14 6 1 6
+REF:  * * * ** * M  ɔ n s * I  ː N ø ː R <space> z ˈ ɛ x t <space> z ˈ ɛ ɪ 
+HYP:  O V A ː K ˈ A  n s M ə T  J ə ː * <space> z ˈ ɛ x t <space> z ˈ ɛ ɪ 
+Eval: I I I I  I S  S      I S  S  S S     D                                        
+
+id: (n00659-n00659-fn001159.28)
+Scores: (#C #S #D #I) 89 1 2 6
+REF:  Z ˈ ɛ x <space> h ɛ t <space> m ˈ a ː r <space> p l ˈ ɛ ɪ t <space> ˈ ɪ k <space> ɑ l s <space> Z ˈ ɛ ɪ <space> e ː v ə <space> ˈ œ ɪ t <space> m ˈ ɛ ɪ n <SPACE> m ˈ ɔ n t <space> ˈ ɪ s <space> z ˈ ɛ x <space> m ˈ a ː r <space> ʋ ˈ ɑ t <space> ˈ ɛ r <space> ˈ a ː n <space> d ə ******* * ** ** * * <space> ˈ ɪ s 
+HYP:  * ˈ ɛ x <space> h ɛ t <space> m ˈ a ː r <space> p l ˈ ɛ ɪ t <space> ˈ ɪ k <space> ɑ l s <space> H ˈ ɛ ɪ <space> e ː v ə <space> ˈ œ ɪ t <space> m ˈ ɛ ɪ n ******* m ˈ ɔ n t <space> ˈ ɪ s <space> z ˈ ɛ x <space> m ˈ a ː r <space> ʋ ˈ ɑ t <space> ˈ ɛ r <space> ˈ a ː n <space> d ə <SPACE> H ˈ ɑ R T <space> ˈ ɪ s 
+Eval: D                                                                                                          S                                                                    D                                                                                                                                           I       I I  I  I I                 
+
+id: (n00659-n00659-fn001159.36)
+Scores: (#C #S #D #I) 52 1 6 4
+REF:  H ɛ t <space> ˈ ɪ s <space> l ** ɑ ŋ <space> x ə l ˈ e ː d ə <space> d ˈ ɑ t <space> ˈ ɪ k <space> z ˈ o ː <SPACE> ˈ E ː n <space> v r ɯ ʋ ******* ** ə * S       x ɯ d ə R <space> k n ˈ e ː d ə 
+HYP:  * ɛ t <space> ˈ ɪ s <space> l ˈ ɑ ŋ <space> x ə l ˈ e ː d ə <space> d ˈ ɑ t <space> ˈ ɪ k <space> z ˈ o ** ******* ** * ː n <space> v r ɯ ʋ <SPACE> ˈ ə N <SPACE> x ɯ d ə * <space> k n ˈ e ː d ə 
+Eval: D                                I                                                                                     D  D       D  D                        I       I     I S                 D                          
+
+id: (n00659-n00659-fn001159.41)
+Scores: (#C #S #D #I) 238 4 5 3
+REF:  ˈ ɪ k <space> z ˈ i ː <space> ˈ e ː n <space> b u ː k ɛ t <space> p ˈ a ː r S ə <space> l ˈ a ː t i ː r ʉ s <space> ˈ ɪ n <space> s ** ɛ l O ː f ˈ a ː n <space> ˈ ɛ n <space> m ˈ ɛ t <space> ˈ e ː n <space> k ˈ a ː r t j ə <space> ɛ r ˈ a ː n <space> ˈ ɔ p <space> h ˈ a ː r <space> b y ː r ˈ o ː t j ə <space> l ˈ ɪ ɣ ə <space> ˈ ɛ n <space> ˈ ɪ k <space> b ə ɣ ˈ ɪ n <space> b ** * ə Z ʋ ˈ e ː r ə n T <space> t ə <space> r ˈ a ː s k ɑ l ə <space> ˈ o ː v ə r <space> h ɛ t <space> l ˈ e ː v ə <space> d ˈ ɑ t <space> d ˈ o ː r ɣ a ː t <space> d ˈ ɪ ŋ ə <space> d ˈ i ː <space> z ˈ o ː <space> h ˈ ɛ b ə <space> m ˈ u ː t ə <space> z ˈ ɛ ɪ n <space> ˈ ɛ n <space> d ˈ ɑ t <space> z ˈ ɛ ɪ <space> n ˈ ɔ x <space> j ˈ ɔ ŋ <space> ˈ ɪ s 
+HYP:  ** ɪ k <space> z ˈ i ː <space> ˈ e ː n <space> b u ː k ɛ t <space> p ˈ a ː r Z ə <space> l ˈ a ː t i ː r ʉ s <space> ˈ ɪ n <space> s ˈ ɛ l * ɔ f ˈ a ː n <space> ˈ ɛ n <space> m ˈ ɛ t <space> ˈ e ː n <space> k ˈ a ː r t j ə <space> ɛ r ˈ a ː n <space> ˈ ɔ p <space> h ˈ a ː r <space> b y ː r ** o ː t j ə <space> l ˈ ɪ ɣ ə <space> ˈ ɛ n <space> ˈ ɪ k <space> b ə ɣ ˈ ɪ n <space> b ə R ə S ʋ ˈ e ː r ə n * <space> t ə <space> r ˈ a ː s k ɑ l ə <space> ˈ o ː v ə r <space> h ɛ t <space> l ˈ e ː v ə <space> d ˈ ɑ t <space> d ˈ o ː r X  a ː t <space> d ˈ ɪ ŋ ə <space> d ˈ i ː <space> z ˈ o ː <space> h ˈ ɛ b ə <space> m ˈ u ː t ə <space> z ˈ ɛ ɪ n <space> ˈ ɛ n <space> d ˈ ɑ t <space> z ˈ ɛ ɪ <space> n ˈ ɔ x <space> j ** ɔ ŋ <space> ˈ ɪ s 
+Eval: D                                                                                     S                                                              I       D S                                                                                                                                                                         D                                                                                                      I  I    S                   D                                                                                                                                               S                                                                                                                                                                                                                     D                        
+
+id: (n00659-n00659-fn001159.55)
+Scores: (#C #S #D #I) 74 4 6 1
+REF:  V ˈ o ː r <space> d ə <SPACE> r ˈ ɛ s t <space> V ˈ ɑ l T <space> ˈ ɛ r <space> ˈ ɪ n <space> d ə <space> k ˈ ʉ r ɡ d r o ː ɣ ə <space> ˈ ɔ m t r ** ɛ k <space> X ˈ E ː n <space> l ˈ e ː v ə n d ə <space> z ˈ i ː l <space> t ə <space> b ə k ˈ ɛ n ə 
+HYP:  * ˈ o ː r <space> d ə ******* r ˈ ɛ s t <space> * F  ɑ l * <space> ˈ ɛ r <space> ˈ ɪ n <space> d ə <space> k ˈ ʉ r K  d r o ː ɣ ə <space> ** ɔ m t r ˈ ɛ k <space> H ˈ * ɛ n <space> l ˈ e ː v ə n d ə <space> z ˈ i ː l <space> t ə <space> b ə k ˈ ɛ n ə 
+Eval: D                        D                           D S       D                                                                S                         D           I               S    D S                                                                                             
+
+id: (n00659-n00659-fn001159.60)
+Scores: (#C #S #D #I) 74 1 1 2
+REF:  Z ˈ o ː <space> ɔ n t s ******* p ˈ ɑ n ə <space> m ˈ o ː ɣ ə l ə k <space> m ˈ * ɛ ɪ <space> s t r ˈ o ː p ə r ə x <space> b ə ʋ ˈ e ː ɣ ə n t <space> l ˈ o ː p <space> ˈ ɪ k <space> ˈ ɔ p <space> h ˈ ɛ m <space> t ˈ u ː 
+HYP:  * ˈ o ː <space> ɔ n t s <SPACE> p ˈ ɑ n ə <space> m ˈ o ː ɣ ə l ə k <space> m ˈ A ː ɪ <space> s t r ˈ o ː p ə r ə x <space> b ə ʋ ˈ e ː ɣ ə n t <space> l ˈ o ː p <space> ˈ ɪ k <space> ˈ ɔ p <space> h ˈ ɛ m <space> t ˈ u ː 
+Eval: D                          I                                                                I S                                                                                                                                                                 
+
+id: (n00659-n00659-fn001159.63)
+Scores: (#C #S #D #I) 28 1 5 1
+REF:  ˈ ɪ k <space> b ˈ ɛ n <space> z ˈ ɛ ɪ n <space> l ˈ a ː t s T ə <space> s t r ˈ o ː h ** ɑ L M 
+HYP:  ** ɪ k <space> b ˈ ɛ n <space> z ˈ ɛ ** n <space> l ˈ a ː t s * ə <space> s t r ** o ː h ˈ ɑ * N 
+Eval: D                                         D                          D                  D         I     D S 
+
+id: (n00659-n00659-fn001159.65)
+Scores: (#C #S #D #I) 102 5 6 3
+REF:  ˈ ɪ k <space> s t r ˈ ɛ ɪ k <space> Z ˈ ɛ ɪ n <space> v ˈ ɑ x t <space> ** ɔ p ******* S ˈ ɛ ɪ <space> ˈ ɛ n <space> t ˈ ɛ l <SPACE> t ˈ i ː n t ɑ l ə <space> n ˈ e ː <space> h ˈ ɔ n d ə r d ə <space> t ˈ e ː k ə <space> ˈ ɪ n <space> ˈ ɑ l ə <SPACE> s t ˈ a ː d i ː j a ː * <space> v ˈ ɑ N  <SPACE> v ˈ ɔ l ɣ ə z o ː ɣ ə H ɛ ɪ t 
+HYP:  ** ɪ k <space> s t r ˈ ɛ ɪ k <space> * ˈ ɛ ɪ n <space> v ˈ ɑ x t <space> ˈ ɔ p <SPACE> Z ˈ ɛ ɪ <space> ˈ ɛ n <space> t ˈ ɛ l ******* t ˈ i ː n t ɑ l ə <space> n ˈ e ː <space> h ˈ ɔ n d ə r d ə <space> t ˈ e ː k ə <space> ˈ ɛ n <space> ˈ ɑ l ə ******* s t ˈ a ː d i ː j a ː R <space> v ** ** ɔ R       v ˈ ɔ l ɣ ə z o ː ɣ ə N ɛ ɪ t 
+Eval: D                                        D                                        I       I       S                                            D                                                                                                               S                       D                                 I           D  D  S  S                                    S         
+
+id: (n00659-n00659-fn001159.67)
+Scores: (#C #S #D #I) 186 7 7 3
+REF:  M ˈ ɛ t <space> b ə h ˈ ʉ l p <space> v ˈ ɑ n <space> ˈ e ː n <space> ˈ ɪ n <space> d ə <space> b ˈ ɔ l s <space> x ə d r ˈ ɛ ŋ k t ə <space> t ˈ ɪ ʃ u ː <space> d ə <space> t ˈ e ː k <space> l ˈ ɪ x T j ə s <space> r ˈ ɪ l ə n t <space> v ˈ ɑ n <space> ˈ ɑ f X r ɛ ɪ z ə <space> t ˈ ʉ s ə <space> d ˈ œ ɪ m <space> ˈ * ɛ n <space> ʋ ˈ ɛ ɪ s f ɪ ŋ ə R <SPACE> n ˈ e ː m ə <space> ˈ ɛ n <space> m ˈ ɛ t <space> ˈ e ː n <space> v E  ː n ˈ ɛ ɪ n ə x <SPACE> r ˈ ʉ k j ə <space> ˈ œ ɪ t <space> d ə <space> h ˈ œ ɪ t <space> v ˈ ɑ n <space> h ɛ t <space> h ˈ œ ɪ * ******* Z D  i ː r <space> t r ˈ ɛ k ə 
+HYP:  * ˈ ɛ t <space> b ə h ˈ ʉ l p <space> v ˈ ɑ n <space> ˈ e ː n <space> ˈ ɪ n <space> d ə <space> b ˈ ɔ l s <space> x ə d r ˈ ɛ ŋ k t ə <space> t ** ɪ ʃ u ː <space> d ə <space> t ˈ e ː k <space> l ˈ ɪ x * j ə s <space> r ˈ ɪ l ə n t <space> v ˈ ɑ n <space> ˈ ɑ f K r ɛ ɪ z ə <space> t ˈ ʉ s ə <space> d ˈ œ ɪ m <space> ˈ E ː n <space> ʋ ˈ ɛ ɪ s f ɛ ŋ ə * ******* n ˈ e ː m ə <space> ˈ ɛ n <space> m ˈ ɛ t <space> ˈ e ː n <space> v ɑ R  n ˈ ɛ ɪ n ə x ******* r ** ʉ k j ə <space> ˈ œ ɪ t <space> d ə <space> h ˈ œ ɪ t <space> v ˈ ɑ n <space> h ɛ t <space> h ˈ œ ɪ S <SPACE> N ˈ i ː r <space> t r ˈ ɛ k ə 
+Eval: D                                                                                                                                                                  D                                                                D                                                                   S                                                                   I S                            S        D D                                                                                    S  S                    D         D                                                                                                                     I I       S S                                
+
+id: (n00659-n00659-fn001159.71)
+Scores: (#C #S #D #I) 65 4 6 3
+REF:  ʋ ˈ ɛ l <space> d r ˈ a ː x T <space> h ˈ ɛ ɪ <space> ˈ e ː n <space> l ɑ ŋ <SPACE> x ə l ˈ e ː D ə <space> ˈ œ ɪ t X ə ʋ ɛ r k t ə <space> r ** o ː d ə <space> p l ˈ ɛ s t ɪ k <space> V l ˈ o ː ** J ə      b ** ɑ n t 
+HYP:  ** ˈ ɛ l <space> d r ˈ a ː x * <space> h ˈ ɛ ɪ <space> ˈ e ː n <space> l ɑ ŋ ******* x ə l ** e ː N ə <space> ˈ œ ɪ t * ** ʋ ɛ r k t ə <space> r ˈ o ː d ə <space> p l ˈ ɛ s t ɪ k <space> F l ˈ o ː ɪ N <SPACE> b ˈ ɑ n t 
+Eval: D                                D                                                      D              D       S                       D D                           I                                               S           I  S S         I         
+
+id: (n00659-n00659-fn001159.72)
+Scores: (#C #S #D #I) 44 1 1 0
+REF:  D ˈ ʉ s <space> ˈ i ː m ɑ n t <space> h ˈ e ː f t <space> ˈ o ː j t <space> ɔ m <space> h ɛ t <space> d ˈ I ː r <space> x ə ɣ e ː v ə 
+HYP:  * ˈ ʉ s <space> ˈ i ː m ɑ n t <space> h ˈ e ː f t <space> ˈ o ː j t <space> ɔ m <space> h ɛ t <space> d ˈ E ː r <space> x ə ɣ e ː v ə 
+Eval: D                                                                                                                     S                                
+
+id: (n00659-n00659-fn001159.74)
+Scores: (#C #S #D #I) 66 0 2 5
+REF:  ɑ l ˈ e ː n <space> v ˈ ɑ n <space> d ə <space> l ** ɑ ŋ ə <space> s n ˈ ɛ ɪ t ******* ** ɑ n t <space> l ˈ ɪ ŋ K s ******* ** ɔ n d ə r <space> ˈ ɪ s <space> ˈ e ː n <space> s t ˈ ʉ k <space> ˈ ɑ f x ə b r o ː k ə 
+HYP:  ** l ˈ e ː n <space> v ˈ ɑ n <space> d ə <space> l ˈ ɑ ŋ ə <space> s n ˈ ɛ ɪ t <SPACE> ˈ ɑ n t <space> l ˈ ɪ ŋ * s <SPACE> ˈ ɔ n d ə r <space> ˈ ɪ s <space> ˈ e ː n <space> s t ˈ ʉ k <space> ˈ ɑ f x ə b r o ː k ə 
+Eval: D                                                       I                                  I       I                            D   I       I                                                                                                       
+
+id: (n00659-n00659-fn001159.79)
+Scores: (#C #S #D #I) 131 6 6 4
+REF:  P ɑ r k ˈ e ː r <space> m ˈ ɛ ɪ n <space> ɯ t o ː <SPACE> v ******* ˈ o ː r <space> h ɛ t <space> b ˈ ɑ ŋ K j ə <space> m ˈ ɛ t <space> d ə <space> ɯ t S t ə <space> ˈ ɪ n ʋ O  ː n ə r <SPACE> ɛ r ******* ˈ ɔ p <space> ˈ ɛ n <space> v r ˈ a ː x t <space> h ˈ ɛ m <space> ˈ ɔ f <space> h ˈ ɛ ɪ <space> e ː v ə <space> ˈ e ː n <space> b l ˈ ɪ k <space> d ˈ o ː r <space> m ˈ ɛ ɪ n <space> ˈ ɑ x t ə r ******* ** œ ɪ t <space> ʋ ˈ ɪ l <space> ʋ ˈ ɛ r p ə 
+HYP:  * ɑ r k ˈ e ː r <space> m ˈ ɛ ɪ n <space> ɯ t o ː ******* v <SPACE> ˈ o ː r <space> h ɛ t <space> b ˈ ɑ N  T j ə <space> m ˈ ɛ t <space> d ə <space> ɯ t * t ə <space> ** ɪ n M  ˈ ɔ n ə r ******* ɛ r <SPACE> ˈ ɔ p <space> ˈ ɛ n <space> v r ˈ a ː x t <space> h ˈ ɛ m <space> ˈ ɔ f <space> h ˈ ɛ ɪ <space> e ː v ə <space> ˈ e ** n <space> b l ˈ ɪ k <space> d ˈ o ː r <space> m ˈ ɛ ɪ n <space> ˈ ɑ x t ə r <SPACE> ˈ œ ɪ t <space> ʋ ˈ ɛ l <space> ʋ ˈ ɛ r p ə 
+Eval: D                                                         D         I                                                S  S                                                  D              D       S  S  S         D            I                                                                                                                                           D                                                                                        I       I                        S                            
+
+id: (n00659-n00659-fn001159.85)
+Scores: (#C #S #D #I) 49 1 3 2
+REF:  M ˈ a ː r <space> ˈ ɪ k <space> h ˈ ɛ p <space> ɑ l <space> ˈ e ː n <SPACE> v r ɯ ʋ t j ə s ******* h ** ɔ n t <space> t ˈ œ ɪ s <space> ˈ ɪ n <space> h ˈ ɔ l ɑ n t 
+HYP:  * ** a ː r <space> ˈ ɪ k <space> h ˈ ɛ p <space> ə l <space> ˈ e ː n ******* v r ɯ ʋ t j ə s <SPACE> h ˈ ɔ n t <space> t ˈ œ ɪ s <space> ˈ ɪ n <space> h ˈ ɔ l ɑ n t 
+Eval: D D                                                   S                      D                          I         I                                                                       
+
+id: (n00659-n00659-fn001159.90)
+Scores: (#C #S #D #I) 98 7 8 3
+REF:  ˈ ɪ k <space> k r ˈ ɛ ɪ X  <space> ˈ e ː N <space> ɑ n t i ː t ˈ e ː k ə * s p r e ː <space> ˈ ɛ n <space> ˈ e ː n <space> ʃ ˈ * ɑ m p o ː <space> ʋ ˈ a ː r ******* m ˈ E ː <space> ˈ ɪ K <space> h ˈ a ː R <space> d r ˈ i ː m a ː l <space> v ˈ ɑ n <space> k ˈ ɔ p <SPACE> t ɔ t <space> s t ˈ a ː R t <space> m ˈ u ː t <space> ʋ ˈ ɑ s ə 
+HYP:  ** ɪ k <space> k r ˈ ɛ ɪ ɣ <space> ˈ e ** * <space> ɑ n t i ː t ˈ e ː k ə N s p r e ː <space> ˈ ɛ n <space> ˈ e ** n <space> ʃ ˈ A ː m p o L  <space> M  ˈ a ː r <SPACE> m ˈ * ɛ <space> ˈ ɪ X <space> h ˈ a ː T <space> d r ˈ i ː m a ː l <space> v ˈ ɑ n <space> k ˈ ɔ p ******* t ɔ t <space> s t ˈ a ː * t <space> m ** u ː t <space> ʋ ˈ ɑ s ə 
+Eval: D                            S               D  D                                    I                                         D                  I S        S          S            I            D S                S                   S                                                                  D                                  D             D                               
+
+id: (n00659-n00659-fn001159.91)
+Scores: (#C #S #D #I) 130 5 10 5
+REF:  ˈ ɛ n <space> ɑ l s <space> ˈ ɪ k <space> h ˈ a ː r <space> k ʋ ˈ ɛ ɪ t <space> ʋ ˈ ɪ l <space> ɑ t f i ː z ˈ E ː r t <SPACE> D ə <space> d ˈ i ː r ******* ə ɑ r t S <space> m ˈ u ː t <space> ˈ ɪ k <space> * ** ɛ ** r ******* v ˈ o ː r <space> z ˈ ɔ r ɣ ə <space> d ˈ ɑ t <space> z ˈ ɛ ɪ <space> b ˈ ɪ n ə <SPACE> d r ˈ i ː <space> d ˈ a ː ɣ ə <space> ˈ ɪ s <space> ˈ ɔ n d ə r ɣ ə b r ɑ X T <SPACE> b ˈ ɛ ɪ <space> ˈ E ː n <space> a ː Z ˈ i ː l 
+HYP:  ** ɛ n <space> ɑ l s <space> ˈ ɪ k <space> h ˈ a ː r <space> k ʋ ˈ ɛ ɪ t <space> ʋ ˈ ɪ l <space> ɑ t f i ː z ˈ * ɪ r t ******* * ə <space> d ˈ i ː r <SPACE> N  ɑ r t * <space> m ˈ u ː t <space> ˈ ɪ k <space> H ˈ ɛ ɪ r <SPACE> v ˈ o ː r <space> z ˈ ɔ r ɣ ə <space> d ˈ ɑ t <space> z ˈ ɛ ɪ <space> b ˈ ɪ n ə ******* d r ** i ː <space> d ˈ a ː ɣ ə <space> ˈ ɪ s <space> ˈ ɔ n d ə r ɣ ə b r ɑ * * ɡ      b ˈ ɛ ɪ <space> ˈ * ɛ n <space> a ː S ˈ i ː l 
+Eval: D                                                                                                                              D S      D       D                        I       S         D                                             I I     I    I                                                                                                     D           D                                                                                   D D S                             D S                 S           
+
+id: (n00659-n00659-fn001159.95)
+Scores: (#C #S #D #I) 36 1 1 1
+REF:  T ɛ r ʋ ˈ ɛ ɪ l <space> h ɛ t <space> d ˈ i ː r <space> n ˈ i ː t s <space> L ˈ i ː ******* v ə r <space> ʋ ˈ ɪ l 
+HYP:  * ɛ r ʋ ˈ ɛ ɪ l <space> h ɛ t <space> d ˈ i ː r <space> n ˈ i ː t s <space> D ˈ i ː <SPACE> v ə r <space> ʋ ˈ ɪ l 
+Eval: D                                                                                     S         I                                 
+
+Speaker sentences   5:  n00740   #utts: 19
+id: (n00740-n00740-fn001426.11)
+Scores: (#C #S #D #I) 132 14 29 4
+REF:  N a ː t ˈ y ː r l ə k <space> l ˈ ɑ s <SPACE> ˈ ɪ k <SPACE> ˈ ɛ R  <space> ʋ ˈ ɛ l <space> ˈ o ː v ə R <space> ** J  ə <space> s p r ˈ ɑ k <SPACE> ˈ ɛ R  <space> ˈ o ː k <space> ʋ ˈ ɛ L <SPACE> ˈ e ː n s <space> m ˈ ɛ * t <space> ˈ i ː m ɑ N  t <space> ˈ o ː v ə R <space> m ˈ A ː R <SPACE> t <space> r ˈ a ː k t ə <space> m ə <SPACE> n ɯ ʋ ˈ ə L ə k s <space> h ˈ u ː <space> d ˈ ɪ x T <space> b ˈ ɛ ɪ <SPACE> ˈ ɔ n Z ə <space> l ˈ ɑ n T s x r ** ɛ n Z ə <space> h ɛ t <space> z ˈ * ɪ X <space> ˈ o ː k <space> ˈ ɑ f s p e ː l d ə 
+HYP:  * a ː t ˈ y ː r l ə k <space> l ˈ ɑ s ******* ** I  k ******* ** ** ə <space> ʋ ˈ ɛ l <space> ˈ o ː v ə * <space> ˈ ɪ S  <space> s p r ˈ ɑ k ******* ** ** ə <space> ˈ o ː k <space> ** ** ** * M       ˈ e ː n s <space> m ˈ ɛ N t <space> ˈ i ː m A  ː t <space> ** o ː v ə * <space> m ˈ * ** * ɛ      t <space> r ˈ a ː k t ** <space> m ə ******* n ɯ ʋ ** ** * ə k s <space> h ˈ u ː <space> d ˈ ɪ x * <space> b ˈ ɛ ** ******* ** L  n S ə <space> l ˈ ɑ n * s x r ˈ ɛ n T ə <space> h ɛ t <space> z ˈ I ː R <space> ˈ o ː k <space> ˈ ɑ f s p e ː l d ə 
+Eval: D                                           D       D  S    D       D  D  S                                          D         I  S  S                        D       D  D  S                            D  D  D  D S                                   I                     S  S            D            D              D D  D S                               D               D               D  D  D                                            D                 D  D       D  S    S                      D       I       S                                I S  S                                                   
+
+id: (n00740-n00740-fn001426.14)
+Scores: (#C #S #D #I) 87 11 21 7
+REF:  N ˈ e ː <space> z ˈ o ː <space> ˈ e ː * ɣ O  ː s t i ː s <space> ** ɑ l s <space> H ɛ t <space> m ˈ ɑ X <space> k l ˈ ɪ ŋ k ə <space> ɑ l s <space> ˈ ɪ K  <space> d ˈ ɛ ŋ k <SPACE> ˈ A ː N  <space> d ˈ i ː <space> t ˈ ɛ ɪ t <space> d ˈ ɑ n <space> b ə t r ˈ ɛ f * ə <SPACE> Z ˈ E ː <space> v O ː r ˈ ɑ L  <space> m ə ******* z ** ɛ l f <space> j ˈ ɑ n <space> X ˈ * ɪ l ******* t E ː 
+HYP:  * ˈ e ː <space> z ˈ o ː <space> ** e ː X ə ʋ ɪ s t i ː s <space> ˈ ɑ l s <space> * ** t <space> m ˈ ɑ R <space> k l ˈ ɪ ŋ k ə <space> ɑ l s <space> ** H  ɛ <space> d ˈ ɪ ŋ k ******* ** * ** ə <space> d ** i ː <space> t ˈ ɛ ɪ t <space> d ˈ ɑ n <space> b ə t r ˈ ɛ f S ə ******* * ** * ** <space> v * ** r ** ɯ ʋ <space> m ə <SPACE> z ˈ ɛ l f <space> j ˈ ɑ n <space> * ˈ I ː l <SPACE> t * ** 
+Eval: D                                   D       I S  S  S                     I                 D D                    S                                                  D  S  S               S       D       D  D D  S            D                                                                       I    D       D D  D D            D D    D  S  S               I         I                                   D    I S    I         D D  
+
+id: (n00740-n00740-fn001426.20)
+Scores: (#C #S #D #I) 223 13 27 7
+REF:  N  e ː ɣ ə <space> j ˈ a ː R <space> ɯ t <SPACE> ʋ ˈ ɑ s <space> H ˈ ɛ ɪ <space> t ˈ u ː n <space> ˈ ɪ n <space> n ˈ e ː ɣ ə n t i ː N <SPACE> n ˈ ʉ L <SPACE> N e ː ɣ ə <space> M ˈ A ː r <space> n ˈ ɔ x <space> v ˈ o ː r <space> h ˈ ɛ ɪ <SPACE> m ə <space> ʋ ˈ ɪ l d ə <space> ˈ œ ɪ t l ɛ ɣ ə <space> ʋ ˈ i ː * <space> h ˈ ɛ ɪ <space> ˈ o ː k <space> * * ɑ L       ʋ ˈ e ː r <space> ʋ ˈ ɑ s <space> z ˈ ɑ x <space> ˈ ɪ k <space> h ˈ ɛ m <space> v ˈ o ː r <SPACE> m ə <space> ˈ e ː n <space> m ˈ a ː ɣ ə r ə <space> j ɔ ŋ ə <space> ˈ ɪ n <space> ˈ E ː N <SPACE> m * ɑ t r ˈ o ː z ə p ** ɑ k <space> D ˈ I ː <SPACE> s x ˈ ʉ x t ə R <space> ˈ A ː n <space> t ˈ a ː f ə L <space> z ˈ ɑ t <space> t ˈ ʉ s ə <space> z ˈ ɛ ɪ n <SPACE> v ˈ a ː d ə r <space> ˈ ɛ n <space> x R ˈ o ː * T       m ** u ː D ə r <space> ˈ ɪ n 
+HYP:  ˈ e ː ɣ ə <space> j ** a ː * <space> ɯ t ******* ʋ ˈ ɑ s <space> * ˈ ɛ ɪ <space> t ˈ u ː n <space> ˈ ɪ n <space> n ˈ e ː ɣ ə n t i ː * ******* n ˈ ** * ******* * e ː ɣ ə <space> H ˈ * ɛ r <space> n ˈ ɔ x <space> v ˈ o ː r <space> h ˈ ɛ ** ******* m ** <space> ʋ ˈ ɪ l d ə <space> ˈ œ ɪ t l ɛ ɣ ə <space> B  ˈ i ː R <space> h ˈ ɛ ɪ <space> ** o ː k <space> H A R  <SPACE> ʋ ˈ e ː r <space> ʋ ˈ ɑ s <space> z ˈ ɑ x <space> ˈ ɪ k <space> h ˈ ɛ m <space> v ˈ o ː r ******* m ə <space> ˈ e ː n <space> m ˈ a ː ɣ ə r ə <space> j ɔ ŋ ə <space> ˈ ɪ n <space> ˈ * ** * ə      m A ː t r ˈ o ː z ə p ˈ ɑ k <space> * ˈ * ** ɪ      s x ˈ ʉ x t ə * <space> ˈ * ɛ n <space> t ˈ a ː f ə R <space> z ˈ ɑ t <space> t ˈ ʉ s ə <space> z ˈ ɛ ** n ******* v ˈ a ː d ə r <space> ˈ ɛ n <space> x * ˈ o ː K <SPACE> m ˈ u ː T ə r <space> ˈ ɪ n 
+Eval: S                       D       D              D                          D                                                                               D D            D  D D       D                    S    D S                                                          D  D         D                                                                S          I                            D                 I I S  S                                                                                                               D                                                                                                         D D  D S         I S                     I               D    D D  S                        D            D S                           S                                                        D    D                                                  D         I S         I       S                      
+
+id: (n00740-n00740-fn001426.23)
+Scores: (#C #S #D #I) 204 20 17 16
+REF:  X  ɔ t ******* S ɛ ɪ      d ** ɑ ŋ k <space> ˈ ɪ s <space> k a ː t a ː r ˈ i ː n A ː <space> d ˈ e ː z ə <space> ʋ ˈ e ː k <space> m ˈ ɛ t <space> d ə <space> k ˈ ɪ n d ə r ə <space> ˈ ɔ p <space> v A  ː k ˈ ɑ * N s i ː <space> ˈ ɪ n <SPACE> D ə <space> ˈ ɑ x t ə r h u ː K <space> v ** ɑ n ******* ʋ E ː ɣ ə <space> d ə <space> ʋ ˈ ɑ r m * t ə <space> ʋ ˈ ɑ n t <space> h ˈ a ː r <space> ɔ n t x ** a ː t <space> n ˈ i ː t s <space> ˈ ɛ n * <space> z ˈ E ː * <space> ** Z ɯ ʋ <space> ɔ ŋ ɣ ə t ʋ ˈ ɛ ɪ ******* F ə L t <space> ˈ ɑ f k ** ø ː r ə n t <space> h ˈ ɛ b ə <space> x ə k ˈ e ː k ə <space> * ** ɑ l s <space> ˈ ɪ k <space> h ˈ a ː r <SPACE> m ******* ˈ ɛ ɪ n <space> v ˈ o ː r n e ː m ə <space> z ɯ ʋ <space> H ˈ ɛ b ə <space> v ə r t ˈ ɛ * l t 
+HYP:  ˈ ɔ t <SPACE> Z ɛ <SPACE> d ˈ ɑ ŋ k <space> ˈ ɪ s <space> k a ː t a ː r ˈ i ː n * ə <space> d ˈ e ː z ə <space> ʋ ˈ e ː k <space> m ˈ ɛ t <space> d ə <space> k ˈ ɪ n d ə r ə <space> ˈ ɔ p <space> v ə R  k ** ɑ L T s i ː <space> ˈ ɪ n ******* * ə <space> ˈ ɑ x t ə r h u ː P <space> v ˈ ɑ n <SPACE> ʋ * ˈ ɪ X  <space> d ə <space> ʋ ˈ ɑ r m P t ə <space> ʋ ˈ ɑ n t <space> h ˈ a ː r <space> ɔ n t x ˈ a ː t <space> n ˈ i ː t s <space> ˈ ɛ n S <space> z ** A ː R <space> ˈ O ː X  <space> ** ** ** ** t ʋ ** ɛ ɪ <SPACE> V ɑ N t <space> ˈ ɑ f k ˈ ø ː r ə n t <space> h ˈ ɪ b ə <space> x ə k ** e ː k ə <space> H ˈ ɑ l s <space> ˈ ɪ k <space> h ˈ a ː r ******* m <SPACE> ˈ ɛ ɪ n <space> v ˈ o ː r n e ː m ə <space> z ** ɛ <space> * ** ** b ə <space> v ə r t ˈ ɛ L l t 
+Eval: S       I       S    S         I                                                            D S                                                                                                                                   S  S    D     I S                        D       D                                  S           I       I          D S  S  S                                    I                                                                I                                               I           D  S    I         I  S S  S          D  D  D  D       D        I       S S  S                     I                              S                      D                    I I                                             D         I                                                            D  S          D D  D                              I     
+
+id: (n00740-n00740-fn001426.24)
+Scores: (#C #S #D #I) 141 18 15 9
+REF:  T ɛ r ʋ ˈ ɛ ɪ l <space> ˈ ɪ k <space> ˈ A ː R  Z ə l ə n t <space> d ə <space> d ˈ ɔ p <space> v ˈ ɑ n <space> D ə <space> p ** ɛ n <SPACE> s x r ˈ u ː f <space> x l ˈ ɪ m l ɑ x <space> ˈ ɪ k <space> b ˈ ɛ ɪ <SPACE> d ə <space> x ə d ˈ ɑ x t ə <space> * ˈ a ː N <space> m ˈ ɛ ɪ n <space> ɯ d ˈ ə <space> l ˈ e ː r m e ː s t ə R <space> P  R  O ː F  ɛ s ɔ R  <space> f r ** ɔ ** j D <space> d ˈ i ː <SPACE> n ******* ˈ y ː <space> ** * ɔ ŋ ɣ      ə t ʋ ˈ ɛ ɪ ******* F ə L t <space> x ˈ u ː t k ø ː r ə N T <space> z ɯ ʋ * <space> k n ˈ ɪ k ə 
+HYP:  * ɛ r ʋ ˈ ɛ ɪ l <space> ˈ ɪ k <space> ˈ * œ ɪ S ə l ə n t <space> d ə <space> d ˈ ɔ p <space> v ˈ ɑ n <space> * ə <space> p ˈ ɛ n ******* s x r ** u ː f <space> x l ˈ ɪ m l A  x <space> ˈ ɪ k <space> b ˈ ɛ ɪ ******* d ə <space> x ə d ˈ ɑ x t ə <space> N ˈ a ː * <space> m ** ɛ ː n <space> ɯ d ˈ ə <space> l ˈ e ː r m e ː s t ** * <space> ˈ ɔ P V  ˈ ɛ s ** ə <space> f r ˈ ɔ ː j T <space> d ˈ i ː ******* n <SPACE> ˈ y ː <space> ˈ O ː K  <SPACE> ə t ʋ ˈ ɛ ɪ <SPACE> V ɑ N t <space> x ** u ː t k ø ː r ə * * <space> z ɯ ʋ P <space> k n ˈ ɪ k ə 
+Eval: D                                               D S  S  S                                                                      D              I       D             D                               S                                       D                                                I         D           D     S                                                      D  D         S  S  S S  S       D  S              I     I    S                   D         I                       I  I S  S  S                        I       S S  S             D                      D D                 I                        
+
+id: (n00740-n00740-fn001427.13)
+Scores: (#C #S #D #I) 17 0 5 2
+REF:  V ˈ ɛ ɪ f t ******* ** i ː N <space> j ˈ a ː R <space> t ə r ˈ ʉ x 
+HYP:  * ˈ ɛ ɪ f t <SPACE> ˈ i ː * <space> j ** a ** * <space> t ə r ˈ ʉ x 
+Eval: D              I       I       D           D    D  D                        
+
+id: (n00740-n00740-fn001427.17)
+Scores: (#C #S #D #I) 209 17 18 11
+REF:  V  ɑ n ******* ˈ ɔ x t ə n t <space> h ˈ ɑ t <SPACE> D ə <space> k ˈ o ː n ɪ ŋ k l ə k ə <space> f a ː m ˈ i ː l i ː <space> h ˈ a ː r <space> r ˈ ɛ ɪ ******* t ** u ː r <space> d ˈ O ː R <SPACE> D ə <space> r E ː z i ː d ˈ ɛ n * s i ː <space> x ə m ** a ː k t <space> ˈ ɛ n <space> ɑ l s <space> k a ː t A  ː r ˈ i ː n a ː <space> N ˈ i ː t <space> m ˈ ɛ t <space> d ə <space> k ˈ ɪ n d ə r ə <space> n ˈ a ː r <space> h ˈ a ː r <space> n ˈ ɪ x t <space> ˈ * ɪ N <space> l ˈ ɔ x ə M <space> ʋ ˈ ɑ s <space> x ə ɣ a ː n <space> z ɯ D ə <space> ʋ ˈ E ː * <space> ɔ ŋ ɣ ə t ʋ ˈ ɛ ɪ f ə * L T  <space> ɑ l * <space> V r ˈ u ː X <SPACE> ˈ ɔ P  <space> H  ɛ t <SPACE> l ɑ ŋ ə <space> v ˈ o ː r h ** ** ɯ t <space> z ˈ ɛ ɪ n <space> x ə ʋ e ː s t 
+HYP:  ˈ ɑ n <SPACE> ˈ ɔ x t ə n t <space> h ˈ ɑ t ******* * ** <space> k ˈ o ː n ə ŋ k l ə k ** <space> f a ː m ˈ i ː l i ː <space> h ˈ a ː r <space> r ˈ ɛ ɪ <SPACE> t ˈ u ː r <space> d ˈ U ː * ******* * N  <space> r I ː z i ː d ** ɛ n T s i ː <space> x ə m ˈ a ː k t <space> ˈ ɛ n <space> ɑ l s <space> k a ** t ə ː r ˈ i ː n a ː <space> * ˈ i ː t <space> m ˈ ɛ t <space> d ə <space> k ˈ ɪ n d ə r ə <space> n ˈ a ː r <space> h ˈ a ː r <space> n ˈ ɪ x t <space> ˈ E ː L <space> l ˈ ɔ x ə * <space> ʋ ˈ ɑ s <space> x ə ɣ a ː n <space> z ɯ * ʋ <space> D  ˈ O ː R <space> ɔ ŋ ɣ ə t ʋ ˈ ɛ ɪ f ə N D ə <space> ɑ l F <space> * r ˈ u ː * ******* ** ɣ ə <space> ʋ ɛ t ******* l ɑ ŋ ə <space> v ** o ː r h ˈ œ ɪ t <space> z ˈ ɛ ɪ n <space> x ə ʋ e ː s t 
+Eval: S       I                                          D       D D                      S              D                                                                         I         I                      S    D D       D S            S             D       I                       I                                                      D    S                              D                                                                                                                                             I S  S                      D                                                        D S          S     S    I                                        I S S               I         D           D D       D  S  S          S       D                            D           I  I  S                                                  
+
+id: (n00740-n00740-fn001427.19)
+Scores: (#C #S #D #I) 105 1 13 5
+REF:  ˈ ɪ k <space> b ˈ ɛ n <space> x ˈ ɪ s t ə r ə <space> m ˈ ɛ T <space> H ɛ t <space> K ˈ ɪ s T j ə <space> n ˈ a ː r <space> h ɛ t <space> l ˈ o ː ** ** <space> x ə ɣ a ː n <space> d ˈ ɔ k t ə R <space> h ˈ ɑ t <space> v ˈ ɑ n <space> d ˈ ɛ ɪ k s * <space> k l ɛ ɪ n ******* z ** o ː n <space> d ˈ o ː r <space> d ə <space> t e ː l ə f ˈ o ː N  <space> x ə z ˈ ɛ x t 
+HYP:  ** ɪ k <space> b ˈ ɛ n <space> x ˈ ɪ s t ** r ə <space> m ** ɛ * <space> * ** t <space> * ˈ ɪ s * j ə <space> n ˈ a ː r <space> h ɛ t <space> l ˈ o ː ɣ ə <space> x ** ** a ː n <space> d ** ɔ k t ə * <space> h ˈ ɑ t <space> v ˈ ɑ n <space> d ˈ ɛ ɪ k s T <space> k l ɛ ɪ n <SPACE> z ˈ o ː n <space> d ˈ o ː r <space> d ə <space> t e ː l ə f ˈ o ː ŋ <space> x ə z ** ɛ x t 
+Eval: D                                             D                 D     D         D D            D         D                                                           I  I            D  D                   D            D                                                            I                     I         I                                                                        S                 D         
+
+id: (n00740-n00740-fn001427.22)
+Scores: (#C #S #D #I) 14 0 1 1
+REF:  D ˈ œ ɪ ******* z ə n t <space> x ˈ ʉ l d ə 
+HYP:  * ˈ œ ɪ <SPACE> z ə n t <space> x ˈ ʉ l d ə 
+Eval: D          I                                       
+
+id: (n00740-n00740-fn001427.26)
+Scores: (#C #S #D #I) 28 2 3 0
+REF:  ʋ ˈ ɑ t <space> d ə <space> ɯ d ˈ ə <space> d ˈ ɔ N  k ə R <space> h ˈ ɑ t <space> x ə z ˈ ɛ x t 
+HYP:  ** ˈ ɑ t <space> d ə <space> ɯ d ˈ ə <space> d ˈ ɔ ŋ k ə * <space> h ** ɛ t <space> x ə z ˈ ɛ x t 
+Eval: D                                                          S       D           D  S                             
+
+id: (n00740-n00740-fn001427.27)
+Scores: (#C #S #D #I) 62 3 3 3
+REF:  ˈ ɪ k <space> l ˈ ɛ X  <SPACE> d ə <space> p ** ɛ n <space> ʋ ˈ e ː r <space> ʋ ˈ ɛ x <space> ˈ ɛ n <space> b ə ɣ ˈ ɪ n <space> m ˈ ɛ ɪ n <space> l ˈ i ː v ə l ɪ ŋ ******* s p ** ɛ ɪ P <space> t ə <space> s t ˈ ɔ p ə 
+HYP:  ** ɪ k <space> l ˈ ** ɪ ɣ      d ə <space> p ˈ ɛ n <space> ʋ ˈ e ː r <space> ʋ ˈ ɛ x <space> ˈ ɛ n <space> b ə ɣ ˈ ɪ n <space> m ˈ ɛ ** n <space> l ˈ i ː v ə l ɪ ŋ <SPACE> s p ˈ ɛ ɪ T <space> t ə <space> s t ˈ ɔ p ə 
+Eval: D                    D  S  S                      I                                                                                                       D                                   I           I        S                                     
+
+id: (n00740-n00740-fn001427.39)
+Scores: (#C #S #D #I) 117 16 16 3
+REF:  ** a ː l ə k s ** ɑ n D  ə R <SPACE> H ˈ A ː R <space> h ˈ ɑ l V b R U ː r <space> d ə <space> ˈ e ː n ə ɣ ə <space> o ː v ə r l ˈ e ː v ə n d ə <space> z ˈ o ː n <space> ˈ œ ɪ t <space> ʋ ˈ ɪ l ə m s <space> ˈ e ː r d ə r ə <space> h ˈ y ː ʋ ə l ə k <space> m ˈ ɛ t <space> k O  ː n ɪ ŋ ˈ ɪ N  <space> s ˈ ɔ P H  i ː <space> * ˈ E ː n <space> m ɑ n <space> v ˈ ɑ n <space> e ː v ə <SPACE> ˈ ɪ n <SPACE> d ə <space> d ˈ ɛ r t ə x 
+HYP:  ˈ a ** l ɛ k s ˈ ɑ n ɣ ə * ******* * ** * ** * <space> h ˈ ɑ l D b * O ː r <space> d ə <space> ˈ e ː n ə ɣ ə <space> o ː v ə r l ˈ e ː v ə n d ə <space> z ˈ o ː n <space> ** H  ɛ t <space> ʋ ˈ ɪ l ** m s <space> ** e ː r d ə r ə <space> h ˈ y ː ʋ ə l ə k <space> m ˈ ɛ t <space> k ˈ ɔ n ɪ ** ** J  ə <space> s O  ː F ˈ i ː <space> H ˈ * ʉ n <space> m ɑ n <space> v ˈ ɑ n <space> e ː v ə N       ˈ ɪ n ******* d ə <space> d ˈ ɛ r t ə x 
+Eval: I    D    S      I       S     D D       D D  D D  D                   S   D S                                                                                                                    D  S  S                       D              D                                                                              S  S       D  D  S  S            S  S  S S               I    D S                                                       S               D                                     
+
+id: (n00740-n00740-fn001427.47)
+Scores: (#C #S #D #I) 98 10 14 1
+REF:  ˈ ɪ k <space> ʋ ˈ ɛ r T <SPACE> ˈ ɪ N  <space> d ə <space> H ˈ a ː x <space> x ə b ˈ o ː r ə <space> ˈ ɔ p <space> z ˈ ɛ s T i ː N <SPACE> s ɛ p t ˈ ɛ m B ə R <space> ˈ ɑ x t i ː N <SPACE> v ˈ i ː r ɛ n t ** ɑ X t ə X <space> ˈ ɔ n d ə r <space> h ɛ t <space> k ˈ o ː n ɪ ŋ      s x ɑ p <space> v ˈ ɑ n <space> ʋ ˈ ɪ l ə M <SPACE> d ə <space> d ˈ ɛ r d ə 
+HYP:  ** ɪ k <space> ʋ ˈ ɛ r * ******* L  D  ə <space> d ə <space> R ˈ a ː x <space> x ə b ˈ o ː r ə <space> ˈ ɔ p <space> z ˈ ɛ s S i ː * ******* s ɛ p t ** ɛ m * ** * <space> ** ɑ x t i ː * ******* v ˈ i ː r ə n t ˈ ɑ R t ə R <space> ** ɔ n d ə r <space> h ɛ t <space> k ˈ o ː n ɪ <SPACE> s x ɑ p <space> v ˈ ɑ n <space> ʋ ˈ ɪ l ə * N       d ə <space> d ˈ ɛ r d ə 
+Eval: D                          D D       S  S  S                       S                                                                         S      D D                D       D D  D         D              D D                   S      I     S      S         D                                                    S                                                        D S                                   
+
+id: (n00740-n00740-fn001427.50)
+Scores: (#C #S #D #I) 154 5 23 5
+REF:  ɑ l <space> v e ː l <space> l ˈ ɑ ŋ ə r <space> x ˈ a ː n <SPACE> ˈ ɛ R  <space> x ə r ˈ ʉ x t ə <space> d ˈ ɑ t <space> d ə <space> ɯ * ʋ ə <space> ʋ ˈ ɪ l ə m <space> ˈ a ː n <space> ˈ e ː n <SPACE> ˈ Y ː H ˈ A ː <space> B ə p ˈ a ː l d ə <space> z ˈ i ː k ******* t ə <space> l ˈ e ː t <space> d ˈ i ː <space> ɑ l s <SPACE> J ə <space> j ə <SPACE> n ˈ i ː t <space> L ˈ A ː t <space> b ə h ˈ ɑ n d ə L ə <space> ɔ n ******* v ə r m ˈ ɛ ɪ d ə l ə k <space> t ɔ t <space> s t ** e ː r i ː l i ː t ˈ ɛ ɪ t <SPACE> l ˈ ɛ ɪ t <SPACE> s ******* n ˈ ɑ p <SPACE> j ə 
+HYP:  ** l <space> v e ː l <space> l ˈ ɑ ŋ ə r <space> x ˈ a ː n ******* ** ** ə <space> x ə r ˈ ʉ x t ə <space> d ˈ ɑ t <space> d ə <space> ɯ D ˈ ə <space> ʋ ˈ ɪ l ə m <space> ˈ a ː n <space> ˈ e ː n ******* ** * ** * ** * ** <space> * ** p ˈ a ː l d ə <space> z ˈ i ː k <SPACE> t ə <space> l ˈ e ː t <space> d ˈ i ː <space> ɑ l s ******* * ** <space> j ə ******* n ˈ i ː t <space> D ˈ * ɑ t <space> b ə h ˈ ɑ n d ə R ə <space> ɔ n <SPACE> v ə r m ˈ ɛ ɪ d ə l ə k <space> t ɔ t <space> s t ˈ e ː r i ː l i ː t ˈ ɛ ɪ t ******* l ** ɛ ɪ t ******* s <SPACE> n ˈ ɑ p ******* j ə 
+Eval: D                                                                 D       D  D  S                                                                        I S                                                                 D       D  D D  D D  D D          D D                                       I                                                                 D       D D               D                           S    D S                                S                 I                                                                I                                  D         D          D         I                 D            
+
+id: (n00740-n00740-fn001427.53)
+Scores: (#C #S #D #I) 121 6 7 4
+REF:  N ˈ ɛ t <space> ɑ l s <space> z ˈ ɛ ɪ <space> d e ː t o ː n ˈ e ː r d ə <space> h ˈ ɛ ɪ <SPACE> k ʋ a ː * <space> v ə r s x ˈ ɛ ɪ n ɪ ŋ <space> ˈ ɪ n <space> h ɛ t <space> k a ː f <space> ʋ ** a ː r v ˈ ɑ n <space> d ə <space> k l ˈ ɑ n t ə <space> k ˈ ɛ n ə l ə k <space> H ˈ * ʉ n <space> k ˈ ɔ s T j ə <space> * ˈ a ː n <space> d ə <space> z ˈ ɛ l f k ɑ n t <space> ˈ ɔ p s x ɑ R  ə L  d ə 
+HYP:  * ** ɪ t <space> ɑ l s <space> z ˈ ɛ ɪ <space> d e ː t o ː n ˈ e ː r d ə <space> h ** ɛ ɪ ******* k ʋ a ː R <space> v ə r s x ˈ ɛ ɪ n ɪ ŋ <space> ˈ ɪ n <space> h ɛ t <space> k a ː f <space> ʋ ˈ a ː r v ˈ ɑ n <space> d ə <space> k l ˈ ɑ n t ə <space> k ˈ ɪ n ə l ə k <space> * ˈ E ː n <space> k ˈ ɔ s * j ə <space> H ˈ a ː n <space> d ə <space> z ˈ ɛ l f k ɑ n t <space> ˈ ɔ p s x ** ˈ œ ʋ d ə 
+Eval: D D  S                                                                                       D        D                 I                                                                                                I                                                                      S                      D    I S                      D              I                                                                         D  S  S  S       
+
+id: (n00740-n00740-fn001427.58)
+Scores: (#C #S #D #I) 63 3 9 3
+REF:  ɪ n d ə r t ˈ ɛ ɪ t <space> * S  ɪ R k y ː l ˈ e ː r D ə <space> z ˈ e ː <space> ˈ o ː k <space> ɑ L <space> ˈ ɪ n <SPACE> D ə <space> s O  ː ʃ ˈ a ː l ******* d e ː m O ː k r ˈ a ː t i ː s ə <space> b ˈ * ɔ n t 
+HYP:  ɪ n d ə r t ˈ ɛ ɪ t <space> Z ˈ ɪ * k y ː l ˈ e ː r * ə <space> z ˈ e ː <space> ˈ o ː k <space> ɑ * <space> ˈ ɪ n ******* * ** <space> s ɔ ː ʃ ** a ː l <SPACE> d e ː m * ** k r ˈ a ː t i ː s ə <space> b ˈ O ː n t 
+Eval:                                  I S     D                    D                                                   D                 D       D D            S        D         I                D D                                       I S      
+
+id: (n00740-n00740-fn001427.61)
+Scores: (#C #S #D #I) 57 9 11 1
+REF:  F ɛ R  D i ː n ˈ ɑ n t <space> h ˈ a ː l d ə <SPACE> x ə A       ː ɣ i ː t ˈ e ː r t <SPACE> ˈ E ː N  <space> h ˈ ɑ n t <space> d ˈ o ː r <space> z ˈ ɛ ɪ N  <space> s l ˈ œ ɪ k ə <space> b l ** ɔ n d ə <space> h ˈ A ː R 
+HYP:  * E  ː L i ː n ˈ ɑ n t <space> h ˈ a ː l d ə ******* x ** <SPACE> ɑ X  i ː t ˈ e ː r t ******* ** * ** ə <space> h ˈ ɑ n t <space> d ˈ o ː r <space> z ˈ ** E  ː <space> s l ˈ œ ɪ k ə <space> b l ˈ ɔ n d ə <space> h ˈ * ** * 
+Eval: D S  S  S                                           D         D  S       S  S                     D       D  D D  S                                                       D  S  S                                        I                         D D  D 
+
+id: (n00740-n00740-fn001427.8)
+Scores: (#C #S #D #I) 83 3 9 3
+REF:  N ˈ ɑ m <space> ˈ ɪ k <space> d ˈ i ː <space> t ˈ u ː N <space> ˈ o ː k <space> d ˈ i ː <space> v R ˈ u ː ɣ ə <SPACE> ˈ ɔ x t ə n t <space> v ˈ ɛ ɪ f t I ː N <SPACE> j ˈ a ː r <space> x ə l ˈ e ː d ə <space> n <space> m ˈ ɛ ɪ <space> n ˈ e ː ɣ ə n ******* * T  i ː n <space> n ** e ː ɣ ə 
+HYP:  * ˈ ɑ m <space> ˈ ɪ k <space> d ˈ i ː <space> t ˈ u ː * <space> ˈ o ː k <space> d ˈ i ː <space> v * ˈ u ː ɣ ə ******* O  ː x t ə n t <space> v ˈ ɛ ** f t * ː * ******* j ˈ a ː r <space> x ** l ˈ e ː d ə <space> n <space> m ˈ ɛ ɪ <space> n ˈ e ː ɣ ə n <SPACE> D ˈ i ː n <space> n ˈ e ː ɣ ə 
+Eval: D                                                             D                                               D               D       S  S                             D      D    D D                             D                                                                        I       I S                   I             
+
+id: (n00740-n00740-fn001427.9)
+Scores: (#C #S #D #I) 75 8 0 3
+REF:  ˈ o ː k <space> t ˈ u ː n <space> ʋ ˈ ɑ s <space> D ə <space> ʋ ** a ː ɣ      ˈ ɔ n <space> v ə r s ˈ i ː r t <space> * ˈ ɛ n <space> h ˈ ɑ D  ə <space> d ə <space> m ˈ ɛ n s ə <space> z ˈ ɪ x <space> F ˈ e ː s t ə l ə k <space> ˈ œ ɪ t x ə d * ɔ s t 
+HYP:  ˈ o ː k <space> t ˈ u ː n <space> ʋ ˈ ɑ s <space> T ə <space> ʋ ˈ a ː <SPACE> ˈ ɔ n <space> v ə r s ˈ i ː r t <space> H ˈ E  n <space> h ˈ A  ː R  <space> d ə <space> m ˈ ɛ n s ə <space> z ˈ ɪ x <space> V ˈ e ː s t ə l ə k <space> ˈ œ ɪ t x ə d O ː s t 
+Eval:                                                          S               I       S                                                    I    S                 S  S  S                                                                S                                                 I S      
+
+
